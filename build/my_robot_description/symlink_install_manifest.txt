@@ -16,11 +16,7 @@
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//worlds/my_world.world
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//config/controllers.yaml
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/chest/chest.STL
-/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/Head_jaw.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/head.stl
-/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/head_cover.stl
-/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/head_neck_cover.stl
-/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/head_uper_skeliton.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/left_arm/Left_bisecp_uper.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/left_arm/Left_elbow_outword.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/left_arm/Left_forarm_internal_support.stl

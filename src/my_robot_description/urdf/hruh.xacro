@@ -7,14 +7,14 @@
   <link name="chest_hruh">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
       <origin xyz="0 0 0" rpy="0 0 0" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
       </geometry>
     </collision>
   
@@ -47,7 +47,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
       </geometry>
       <material name="" >
          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -56,7 +56,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
       </geometry>
     </collision>
   
@@ -79,13 +79,13 @@
   <link name="head_base">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-      <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   
@@ -108,13 +108,13 @@
   <link name="left_shoulder">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -137,13 +137,13 @@
   <link name="left_S_to_Bisecp">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -166,13 +166,13 @@
   <link name="left_bisecp_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -195,13 +195,13 @@
   <link name="left_bisecp_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -226,13 +226,13 @@
   <link name="left_elbow_inword">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -255,13 +255,13 @@
   <link name="left_elbow_midle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -284,13 +284,13 @@
   <link name="Left_elbow_outword">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -313,13 +313,13 @@
   <link name="left_elbow_to_forarm_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -342,13 +342,13 @@
   <link name="Left_forarm_lower_1">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -371,13 +371,13 @@
   <link name="Left_forarm_internal_support">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -400,13 +400,13 @@
   <link name="left_forarm_cover">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -429,13 +429,13 @@
   <link name="left_wrist">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="orange" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -462,13 +462,13 @@
   <link name="left_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -491,13 +491,13 @@
   <link name="left_thomb_to_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -520,13 +520,13 @@
   <link name="left_thomb_midle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -549,13 +549,13 @@
   <link name="left_thomb_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -579,13 +579,13 @@
   <link name="left_finger1_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -609,13 +609,13 @@
   <link name="left_finger1_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -639,13 +639,13 @@
   <link name="left_finger1_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     
@@ -669,13 +669,13 @@
   <link name="left_finger2_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -698,13 +698,13 @@
   <link name="left_finger2_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -727,13 +727,13 @@
   <link name="left_finger2_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -756,13 +756,13 @@
   <link name="left_finger3_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -785,13 +785,13 @@
   <link name="left_finger3_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -814,13 +814,13 @@
   <link name="left_finger3_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -843,13 +843,13 @@
   <link name="left_finger4_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -872,13 +872,13 @@
   <link name="left_finger4_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -901,13 +901,13 @@
   <link name="left_finger4_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
     <inertial>
@@ -931,13 +931,13 @@
   <link name="right_shoulder">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -959,13 +959,13 @@
   <link name="right_S_to_Bisecp">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -987,13 +987,13 @@
   <link name="right_bisecp_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1015,13 +1015,13 @@
   <link name="right_bisecp_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1043,13 +1043,13 @@
   <link name="right_elbow_inword">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1071,13 +1071,13 @@
   <link name="right_elbow_midle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1099,13 +1099,13 @@
   <link name="right_elbow_outword">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1127,13 +1127,13 @@
   <link name="right_elbow_to_forarm_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
       </geometry>
        <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1155,13 +1155,13 @@
   <link name="right_forarm_lower_1">
     <visual> 
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1183,13 +1183,13 @@
   <link name="right_forarm_internal_support">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1211,13 +1211,13 @@
   <link name="right_forarm_cover">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1239,13 +1239,13 @@
   <link name="right_wrist">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1267,13 +1267,13 @@
   <link name="right_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1295,13 +1295,13 @@
   <link name="right_thomb_to_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1323,13 +1323,13 @@
   <link name="right_thomb_midle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1351,13 +1351,13 @@
   <link name="right_thomb_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1380,13 +1380,13 @@
   <link name="right_finger1_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1409,13 +1409,13 @@
   <link name="right_finger1_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1438,13 +1438,13 @@
   <link name="right_finger1_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1468,13 +1468,13 @@
   <link name="right_finger2_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1497,13 +1497,13 @@
   <link name="right_finger2_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1526,13 +1526,13 @@
   <link name="right_finger2_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1555,13 +1555,13 @@
   <link name="right_finger3_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1584,13 +1584,13 @@
   <link name="right_finger3_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1613,13 +1613,13 @@
   <link name="right_finger3_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1642,13 +1642,13 @@
   <link name="right_finger4_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1671,13 +1671,13 @@
   <link name="right_finger4_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
@@ -1700,13 +1700,13 @@
   <link name="right_finger4_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
       </geometry>
       <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
       </geometry>
     </collision>
     <inertial>
