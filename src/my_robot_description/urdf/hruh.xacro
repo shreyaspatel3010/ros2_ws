@@ -1,0 +1,1744 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hruh">
+
+  
+
+  <!-- Base link -->
+  <link name="chest_hruh">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  
+    <inertial>
+      <mass value="4.0"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.02"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+  <joint name="arm_chest_joint" type="fixed">
+      <parent link="forearm_link" />
+      <child link="chest_hruh" />
+      <origin xyz="${base_length / 50.0} 0 ${forearm_length}" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="chest_hruh">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <!-- Neck -->
+  <joint name="chest_to_neck" type="revolute">
+    <parent link="chest_hruh"/>
+    <child link="neck"/>
+    <origin xyz="0 0 0.3723" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="neck">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="" >
+         <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.0008"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Head -->
+  <joint name="neck_to_head" type="revolute">
+    <parent link="neck"/>
+    <child link="head_base"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.0" upper="1.0" effort="5" velocity="1.0"/>
+  </joint>
+
+  <link name="head_base">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.002" ixy="0.0" ixz="0.0" iyy="0.002" iyz="0.0" izz="0.0015"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left Shoulder Joint -->
+  <joint name="chest_to_left_shoulder" type="revolute">
+    <parent link="chest_hruh"/>
+    <child link="left_shoulder"/>
+    <origin xyz="0 -0.104 0.315" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_C.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="1.2"/>
+      <inertia ixx="0.004" ixy="0.0" ixz="0.0" iyy="0.004" iyz="0.0" izz="0.003"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+ 
+  <!-- Left S to bisecp Arm Joint -->
+  <joint name="left_shoulder_to_bisecp" type="revolute">
+    <parent link="left_shoulder"/>
+    <child link="left_S_to_Bisecp"/>
+    <origin xyz="0.01 -0.0795 0.02" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.57" upper="0.45" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_S_to_Bisecp">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_S_to_Bisecp.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="1.5"/>
+      <inertia ixx="0.005" ixy="0.0" ixz="0.0" iyy="0.0045" iyz="0.0" izz="0.0035"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left Bisecp uper Joint -->
+  <joint name="left_S_to_bisecp_upper" type="fixed">
+    <parent link="left_S_to_Bisecp"/>
+    <child link="left_bisecp_upper"/>
+    <origin xyz="-0.007 0.0025 -0.095" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_bisecp_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_bisecp_uper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.9"/>
+      <inertia ixx="0.003" ixy="0.0" ixz="0.0" iyy="0.0025" iyz="0.0" izz="0.002"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left Bisecp lower Joint -->
+  <joint name="left_bisecp_uper_to_lower" type="fixed">
+    <parent link="left_bisecp_upper"/>
+    <child link="left_bisecp_lower"/>
+    <origin xyz="0 0 -0.042" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_bisecp_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_Bisecp_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.0025" ixy="0.0" ixz="0.0" iyy="0.0025" iyz="0.0" izz="0.0018"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+    
+  </link>
+
+  
+<!-- Left elbow inword Joint -->
+  <joint name="left_bisecp_to_elbow_inword" type="fixed">
+    <parent link="left_bisecp_lower"/>
+    <child link="left_elbow_inword"/>
+    <origin xyz="0. 0 -0.12" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_elbow_inword">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_inword.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.6"/>
+      <inertia ixx="0.002" ixy="0.0" ixz="0.0" iyy="0.0018" iyz="0.0" izz="0.0015"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left elbow midle Joint -->
+  <joint name="left_elbow_inword_to_midle" type="revolute">
+    <parent link="left_elbow_inword"/>
+    <child link="left_elbow_midle"/>
+    <origin xyz="0 -0.012 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="1.9" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_elbow_midle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_midle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.6"/>
+      <inertia ixx="0.002" ixy="0.0" ixz="0.0" iyy="0.0018" iyz="0.0" izz="0.0015"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left elbow outword Joint -->
+  <joint name="left_elbow_midle_to_outword" type="fixed">
+    <parent link="left_elbow_midle"/>
+    <child link="Left_elbow_outword"/>
+    <origin xyz="0 -0.0175 0" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="Left_elbow_outword">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_elbow_outword.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.0015" ixy="0.0" ixz="0.0" iyy="0.0015" iyz="0.0" izz="0.0012"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left elbow to forarm upper Joint -->
+  <joint name="left_elbow_midle_forarm_upper" type="fixed">
+    <parent link="left_elbow_midle"/>
+    <child link="left_elbow_to_forarm_upper"/>
+    <origin xyz="0 0.0065 -0.0645" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_elbow_to_forarm_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_elbow_to_forarm_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.0025" ixy="0.0" ixz="0.0" iyy="0.002" iyz="0.0" izz="0.002"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left forarm upper to lower Joint -->
+  <joint name="left_forarm_upper_to_lower_1" type="fixed">
+    <parent link="left_elbow_to_forarm_upper"/>
+    <child link="Left_forarm_lower_1"/>
+    <origin xyz="0 0 -0.04" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="Left_forarm_lower_1">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_lower_1.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.7"/>
+      <inertia ixx="0.002" ixy="0.0" ixz="0.0" iyy="0.002" iyz="0.0" izz="0.0015"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+ 
+  <!-- Left forarm internal support -->
+  <joint name="left_forarm_lower_1_to_internal support" type="fixed">
+    <parent link="Left_forarm_lower_1"/>
+    <child link="Left_forarm_internal_support"/>
+    <origin xyz="0 -0.001 -0.05185" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="Left_forarm_internal_support">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/Left_forarm_internal_support.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left forarm cover joint -->
+  <joint name="left_internal_support_to_cover" type="fixed">
+    <parent link="Left_forarm_internal_support"/>
+    <child link="left_forarm_cover"/>
+    <origin xyz="0 0.001 -0.001" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_forarm_cover">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_forarm_cover.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0005" ixy="0.0" ixz="0.0" iyy="0.0005" iyz="0.0" izz="0.0005"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left bisecp to wrist Joint -->
+  <joint name="left_forarm_to_wrist" type="revolute">
+    <parent link="Left_forarm_internal_support"/>
+    <child link="left_wrist"/>
+    <origin xyz="0 0.0015 -0.061" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_wrist">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="orange" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.4"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.0008"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="left_wrist">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+
+  <!-- Left palm joint -->
+  <joint name="left_wrist_to_palm" type="fixed">
+    <parent link="left_wrist"/>
+    <child link="left_palm"/>
+    <origin xyz="0 0 -0.04" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_palm">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_palm.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.0015" ixy="0.0" ixz="0.0" iyy="0.0015" iyz="0.0" izz="0.001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left palm to thomb joint -->
+  <joint name="left_palm_to_thomb" type="revolute">
+    <parent link="left_palm"/>
+    <child link="left_thomb_to_palm"/>
+    <origin xyz="-0.021 0 0.018" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.8" upper="0" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_thomb_to_palm">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_to_palm.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0006" ixy="0.0" ixz="0.0" iyy="0.0006" iyz="0.0" izz="0.0005"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left thomb to thomb midle joint -->
+  <joint name="left_thomb_to_thomb_middle" type="revolute">
+    <parent link="left_thomb_to_palm"/>
+    <child link="left_thomb_midle"/>
+    <origin xyz="-0.02 0 0.0017" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.9" upper="0" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_thomb_midle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_midle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.0003" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0003"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left thomb midle to thomb upper joint -->
+  <joint name="left_thomb_middle_to_thomb_upper" type="revolute">
+    <parent link="left_thomb_midle"/>
+    <child link="left_thomb_upper"/>
+    <origin xyz="-0.0259 0 -0.001" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.0" upper="0" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="left_thomb_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_thomb_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0002" iyz="0.0" izz="0.0002"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left palm  to finger1 lower joint -->
+  <joint name="left_palm_to_finger1_lower" type="revolute">
+    <parent link="left_palm"/>
+    <child link="left_finger1_lower"/>
+    <origin xyz="-0.0259 0.0015 -0.037" rpy="0 0.18 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="left_finger1_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0004" ixy="0.0" ixz="0.0" iyy="0.0004" iyz="0.0" izz="0.0003"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger1 lower  to finger1 middle joint -->
+  <joint name="left_finger1_lower_to_finger1_middle" type="revolute">
+    <parent link="left_finger1_lower"/>
+    <child link="left_finger1_middle"/>
+    <origin xyz="-0.00 0.00 -0.023" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger1_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.15"/>
+      <inertia ixx="0.0003" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0002"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger1 middle  to finger1 upper joint -->
+  <joint name="left_finger1_middle_to_finger1_upper" type="revolute">
+    <parent link="left_finger1_middle"/>
+    <child link="left_finger1_upper"/>
+    <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger1_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger1_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0002" iyz="0.0" izz="0.0002"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left palm  to finger2 lower joint -->
+  <joint name="left_palm_to_finger2_lower" type="revolute">
+    <parent link="left_palm"/>
+    <child link="left_finger2_lower"/>
+    <origin xyz="-0.0058 0.001 -0.039" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="left_finger2_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger2 lower  to finger2 middle joint -->
+  <joint name="left_finger1_lower_to_finger2_middle" type="revolute">
+    <parent link="left_finger2_lower"/>
+    <child link="left_finger2_middle"/>
+    <origin xyz="-0.00 0.00 -0.028" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger2_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger2 middle  to finger2 upper joint -->
+  <joint name="left_finger2_middle_to_finger2_upper" type="revolute">
+    <parent link="left_finger2_middle"/>
+    <child link="left_finger2_upper"/>
+    <origin xyz="0.00 0.00 -0.026" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger2_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger2_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left palm  to finger3 lower joint -->
+  <joint name="left_palm_to_finger3_lower" type="revolute">
+    <parent link="left_palm"/>
+    <child link="left_finger3_lower"/>
+    <origin xyz="0.013 0.001 -0.0365" rpy="0 -0.195 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="left_finger3_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger3 lower  to finger3 middle joint -->
+  <joint name="left_finger3_lower_to_finger3_middle" type="revolute">
+    <parent link="left_finger3_lower"/>
+    <child link="left_finger3_middle"/>
+    <origin xyz="-0.00 0.00 -0.0255" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger3_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger3 middle  to finger3 upper joint -->
+  <joint name="left_finger3_middle_to_finger3_upper" type="revolute">
+    <parent link="left_finger3_middle"/>
+    <child link="left_finger3_upper"/>
+    <origin xyz="0.00 0.00 -0.022" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger3_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger3_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left palm  to finger4 lower joint -->
+  <joint name="left_palm_to_finger4_lower" type="revolute">
+    <parent link="left_palm"/>
+    <child link="left_finger4_lower"/>
+    <origin xyz="0.0273 0.00 -0.0315" rpy="0 -0.379 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="left_finger4_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_lower.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger4 lower  to finger4 middle joint -->
+  <joint name="left_finger4_lower_to_finger4_middle" type="revolute">
+    <parent link="left_finger4_lower"/>
+    <child link="left_finger4_middle"/>
+    <origin xyz="-0.00 0.00 -0.0185" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger4_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_middle.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Left finger4 middle  to finger4 upper joint -->
+  <joint name="left_finger4_middle_to_finger4_upper" type="revolute">
+    <parent link="left_finger4_middle"/>
+    <child link="left_finger4_upper"/>
+    <origin xyz="0.00 0.00 -0.0155" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="left_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="left_finger4_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/left_arm/left_finger4_upper.stl" scale="0.15 0.15 0.15"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+
+
+  <!-- Right Shoulder Joint -->
+  <joint name="chest_to_right_shoulder" type="revolute">
+    <parent link="chest_hruh"/>
+    <child link="right_shoulder"/>
+    <origin xyz="0 0.117 0.315" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+   <!-- Right S to bisecp Arm Joint -->
+  <joint name="right_shoulder_to_bisecp" type="revolute">
+    <parent link="right_shoulder"/>
+    <child link="right_S_to_Bisecp"/>
+    <origin xyz="0.0025 0.073 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-0.45" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_S_to_Bisecp">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right Bisecp uper Joint -->
+  <joint name="right_S_to_bisecp_upper" type="fixed">
+    <parent link="right_S_to_Bisecp"/>
+    <child link="right_bisecp_upper"/>
+    <origin xyz="0 0 -0.0575" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_bisecp_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right Bisecp lower Joint -->
+  <joint name="right_bisecp_uper_to_lower" type="fixed">
+    <parent link="right_bisecp_upper"/>
+    <child link="right_bisecp_lower"/>
+    <origin xyz="0 0 -0.0634" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_bisecp_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow inword Joint -->
+  <joint name="right_bisecp_to_elbow_inword" type="fixed">
+    <parent link="right_bisecp_lower"/>
+    <child link="right_elbow_inword"/>
+    <origin xyz="0. 0 -0.0873" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_inword">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow midle Joint -->
+  <joint name="right_elbow_inword_to_midle" type="revolute">
+    <parent link="right_elbow_inword"/>
+    <child link="right_elbow_midle"/>
+    <origin xyz="-0.00159 0.00512 -0.03234 " rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="1.9" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_midle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow outword Joint -->
+  <joint name="right_elbow_midle_to_outword" type="fixed">
+    <parent link="right_elbow_midle"/>
+    <child link="right_elbow_outword"/>
+    <origin xyz="0 0.02722 0" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_outword">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow to forarm upper Joint -->
+  <joint name="right_elbow_midle_forarm_upper" type="fixed">
+    <parent link="right_elbow_midle"/>
+    <child link="right_elbow_to_forarm_upper"/>
+    <origin xyz="0 -0.000117 -0.04459" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_to_forarm_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+      </geometry>
+       <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm upper to lower Joint -->
+  <joint name="right_forarm_upper_to_lower_1" type="fixed">
+    <parent link="right_elbow_to_forarm_upper"/>
+    <child link="right_forarm_lower_1"/>
+    <origin xyz="0 0 -0.05497" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_lower_1">
+    <visual> 
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm internal support -->
+  <joint name="right_forarm_lower_1_to_internal support" type="fixed">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_forarm_internal_support"/>
+    <origin xyz="0 0 -0.05566" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_internal_support">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm cover joint -->
+  <joint name="right_internal_support_to_cover" type="fixed">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_forarm_cover"/>
+    <origin xyz="0 0 -0.06393" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_cover">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right bisecp to wrist Joint -->
+  <joint name="right_forarm_to_wrist" type="revolute">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_wrist"/>
+    <origin xyz="0 0 -0.1083" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_wrist">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm joint -->
+  <joint name="right_wrist_to_palm" type="fixed">
+    <parent link="right_wrist"/>
+    <child link="right_palm"/>
+    <origin xyz="0 0 -0.01863" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_palm">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm to thomb joint -->
+  <joint name="right_palm_to_thomb" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_thomb_to_palm"/>
+    <origin xyz="-0.01443 -0.00369 -0.01635" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="1.8" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_to_palm">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right thomb to thomb midle joint -->
+  <joint name="right_thomb_to_thomb_middle" type="revolute">
+    <parent link="right_thomb_to_palm"/>
+    <child link="right_thomb_midle"/>
+    <origin xyz="-0.0279 0.00204 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.9" upper="0" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_midle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right thomb midle to thomb upper joint -->
+  <joint name="right_thomb_middle_to_thomb_upper" type="revolute">
+    <parent link="right_thomb_midle"/>
+    <child link="right_thomb_upper"/>
+    <origin xyz="-0.0255 0.00034 -0.000915" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.0" upper="0" effort="10" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger1 lower joint -->
+  <joint name="right_palm_to_finger1_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger1_lower"/>
+    <origin xyz="-0.0249 -0.00225 -0.0708" rpy="0 0.18 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger1_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger1 lower  to finger1 middle joint -->
+  <joint name="right_finger1_lower_to_finger1_middle" type="revolute">
+    <parent link="right_finger1_lower"/>
+    <child link="right_finger1_middle"/>
+    <origin xyz="0.00 0.00 -0.023" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger1_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger1 middle  to finger1 upper joint -->
+  <joint name="right_finger1_middle_to_finger1_upper" type="revolute">
+    <parent link="right_finger1_middle"/>
+    <child link="right_finger1_upper"/>
+    <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger1_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+
+  <!-- Right palm  to finger2 lower joint -->
+  <joint name="right_palm_to_finger2_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger2_lower"/>
+    <origin xyz="-0.0058 -0.0018 -0.072" rpy="0 -0.1 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger2_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger2 lower  to finger2 middle joint -->
+  <joint name="right_finger2_lower_to_finger2_middle" type="revolute">
+    <parent link="right_finger2_lower"/>
+    <child link="right_finger2_middle"/>
+    <origin xyz="0.00 0.00 -0.02776" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger2_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger2 middle  to finger2 upper joint -->
+  <joint name="right_finger2_middle_to_finger2_upper" type="revolute">
+    <parent link="right_finger2_middle"/>
+    <child link="right_finger2_upper"/>
+    <origin xyz="0.00 0.00 -0.02388" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger2_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger3 lower joint -->
+  <joint name="right_palm_to_finger3_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger3_lower"/>
+    <origin xyz="0.0125 -0.0021 -0.068" rpy="0 -0.27 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger3_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger3 lower  to finger3 middle joint -->
+  <joint name="right_finger3_lower_to_finger3_middle" type="revolute">
+    <parent link="right_finger3_lower"/>
+    <child link="right_finger3_middle"/>
+    <origin xyz="0.00 0.00 -0.02493 " rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger3_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger3 middle  to finger3 upper joint -->
+  <joint name="right_finger3_middle_to_finger3_upper" type="revolute">
+    <parent link="right_finger3_middle"/>
+    <child link="right_finger3_upper"/>
+    <origin xyz="0.00 0.00 -0.02178" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger3_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger4 lower joint -->
+  <joint name="right_palm_to_finger4_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger4_lower"/>
+    <origin xyz="0.0273 -0.0021 -0.0620" rpy="0 -0.45 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger4_lower">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger4 lower  to finger4 middle joint -->
+  <joint name="right_finger4_lower_to_finger4_middle" type="revolute">
+    <parent link="right_finger4_lower"/>
+    <child link="right_finger4_middle"/>
+    <origin xyz="0.00 0.00 -0.01822 " rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger4_middle">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger4 middle  to finger4 upper joint -->
+  <joint name="right_finger4_middle_to_finger4_upper" type="revolute">
+    <parent link="right_finger4_middle"/>
+    <child link="right_finger4_upper"/>
+    <origin xyz="0.00 0.00 -0.01509" rpy="0 0 0"/>
+    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger4_upper">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <robot_param>robot_description</robot_param>
+    </plugin>
+  </gazebo> -->
+  
+  <ros2_control name="GazeboSystem" type="system">
+  <!-- <hardware>
+    <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+  </hardware> -->
+
+  <joint name="left_palm_to_finger1_lower">
+    <command_interface name="position"/>
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+
+  <!-- Add similar blocks for each actuated joint -->
+  </ros2_control>
+
+
+
+
+
+
+</robot>

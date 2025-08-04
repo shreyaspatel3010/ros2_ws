@@ -1,0 +1,65 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    hruh_joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+      joints:
+        - chest_to_neck
+        - neck_to_head
+        - chest_to_left_shoulder
+        - left_shoulder_to_bisecp
+        - left_elbow_inword_to_midle
+        - left_forarm_to_wrist
+        - left_palm_to_thomb
+        - left_thomb_to_thomb_middle
+        - left_thomb_middle_to_thomb_upper
+        - left_palm_to_finger1_lower
+        - left_finger1_lower_to_finger1_middle
+        - left_finger1_middle_to_finger1_upper
+
+      state_publish_rate: 50
+      action_monitor_rate: 20
+
+      constraints:
+        goal_time: 0.5
+        stopped_velocity_tolerance: 0.01
+        chest_to_neck:
+          trajectory: 0.05
+          goal: 0.02
+        neck_to_head:
+          trajectory: 0.05
+          goal: 0.02
+        chest_to_left_shoulder:
+          trajectory: 0.05
+          goal: 0.02
+        left_shoulder_to_bisecp:
+          trajectory: 0.05
+          goal: 0.02
+        left_elbow_inword_to_midle:
+          trajectory: 0.05
+          goal: 0.02
+        left_forarm_to_wrist:
+          trajectory: 0.05
+          goal: 0.02
+        left_palm_to_thomb:
+          trajectory: 0.05
+          goal: 0.02
+        left_thomb_to_thomb_middle:
+          trajectory: 0.05
+          goal: 0.02
+        left_thomb_middle_to_thomb_upper:
+          trajectory: 0.05
+          goal: 0.02
+        left_palm_to_finger1_lower:
+          trajectory: 0.05
+          goal: 0.02
+        left_finger1_lower_to_finger1_middle:
+          trajectory: 0.05
+          goal: 0.02
+        left_finger1_middle_to_finger1_upper:
+          trajectory: 0.05
+          goal: 0.02

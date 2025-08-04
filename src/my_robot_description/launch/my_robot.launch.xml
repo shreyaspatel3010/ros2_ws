@@ -1,0 +1,38 @@
+<launch>
+    <let name="urdf_path" 
+         value="$(find-pkg-share my_robot_description)/urdf/my_robot.urdf.xacro" />
+    <let name="rviz_config_path"
+         value="$(find-pkg-share my_robot_description)/rviz/urdf_config.rviz" />
+
+    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" />
+
+
+    <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                   value="$(command 'xacro $(var urdf_path)')" />
+    </node>
+
+    <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py" >
+     <arg name="world" value="$(find-pkg-share my_robot_description)/worlds/my_world.world" />
+    </include>
+
+    <!-- <include file="$(find-pkg-share my_robot_description)/launch/cartographer.launch.py" >
+     <arg name="use_sim_time" value="True" />
+    </include>
+
+    <include file="$(find-pkg-share my_robot_description)/launch/online_async_launch.py" >
+     <arg name="use_sim_time" value="True" />
+    </include>
+
+    <include file="$(find-pkg-share my_robot_description)/launch/navigation2.launch.py" >
+     <arg name="use_sim_time" value="True" />
+    </include> -->
+
+    <node pkg="gazebo_ros" exec="spawn_entity.py"
+          args="-topic robot_description -entity my_robot" />
+    <node pkg="rviz2" exec="rviz2" output="screen" 
+          args="-d $(var rviz_config_path)" />
+    
+   
+    
+</launch>
