@@ -40,6 +40,7 @@
     <child link="neck"/>
     <origin xyz="0 0 0.3723" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
   </joint>
 
@@ -59,6 +60,7 @@
         <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
       </geometry>
     </collision>
+    <dynamics damping="0.1" friction="0.2"/>
   
     <inertial>
       <mass value="0.5"/>
@@ -73,6 +75,7 @@
     <child link="head_base"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.0" upper="1.0" effort="5" velocity="1.0"/>
   </joint>
 
@@ -102,6 +105,7 @@
     <child link="left_shoulder"/>
     <origin xyz="0 -0.104 0.315" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
   </joint>
 
@@ -133,6 +137,7 @@
     <child link="left_S_to_Bisecp"/>
     <origin xyz="0.01 -0.0795 0.02" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="0.45" effort="10" velocity="1.0"/>
   </joint>
 
@@ -251,6 +256,7 @@
     <child link="left_elbow_midle"/>
     <origin xyz="0 -0.012 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.9" effort="10" velocity="1.0"/>
   </joint>
 
@@ -425,6 +431,7 @@
     <child link="left_wrist"/>
     <origin xyz="0 0.0015 -0.061" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
   </joint>
 
@@ -440,6 +447,7 @@
         <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/left_arm/left_wrist.stl" scale="0.15 0.15 0.15"/>
       </geometry>
     </collision>
+
     
     <inertial>
       <mass value="0.4"/>
@@ -487,6 +495,7 @@
     <child link="left_thomb_to_palm"/>
     <origin xyz="-0.021 0 0.018" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.8" upper="0" effort="10" velocity="1.0"/>
   </joint>
 
@@ -516,6 +525,7 @@
     <child link="left_thomb_midle"/>
     <origin xyz="-0.02 0 0.0017" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-0.9" upper="0" effort="10" velocity="1.0"/>
   </joint>
 
@@ -545,6 +555,7 @@
     <child link="left_thomb_upper"/>
     <origin xyz="-0.0259 0 -0.001" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.0" upper="0" effort="10" velocity="1.0"/>
   </joint>
 
@@ -574,6 +585,7 @@
     <child link="left_finger1_lower"/>
     <origin xyz="-0.0259 0.0015 -0.037" rpy="0 0.18 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
     
   </joint>
@@ -604,6 +616,7 @@
     <child link="left_finger1_middle"/>
     <origin xyz="-0.00 0.00 -0.023" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -634,6 +647,7 @@
     <child link="left_finger1_upper"/>
     <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -664,6 +678,7 @@
     <child link="left_finger2_lower"/>
     <origin xyz="-0.0058 0.001 -0.039" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
     
   </joint>
@@ -693,6 +708,7 @@
     <child link="left_finger2_middle"/>
     <origin xyz="-0.00 0.00 -0.028" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -722,6 +738,7 @@
     <child link="left_finger2_upper"/>
     <origin xyz="0.00 0.00 -0.026" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -751,6 +768,7 @@
     <child link="left_finger3_lower"/>
     <origin xyz="0.013 0.001 -0.0365" rpy="0 -0.195 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
     
   </joint>
@@ -780,6 +798,7 @@
     <child link="left_finger3_middle"/>
     <origin xyz="-0.00 0.00 -0.0255" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -809,6 +828,7 @@
     <child link="left_finger3_upper"/>
     <origin xyz="0.00 0.00 -0.022" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -838,6 +858,7 @@
     <child link="left_finger4_lower"/>
     <origin xyz="0.0273 0.00 -0.0315" rpy="0 -0.379 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.45" effort="10" velocity="1.0"/>
     
   </joint>
@@ -867,6 +888,7 @@
     <child link="left_finger4_middle"/>
     <origin xyz="-0.00 0.00 -0.0185" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -896,6 +918,7 @@
     <child link="left_finger4_upper"/>
     <origin xyz="0.00 0.00 -0.0155" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="left_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -927,6 +950,7 @@
     <child link="right_shoulder"/>
     <origin xyz="0 0.117 0.315" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="3.14" effort="10" velocity="1.0"/>
   </joint>
 
@@ -955,6 +979,7 @@
     <child link="right_S_to_Bisecp"/>
     <origin xyz="0.0025 0.073 0" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-0.45" upper="1.57" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1067,6 +1092,7 @@
     <child link="right_elbow_midle"/>
     <origin xyz="-0.00159 0.00512 -0.03234 " rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.9" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1235,6 +1261,7 @@
     <child link="right_wrist"/>
     <origin xyz="0 0 -0.1083" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.57" upper="1.57" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1291,6 +1318,7 @@
     <child link="right_thomb_to_palm"/>
     <origin xyz="-0.01443 -0.00369 -0.01635" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.8" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1319,6 +1347,7 @@
     <child link="right_thomb_midle"/>
     <origin xyz="-0.0279 0.00204 0" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-0.9" upper="0" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1347,6 +1376,7 @@
     <child link="right_thomb_upper"/>
     <origin xyz="-0.0255 0.00034 -0.000915" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.0" upper="0" effort="10" velocity="1.0"/>
   </joint>
 
@@ -1405,6 +1435,7 @@
     <origin xyz="0.00 0.00 -0.023" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
   </joint>
 
@@ -1433,6 +1464,7 @@
     <child link="right_finger1_upper"/>
     <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1463,6 +1495,7 @@
     <child link="right_finger2_lower"/>
     <origin xyz="-0.0058 -0.0018 -0.072" rpy="0 -0.1 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
     
   </joint>
@@ -1492,6 +1525,7 @@
     <child link="right_finger2_middle"/>
     <origin xyz="0.00 0.00 -0.02776" rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1521,6 +1555,7 @@
     <child link="right_finger2_upper"/>
     <origin xyz="0.00 0.00 -0.02388" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1550,6 +1585,7 @@
     <child link="right_finger3_lower"/>
     <origin xyz="0.0125 -0.0021 -0.068" rpy="0 -0.27 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
     
   </joint>
@@ -1579,6 +1615,7 @@
     <child link="right_finger3_middle"/>
     <origin xyz="0.00 0.00 -0.02493 " rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1608,6 +1645,7 @@
     <child link="right_finger3_upper"/>
     <origin xyz="0.00 0.00 -0.02178" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1637,6 +1675,7 @@
     <child link="right_finger4_lower"/>
     <origin xyz="0.0273 -0.0021 -0.0620" rpy="0 -0.45 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="-1.45" upper="0" effort="10" velocity="1.0"/>
     
   </joint>
@@ -1666,6 +1705,7 @@
     <child link="right_finger4_middle"/>
     <origin xyz="0.00 0.00 -0.01822 " rpy="0 0 0"/>
     <axis xyz="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1695,6 +1735,7 @@
     <child link="right_finger4_upper"/>
     <origin xyz="0.00 0.00 -0.01509" rpy="0 0 0"/>
     <axis xyz="1 0 0" rpy="1 0 0"/>
+    <dynamics damping="0.1" friction="0.2"/>
     <limit lower="0" upper="1.20" effort="10" velocity="1.0"/>
     <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
   </joint>
@@ -1725,17 +1766,14 @@
   </gazebo> -->
   
   <ros2_control name="GazeboSystem" type="system">
-  <!-- <hardware>
-    <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-  </hardware> -->
-
-  <joint name="left_palm_to_finger1_lower">
-    <command_interface name="position"/>
-    <state_interface name="position"/>
-    <state_interface name="velocity"/>
-  </joint>
-
-  <!-- Add similar blocks for each actuated joint -->
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    <joint name="right_shoulder_to_bisecp">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <!-- Repeat for all other joints -->
   </ros2_control>
 
 

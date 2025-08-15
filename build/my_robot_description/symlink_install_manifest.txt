@@ -10,11 +10,11 @@
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/display.launch.xml
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/my_robot.launch.py
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/my_robot.launch.xml
-/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/sim.launch.py
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//rviz/urdf_config.rviz
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//worlds/my_world.sdf
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//worlds/my_world.world
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//config/controllers.yaml
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//config/ros2_controllers.yaml
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/chest/chest.STL
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/head/head.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/left_arm/Left_bisecp_uper.stl
@@ -75,6 +75,7 @@
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/right_arm/right_thomb_to_palm.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/right_arm/right_thomb_upper.stl
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//meshes/right_arm/right_wrist.stl
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//scripts/keyboard_teleop.py
 /home/shreyas/ros2_ws/install/my_robot_description/share/ament_index/resource_index/package_run_dependencies/my_robot_description
 /home/shreyas/ros2_ws/install/my_robot_description/share/ament_index/resource_index/parent_prefix_path/my_robot_description
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description/environment/ament_prefix_path.sh
@@ -90,3 +91,4 @@
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description/cmake/my_robot_descriptionConfig.cmake
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description/cmake/my_robot_descriptionConfig-version.cmake
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description/package.xml
+/home/shreyas/ros2_ws/install/my_robot_description/lib/my_robot_description/keyboard_teleop.py

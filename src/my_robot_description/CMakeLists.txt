@@ -9,8 +9,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY urdf launch rviz worlds config meshes
+  DIRECTORY urdf launch rviz worlds config meshes scripts
   DESTINATION share/${PROJECT_NAME}/
 )
 
 ament_package()
+
+install(PROGRAMS
+  scripts/keyboard_teleop.py
+  DESTINATION lib/${PROJECT_NAME}
+)

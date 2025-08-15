@@ -1,51 +1,118 @@
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
+from launch.actions import TimerAction, IncludeLaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import Command
-import os
-from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import Command, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
 
 def generate_launch_description():
-    pkg_share = get_package_share_directory('my_robot_description')
-    xacro_path = os.path.join(pkg_share, 'urdf', 'my_robot.urdf.xacro')
+    urdf_path = PathJoinSubstitution([
+        FindPackageShare("my_robot_description"),
+        "urdf",
+        "my_robot.urdf.xacro"
+    ])
 
-    robot_description = Command(['xacro ', xacro_path])
+    rviz_config_path = PathJoinSubstitution([
+        FindPackageShare("my_robot_description"),
+        "rviz",
+        "urdf_config.rviz"
+    ])
+
+    controllers_yaml = PathJoinSubstitution([
+        FindPackageShare("my_robot_description"),
+        "config",
+        "ros2_controllers.yaml"
+    ])
+
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare("gazebo_ros"),
+                "launch",
+                "gazebo.launch.py"
+            ])
+        ]),
+        launch_arguments={
+            "world": PathJoinSubstitution([
+                FindPackageShare("my_robot_description"),
+                "worlds",
+                "my_world.world"
+            ])
+        }.items()
+    )
 
     return LaunchDescription([
-        # Gazebo (server+client) with ROS factory/init
-        ExecuteProcess(
-            cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', '-s', 'libgazebo_ros_init.so'],
-            output='screen'
+        # Robot state publisher
+        Node(
+            package="robot_state_publisher",
+            executable="robot_state_publisher",
+            output="screen",
+            parameters=[{
+                "robot_description": Command(["xacro ", urdf_path])
+            }]
         ),
 
-        # Robot State Publisher
+        # Spawn robot into Gazebo
         Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            parameters=[{'robot_description': robot_description}],
-            output='screen'
-        ),
-
-        # Spawn the robot entity
-        Node(
-            package='gazebo_ros',
-            executable='spawn_entity.py',
-            arguments=['-topic', 'robot_description', '-entity', 'my_robot'],
-            output='screen'
-        ),
-
-        # Controller spawners (optional if you use <parameters> in plugin, but recommended)
-        Node(
-            package="controller_manager",
-            executable="spawner",
-            arguments=["joint_state_broadcaster"],
+            package="gazebo_ros",
+            executable="spawn_entity.py",
+            arguments=["-topic", "robot_description", "-entity", "my_robot"],
             output="screen"
         ),
-        Node(
-            package="controller_manager",
-            executable="spawner",
-            arguments=["hruh_joint_trajectory_controller"],
-            output="screen"
+
+        # Launch Gazebo
+        gazebo_launch,
+
+        # Delay ros2_control_node to ensure robot is spawned
+        TimerAction(
+            period=3.0,
+            actions=[
+                Node(
+                    package="controller_manager",
+                    executable="ros2_control_node",
+                    parameters=[
+                        {"robot_description": Command(["xacro ", urdf_path])},
+                        controllers_yaml
+                    ],
+                    output="screen"
+                )
+            ]
         ),
+
+        # Spawn joint_state_broadcaster
+        TimerAction(
+            period=5.0,
+            actions=[
+                Node(
+                    package="controller_manager",
+                    executable="spawner",
+                    arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+                    output="screen"
+                )
+            ]
+        ),
+
+        # Spawn arm_controller
+        TimerAction(
+            period=6.0,
+            actions=[
+                Node(
+                    package="controller_manager",
+                    executable="spawner",
+                    arguments=["arm_controller", "--controller-manager", "/controller_manager"],
+                    output="screen"
+                )
+            ]
+        ),
+
+        # Launch RViz
+        Node(
+            package="rviz2",
+            executable="rviz2",
+            name="rviz2",
+            output="screen",
+            arguments=["-d", rviz_config_path]
+        )
     ])

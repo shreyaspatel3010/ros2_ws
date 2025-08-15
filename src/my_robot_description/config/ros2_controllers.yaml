@@ -1,0 +1,18 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: position_controllers/JointGroupPositionController
+      joints:
+        - right_shoulder_to_bisecp
+        - right_bisecp_to_elbow_inword
+        - right_forarm_to_wrist
+        - right_palm_to_thomb
+        - right_thomb_middle_to_thomb_upper
+        - right_palm_to_finger1_lower
+        - right_finger1_lower_to_finger1_middle
+        - right_finger1_middle_to_finger1_upper

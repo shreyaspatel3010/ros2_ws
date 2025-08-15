@@ -11,6 +11,11 @@
             <param name="robot_description"
                    value="$(command 'xacro $(var urdf_path)')" />
     </node>
+     <node pkg="controller_manager" exec="ros2_control_node" output="screen">
+          <param name="robot_description"
+                    value="$(command 'xacro $(var urdf_path)')" />
+          <param from="$(find-pkg-share my_robot_description)/config/ros2_controllers.yaml" />
+     </node>
 
     <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py" >
      <arg name="world" value="$(find-pkg-share my_robot_description)/worlds/my_world.world" />

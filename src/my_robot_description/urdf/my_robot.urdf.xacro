@@ -14,11 +14,7 @@
         <origin xyz="${base_length / 10.0} 0 ${base_height}" rpy="0 0 3.14" />
     </joint>
 
-    <!-- <joint name="arm_chest_joint" type="fixed">
-        <parent link="forearm_link" />
-        <child link="chest_hruh" />
-        <origin xyz="${base_length / 50.0} 0 ${-forearm_length/4}" rpy="0 0 0" />
-    </joint> -->
+    
 
     
     <gazebo>
@@ -31,5 +27,7 @@
     
 
     <xacro:include filename="camera.xacro" />
+
+    
 
 </robot>
