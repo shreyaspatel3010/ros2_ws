@@ -7,6 +7,7 @@
     <xacro:include filename="arm.xacro" />
     <xacro:include filename="arm_gazebo.xacro" />
     <xacro:include filename="hruh.xacro" />
+    <xacro:include filename="camera.xacro" />
 
     <joint name="mobile_base_arm_joint" type="fixed">
         <parent link="base_link" />
@@ -17,16 +18,16 @@
     
 
     
-    <gazebo>
+    <!-- <gazebo>
         <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
             <robot_param>robot_description</robot_param>
             <parameters>$(find my_robot_description)/config/controllers.yaml</parameters>
         </plugin>
-    </gazebo>
+    </gazebo> -->
 
     
 
-    <xacro:include filename="camera.xacro" />
+    
 
     
 

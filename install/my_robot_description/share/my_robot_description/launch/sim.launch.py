@@ -1,1 +1,0 @@
-/home/shreyas/ros2_ws/src/my_robot_description/launch/sim.launch.py
