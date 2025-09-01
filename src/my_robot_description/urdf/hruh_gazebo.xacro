@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hruh">
+
+ 
+
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system"
+        name="gz::sim::systems::JointStatePublisher"/>
+  </gazebo>
+
+  <gazebo>
+    <!-- chest_to_left_shoulder -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>chest_to_left_shoulder</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- left_shoulder_to_bisecp -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_shoulder_to_bisecp</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    
+    <!-- left_elbow_inword_to_midle -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_elbow_inword_to_midle</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left forarm to wrist Joint -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_forarm_to_wrist</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left palm to thomb joint -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_palm_to_thomb</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- left_thomb_to_thomb_middle -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_thomb_to_thomb_middle</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- left_thomb_middle_to_thomb_upper -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_thomb_middle_to_thomb_upper</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left palm  to finger1 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_palm_to_finger1_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left palm  to finger2 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_palm_to_finger2_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left palm  to finger3 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_palm_to_finger3_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- Left palm  to finger4 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>left_palm_to_finger4_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- repeat per joint ... -->
+  </gazebo>
+
+  <gazebo>
+    <!-- chest_to_right_shoulder -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>chest_to_right_shoulder</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right_shoulder_to_bisecp -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_shoulder_to_bisecp</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    
+    <!-- right_elbow_inword_to_midle -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_elbow_inword_to_midle</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right forarm to wrist Joint -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_forarm_to_wrist</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm to thomb joint -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_thomb</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- tright_thomb_to_thomb_middle -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_thomb_to_thomb_middle</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right_thomb_middle_to_thomb_upper -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_thomb_middle_to_thomb_upper</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger1 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger1_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger2 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger2_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger3 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger3_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger4 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger4_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- repeat per joint ... -->
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system" 
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>arm_base_forearm_joint</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+  </gazebo>
+
+
+
+  
+  
+  
+
+
+
+
+
+</robot>

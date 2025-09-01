@@ -1,1 +1,1 @@
-controller_manager:robot_state_publisher:ros2_control:ros2_controllers:ros_gz_bridge:ros_gz_sim:rviz2
+controller_manager:geometry_msgs:robot_state_publisher:ros2_control:ros2_controllers:ros_gz_bridge:ros_gz_sim:rviz2

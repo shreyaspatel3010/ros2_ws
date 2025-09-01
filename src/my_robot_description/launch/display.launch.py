@@ -12,9 +12,9 @@ def generate_launch_description():
 
     # Paths
     urdf_path = os.path.join(pkg_path, 'urdf', 'my_robot.urdf.xacro')
-    world_path = os.path.join(pkg_path, 'worlds', 'my_world.sdf')
+    world_path = os.path.join(pkg_path, 'worlds', 'test_world.sdf')
     rviz_config_path = os.path.join(pkg_path, 'rviz', 'urdf_config.rviz')
-    controllers_yaml = os.path.join(pkg_path, 'config', 'controllers.yaml')
+    controllers_yaml = os.path.join(pkg_path, 'config', 'controllers_left.yaml')
 
     robot_description = ParameterValue(
         Command(['xacro ', urdf_path]), value_type=str
@@ -63,6 +63,22 @@ def generate_launch_description():
                         {'robot_description': robot_description},
                         controllers_yaml
                     ]
+                ),
+
+                # Joint state broadcaster
+                Node(
+                    package='controller_manager',
+                    executable='spawner',
+                    arguments=['joint_state_broadcaster'],
+                    output='screen'
+                ),
+
+                # Left full arm controller
+                Node(
+                    package='controller_manager',
+                    executable='spawner',
+                    arguments=['left_full_arm_controller'],
+                    output='screen'
                 ),
 
                 # Spawn robot into GZ

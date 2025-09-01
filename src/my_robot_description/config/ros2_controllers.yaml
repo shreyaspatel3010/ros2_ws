@@ -1,18 +1,118 @@
 controller_manager:
   ros__parameters:
     update_rate: 100
+    use_sim_time: true
+
+    neck_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    left_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    left_hand_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    right_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    right_hand_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-    arm_controller:
-      type: position_controllers/JointGroupPositionController
-      joints:
-        - right_shoulder_to_bisecp
-        - right_bisecp_to_elbow_inword
-        - right_forarm_to_wrist
-        - right_palm_to_thomb
-        - right_thomb_middle_to_thomb_upper
-        - right_palm_to_finger1_lower
-        - right_finger1_lower_to_finger1_middle
-        - right_finger1_middle_to_finger1_upper
+
+# --- Neck (2 DOF) ---
+neck_controller:
+  ros__parameters:
+    joints:
+      - chest_to_neck
+      - neck_to_head
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.1
+
+
+# --- Left arm (4 DOF) ---
+left_arm_controller:
+  ros__parameters:
+    joints:
+      - chest_to_left_shoulder
+      - left_shoulder_to_bisecp
+      - left_elbow_inword_to_midle
+      - left_forarm_to_wrist
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.1
+
+
+# --- Left hand (15 DOF) ---
+left_hand_controller:
+  ros__parameters:
+    joints:
+      - left_palm_to_thomb
+      - left_thomb_to_thomb_middle
+      - left_thomb_middle_to_thomb_upper
+      - left_palm_to_finger1_lower
+      - left_finger1_lower_to_finger1_middle
+      - left_finger1_middle_to_finger1_upper
+      - left_palm_to_finger2_lower
+      - left_finger2_lower_to_finger2_middle
+      - left_finger2_middle_to_finger2_upper
+      - left_palm_to_finger3_lower
+      - left_finger3_lower_to_finger3_middle
+      - left_finger3_middle_to_finger3_upper
+      - left_palm_to_finger4_lower
+      - left_finger4_lower_to_finger4_middle
+      - left_finger4_middle_to_finger4_upper
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.1
+
+
+# --- Right arm (4 DOF) ---
+right_arm_controller:
+  ros__parameters:
+    joints:
+      - chest_to_right_shoulder
+      - right_shoulder_to_bisecp
+      - right_elbow_inword_to_midle
+      - right_forarm_to_wrist
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.1
+
+
+# --- Right hand (15 DOF) ---
+right_hand_controller:
+  ros__parameters:
+    joints:
+      - right_palm_to_thomb
+      - right_thomb_to_thomb_middle
+      - right_thomb_middle_to_thomb_upper
+      - right_palm_to_finger1_lower
+      - right_finger1_lower_to_finger1_middle
+      - right_finger1_middle_to_finger1_upper
+      - right_palm_to_finger2_lower
+      - right_finger2_lower_to_finger2_middle
+      - right_finger2_middle_to_finger2_upper
+      - right_palm_to_finger3_lower
+      - right_finger3_lower_to_finger3_middle
+      - right_finger3_middle_to_finger3_upper
+      - right_palm_to_finger4_lower
+      - right_finger4_lower_to_finger4_middle
+      - right_finger4_middle_to_finger4_upper
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    allow_partial_joints_goal: true
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.1

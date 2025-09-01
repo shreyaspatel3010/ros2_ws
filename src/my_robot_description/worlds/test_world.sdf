@@ -7,6 +7,8 @@
     </physics>
     <plugin name='gz::sim::systems::Physics' filename='gz-sim-physics-system'/>
     <plugin name='gz::sim::systems::UserCommands' filename='gz-sim-user-commands-system'/>
+    <plugin filename='gz-sim-imu-system' name='gz::sim::systems::Imu'/>
+    <plugin filename='gz-sim-joint-state-publisher-system' name='gz::sim::systems::JointStatePublisher'/>
     <plugin name='gz::sim::systems::SceneBroadcaster' filename='gz-sim-scene-broadcaster-system'/>
     <plugin name='gz::sim::systems::Contact' filename='gz-sim-contact-system'/>
     <plugin name='gz::sim::systems::Sensors' filename='gz-sim-sensors-system'>
@@ -131,7 +133,7 @@
       <name>turtle</name>
       <pose>0.33651575199442313 1.7020069861940446 0.064999995881915018 1.639504133021927e-17 7.1287872369037472e-07 8.6268262238017308e-17</pose>
     </include>
-    
+   
     <include>
       <uri>file:///home/shreyas/.gz/fuel/fuel.gazebosim.org/openrobotics/models/grey wall/3</uri>
       <name>grey_wall</name>
