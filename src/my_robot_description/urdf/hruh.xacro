@@ -31,6 +31,12 @@
   </joint>
 
   <gazebo reference="chest_hruh">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="chest_hruh">
+      <mu>1.1</mu>
+      <mu2>1.1</mu2>
       <material>Gazebo/Wood</material>
   </gazebo>
 
@@ -69,6 +75,10 @@
     </inertial>
   </link>
 
+  <gazebo reference="neck">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Head -->
   <joint name="neck_to_head" type="revolute">
     <parent link="neck"/>
@@ -76,7 +86,7 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
     <dynamics damping="1" friction="2"/>
-    <limit lower="-1.0" upper="1.0" effort="5" velocity="1.0"/>
+    <limit lower="-1.0" upper="1.0" effort="500" velocity="1.0"/>
   </joint>
 
   <link name="head_base">
@@ -98,6 +108,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="head_base">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left Shoulder Joint -->
   <joint name="chest_to_left_shoulder" type="revolute">
@@ -128,6 +142,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_shoulder">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
 
  
@@ -161,6 +179,10 @@
     </inertial>
   </link>
 
+  <gazebo reference="left_S_to_Bisecp">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Left Bisecp uper Joint -->
   <joint name="left_S_to_bisecp_upper" type="fixed">
     <parent link="left_S_to_Bisecp"/>
@@ -189,6 +211,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_bisecp_upper">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left Bisecp lower Joint -->
   <joint name="left_bisecp_uper_to_lower" type="fixed">
@@ -221,12 +247,18 @@
   </link>
 
   
-<!-- Left elbow inword Joint -->
-  <joint name="left_bisecp_to_elbow_inword" type="fixed">
+
+  <gazebo reference="left_bisecp_lower">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <!-- Left elbow inword Joint -->
+  <joint name="left_bisecp_to_elbow_inword" type="revolute">
     <parent link="left_bisecp_lower"/>
     <child link="left_elbow_inword"/>
     <origin xyz="0. 0 -0.12" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
     <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
   </joint>
 
@@ -249,6 +281,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_elbow_inword">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left elbow midle Joint -->
   <joint name="left_elbow_inword_to_midle" type="revolute">
@@ -280,6 +316,10 @@
     </inertial>
   </link>
 
+  <gazebo reference="left_elbow_midle">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Left elbow outword Joint -->
   <joint name="left_elbow_midle_to_outword" type="fixed">
     <parent link="left_elbow_midle"/>
@@ -308,6 +348,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_elbow_outword">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left elbow to forarm upper Joint -->
   <joint name="left_elbow_midle_forarm_upper" type="fixed">
@@ -338,6 +382,10 @@
     </inertial>
   </link>
 
+  <gazebo reference="left_elbow_to_forarm_upper">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Left forarm upper to lower Joint -->
   <joint name="left_forarm_upper_to_lower_1" type="fixed">
     <parent link="left_elbow_to_forarm_upper"/>
@@ -366,7 +414,11 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
- 
+
+  <gazebo reference="left_forarm_lower_1">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Left forarm internal support -->
   <joint name="left_forarm_lower_1_to_internal_support" type="fixed">
     <parent link="Left_forarm_lower_1"/>
@@ -396,6 +448,10 @@
     </inertial>
   </link>
 
+  <gazebo reference="left_forarm_internal_support">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
   <!-- Left forarm cover joint -->
   <joint name="left_internal_support_to_cover" type="fixed">
     <parent link="Left_forarm_internal_support"/>
@@ -424,6 +480,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_forarm_cover">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left bisecp to wrist Joint -->
   <joint name="left_forarm_to_wrist" type="revolute">
@@ -460,6 +520,10 @@
       <material>Gazebo/Orange</material>
   </gazebo>
 
+  <gazebo reference="left_wrist">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+
   <!-- Left palm joint -->
   <joint name="left_wrist_to_palm" type="fixed">
     <parent link="left_wrist"/>
@@ -488,6 +552,10 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
+
+  <gazebo reference="left_palm">
+      <selfCollide>true</selfCollide>
+  </gazebo>
 
   <!-- Left palm to thomb joint -->
   <joint name="left_palm_to_thomb" type="revolute">
@@ -1059,11 +1127,12 @@
   </link>
 
   <!-- Right elbow inword Joint -->
-  <joint name="right_bisecp_to_elbow_inword" type="fixed">
+  <joint name="right_bisecp_to_elbow_inword" type="revolute">
     <parent link="right_bisecp_lower"/>
     <child link="right_elbow_inword"/>
     <origin xyz="0. 0 -0.0873" rpy="0 0 0"/>
-    <axis xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
     <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
   </joint>
 
@@ -1404,8 +1473,9 @@
     <parent link="right_palm"/>
     <child link="right_finger1_lower"/>
     <origin xyz="-0.0249 -0.00225 -0.0708" rpy="0 0.18 0"/>
-    <axis xyz="1 0 0"/>
-    <limit lower="-1.45" upper="0" effort="500" velocity="1.0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
     
   </joint>
 
@@ -1433,7 +1503,7 @@
     <parent link="right_finger1_lower"/>
     <child link="right_finger1_middle"/>
     <origin xyz="0.00 0.00 -0.023" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <dynamics damping="1" friction="2"/>
     <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
@@ -1463,7 +1533,7 @@
     <parent link="right_finger1_middle"/>
     <child link="right_finger1_upper"/>
     <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
-    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
@@ -1494,9 +1564,9 @@
     <parent link="right_palm"/>
     <child link="right_finger2_lower"/>
     <origin xyz="-0.0058 -0.0018 -0.072" rpy="0 -0.1 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
-    <limit lower="-1.45" upper="0" effort="500" velocity="1.0"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
     
   </joint>
 
@@ -1524,7 +1594,7 @@
     <parent link="right_finger2_lower"/>
     <child link="right_finger2_middle"/>
     <origin xyz="0.00 0.00 -0.02776" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
@@ -1554,7 +1624,7 @@
     <parent link="right_finger2_middle"/>
     <child link="right_finger2_upper"/>
     <origin xyz="0.00 0.00 -0.02388" rpy="0 0 0"/>
-    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
@@ -1584,9 +1654,9 @@
     <parent link="right_palm"/>
     <child link="right_finger3_lower"/>
     <origin xyz="0.0125 -0.0021 -0.068" rpy="0 -0.27 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
-    <limit lower="-1.45" upper="0" effort="500" velocity="1.0"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
     
   </joint>
 
@@ -1614,7 +1684,7 @@
     <parent link="right_finger3_lower"/>
     <child link="right_finger3_middle"/>
     <origin xyz="0.00 0.00 -0.02493 " rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
@@ -1644,7 +1714,7 @@
     <parent link="right_finger3_middle"/>
     <child link="right_finger3_upper"/>
     <origin xyz="0.00 0.00 -0.02178" rpy="0 0 0"/>
-    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
@@ -1674,9 +1744,9 @@
     <parent link="right_palm"/>
     <child link="right_finger4_lower"/>
     <origin xyz="0.0273 -0.0021 -0.0620" rpy="0 -0.45 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
-    <limit lower="-1.45" upper="0" effort="500" velocity="1.0"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
     
   </joint>
 
@@ -1704,7 +1774,7 @@
     <parent link="right_finger4_lower"/>
     <child link="right_finger4_middle"/>
     <origin xyz="0.00 0.00 -0.01822 " rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="-1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
@@ -1734,7 +1804,7 @@
     <parent link="right_finger4_middle"/>
     <child link="right_finger4_upper"/>
     <origin xyz="0.00 0.00 -0.01509" rpy="0 0 0"/>
-    <axis xyz="1 0 0" rpy="1 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
     <dynamics damping="1" friction="2"/>
     <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
     <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>

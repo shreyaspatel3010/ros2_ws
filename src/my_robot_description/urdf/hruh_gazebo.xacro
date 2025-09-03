@@ -26,6 +26,14 @@
       <i_min>-6</i_min><i_max>6</i_max>
     </plugin>
 
+     <!-- left_bisecp_to_elbow_inword -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>left_bisecp_to_elbow_inword</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
     
     <!-- left_elbow_inword_to_midle -->
     <plugin filename="gz-sim-joint-position-controller-system"
@@ -119,6 +127,14 @@
       <i_min>-6</i_min><i_max>6</i_max>
     </plugin>
 
+    <!-- right_bisecp_to_elbow_inword -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_bisecp_to_elbow_inword</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
     
     <!-- right_elbow_inword_to_midle -->
     <plugin filename="gz-sim-joint-position-controller-system"
@@ -199,6 +215,26 @@
     <plugin filename="gz-sim-joint-position-controller-system" 
             name="gz::sim::systems::JointPositionController">
       <joint_name>arm_base_forearm_joint</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+  </gazebo>
+
+  <!-- chest to neck -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system" 
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>chest_to_neck</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+  </gazebo>
+
+  <!-- neck to head -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-position-controller-system" 
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>neck_to_head</joint_name>
       <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
       <i_min>-6</i_min><i_max>6</i_max>
     </plugin>

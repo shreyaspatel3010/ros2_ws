@@ -152,6 +152,12 @@
   gz_type_name:    "gz.msgs.Double"
   direction: ROS_TO_GZ
 
+- ros_topic_name: "/right_arm/right_bisecp_to_elbow_inword/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_bisecp_to_elbow_inword/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
 - ros_topic_name: "/right_arm/right_elbow_inword_to_midle/cmd_pos"
   gz_topic_name:   "/world/empty/model/my_robot/joint/right_elbow_inword_to_midle/0/cmd_pos"
   ros_type_name:   "std_msgs/msg/Float64"
@@ -195,6 +201,12 @@
   gz_type_name:    "gz.msgs.Double"
   direction: ROS_TO_GZ
 
+- ros_topic_name: "/left_arm/left_bisecp_to_elbow_inword/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_bisecp_to_elbow_inword/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
 - ros_topic_name: "/left_arm/left_elbow_inword_to_midle/cmd_pos"
   gz_topic_name:   "/world/empty/model/my_robot/joint/left_elbow_inword_to_midle/0/cmd_pos"
   ros_type_name:   "std_msgs/msg/Float64"
@@ -218,3 +230,16 @@
   ros_type_name:   "std_msgs/msg/Float64"
   gz_type_name:    "gz.msgs.Double"
   direction: ROS_TO_GZ
+
+- ros_topic_name: "/chest_to_neck/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/chest_to_neck/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/neck_to_head/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/neck_to_head/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+

@@ -16,30 +16,14 @@
         <child link="arm_base_link" />
         <origin xyz="${base_length / 10.0} 0 ${base_height}" rpy="0 0 3.14" />
     </joint>
-
+    
     <gazebo>
-        <plugin 
-            filename="gz-sim-joint-state-publisher-system" 
-            name="gz::sim::systems::JointStatePublisher">
-            <joint_name>mobile_base_arm_joint</joint_name>
-        </plugin>
+        <selfCollide>true</selfCollide>
     </gazebo>
 
-    <!-- <gazebo>
-        <plugin filename="libgz_ros2_control-system.so"
-                name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-                <parameters>$(find my_robot_description)/config/ros2_controllers.yaml</parameters>
-        </plugin>
-    </gazebo> -->
-
     
-    <!-- <gazebo>
-        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-            <robot_param>robot_description</robot_param>
-            <parameters>$(find my_robot_description)/config/controllers.yaml</parameters>
-        </plugin>
-    </gazebo> -->
 
+   
     
 
     
