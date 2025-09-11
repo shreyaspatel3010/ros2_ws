@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hruh">
+
+  <!-- Right Shoulder Joint -->
+  <joint name="chest_to_right_shoulder" type="revolute">
+    <parent link="chest_hruh"/>
+    <child link="right_shoulder"/>
+    <origin xyz="0 0.117 0.315" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.57" upper="3.14" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_shoulder">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_C.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+   <!-- Right S to bisecp Arm Joint -->
+  <joint name="right_shoulder_to_bisecp" type="revolute">
+    <parent link="right_shoulder"/>
+    <child link="right_S_to_Bisecp"/>
+    <origin xyz="0.0025 0.073 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-0.45" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_S_to_Bisecp">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_S_to_Bisecp.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right Bisecp uper Joint -->
+  <joint name="right_S_to_bisecp_upper" type="fixed">
+    <parent link="right_S_to_Bisecp"/>
+    <child link="right_bisecp_upper"/>
+    <origin xyz="0 0 -0.0575" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_bisecp_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_bisecp_uper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right Bisecp lower Joint -->
+  <joint name="right_bisecp_uper_to_lower" type="fixed">
+    <parent link="right_bisecp_upper"/>
+    <child link="right_bisecp_lower"/>
+    <origin xyz="0 0 -0.0634" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_bisecp_lower">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_Bisecp_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow inword Joint -->
+  <joint name="right_bisecp_to_elbow_inword" type="revolute">
+    <parent link="right_bisecp_lower"/>
+    <child link="right_elbow_inword"/>
+    <origin xyz="0. 0 -0.0873" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_inword">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_inword.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow midle Joint -->
+  <joint name="right_elbow_inword_to_midle" type="revolute">
+    <parent link="right_elbow_inword"/>
+    <child link="right_elbow_midle"/>
+    <origin xyz="-0.00159 0.00512 -0.03234 " rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.9" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_midle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow outword Joint -->
+  <joint name="right_elbow_midle_to_outword" type="fixed">
+    <parent link="right_elbow_midle"/>
+    <child link="right_elbow_outword"/>
+    <origin xyz="0 0.02722 0" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_outword">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_outword.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right elbow to forarm upper Joint -->
+  <joint name="right_elbow_midle_forarm_upper" type="fixed">
+    <parent link="right_elbow_midle"/>
+    <child link="right_elbow_to_forarm_upper"/>
+    <origin xyz="0 -0.000117 -0.04459" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_elbow_to_forarm_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+      </geometry>
+       <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_elbow_to_forarm_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm upper to lower Joint -->
+  <joint name="right_forarm_upper_to_lower_1" type="fixed">
+    <parent link="right_elbow_to_forarm_upper"/>
+    <child link="right_forarm_lower_1"/>
+    <origin xyz="0 0 -0.05497" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_lower_1">
+    <visual> 
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_lower_1.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm internal support -->
+  <joint name="right_forarm_lower_1_to_internal_support" type="fixed">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_forarm_internal_support"/>
+    <origin xyz="0 0 -0.05566" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_internal_support">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_internal_support.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right forarm cover joint -->
+  <joint name="right_internal_support_to_cover" type="fixed">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_forarm_cover"/>
+    <origin xyz="0 0 -0.06393" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_forarm_cover">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_forarm_cover.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right bisecp to wrist Joint -->
+  <joint name="right_forarm_to_wrist" type="revolute">
+    <parent link="right_forarm_lower_1"/>
+    <child link="right_wrist"/>
+    <origin xyz="0 0 -0.1083" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_wrist">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_wrist.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="right_wrist">
+      <material>Gazebo/Blue</material>
+  </gazebo>
+
+  
+  
+  
+
+
+
+
+
+</robot>

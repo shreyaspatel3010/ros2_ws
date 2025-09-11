@@ -8,8 +8,18 @@
     <xacro:include filename="arm_gazebo.xacro" />
     <xacro:include filename="hruh.xacro" />
     <xacro:include filename="hruh_gazebo.xacro" />
+
+
     <xacro:include filename="camera.xacro" />
     <xacro:include filename="lidar.xacro" />
+
+
+    <xacro:include filename="right_arm.xacro" />
+    <xacro:include filename="right_arm_gripper.xacro" />
+
+
+    <xacro:include filename="left_arm.xacro" />
+    <xacro:include filename="left_arm_gripper.xacro" />
 
     <joint name="mobile_base_arm_joint" type="fixed">
         <parent link="base_link" />
@@ -17,11 +27,7 @@
         <origin xyz="${base_length / 10.0} 0 ${base_height}" rpy="0 0 3.14" />
     </joint>
     
-    <gazebo>
-        <selfCollide>true</selfCollide>
-    </gazebo>
-
-    
+   
 
    
     

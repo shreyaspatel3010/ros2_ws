@@ -1,0 +1,543 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hruh">
+
+
+  <!-- Right palm joint -->
+  <joint name="right_wrist_to_palm" type="fixed">
+    <parent link="right_wrist"/>
+    <child link="right_palm"/>
+    <origin xyz="0 0 -0.01863" rpy="0 0 0"/>
+    <axis xyz="0 0 0"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_palm">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm to thomb joint -->
+  <joint name="right_palm_to_thomb" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_thomb_to_palm"/>
+    <origin xyz="-0.01443 -0.00369 -0.01635" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.8" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_to_palm">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right thomb to thomb midle joint -->
+  <joint name="right_thomb_to_thomb_middle" type="revolute">
+    <parent link="right_thomb_to_palm"/>
+    <child link="right_thomb_midle"/>
+    <origin xyz="-0.0279 0.00204 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-0.9" upper="0" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_midle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right thomb midle to thomb upper joint -->
+  <joint name="right_thomb_middle_to_thomb_upper" type="revolute">
+    <parent link="right_thomb_midle"/>
+    <child link="right_thomb_upper"/>
+    <origin xyz="-0.0255 0.00034 -0.000915" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.0" upper="0" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="right_thomb_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger1 lower joint -->
+  <joint name="right_palm_to_finger1_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger1_lower"/>
+    <origin xyz="-0.0249 -0.00225 -0.0708" rpy="0 0.18 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger1_lower">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger1 lower  to finger1 middle joint -->
+  <joint name="right_finger1_lower_to_finger1_middle" type="revolute">
+    <parent link="right_finger1_lower"/>
+    <child link="right_finger1_middle"/>
+    <origin xyz="0.00 0.00 -0.023" rpy="0 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <dynamics damping="1" friction="2"/>
+    <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger1_middle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger1 middle  to finger1 upper joint -->
+  <joint name="right_finger1_middle_to_finger1_upper" type="revolute">
+    <parent link="right_finger1_middle"/>
+    <child link="right_finger1_upper"/>
+    <origin xyz="0.00 0.00 -0.02" rpy="0 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger1_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger1_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+
+  <!-- Right palm  to finger2 lower joint -->
+  <joint name="right_palm_to_finger2_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger2_lower"/>
+    <origin xyz="-0.0058 -0.0018 -0.072" rpy="0 -0.1 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger2_lower">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger2 lower  to finger2 middle joint -->
+  <joint name="right_finger2_lower_to_finger2_middle" type="revolute">
+    <parent link="right_finger2_lower"/>
+    <child link="right_finger2_middle"/>
+    <origin xyz="0.00 0.00 -0.02776" rpy="0 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger2_middle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger2 middle  to finger2 upper joint -->
+  <joint name="right_finger2_middle_to_finger2_upper" type="revolute">
+    <parent link="right_finger2_middle"/>
+    <child link="right_finger2_upper"/>
+    <origin xyz="0.00 0.00 -0.02388" rpy="0 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger2_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger2_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger3 lower joint -->
+  <joint name="right_palm_to_finger3_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger3_lower"/>
+    <origin xyz="0.0125 -0.0021 -0.068" rpy="0 -0.27 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger3_lower">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger3 lower  to finger3 middle joint -->
+  <joint name="right_finger3_lower_to_finger3_middle" type="revolute">
+    <parent link="right_finger3_lower"/>
+    <child link="right_finger3_middle"/>
+    <origin xyz="0.00 0.00 -0.02493 " rpy="0 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger3_middle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger3 middle  to finger3 upper joint -->
+  <joint name="right_finger3_middle_to_finger3_upper" type="revolute">
+    <parent link="right_finger3_middle"/>
+    <child link="right_finger3_upper"/>
+    <origin xyz="0.00 0.00 -0.02178" rpy="0 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger3_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger3_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right palm  to finger4 lower joint -->
+  <joint name="right_palm_to_finger4_lower" type="revolute">
+    <parent link="right_palm"/>
+    <child link="right_finger4_lower"/>
+    <origin xyz="0.0273 -0.0021 -0.0620" rpy="0 -0.45 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.45" effort="500" velocity="1.0"/>
+    
+  </joint>
+
+  <link name="right_finger4_lower">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger4 lower  to finger4 middle joint -->
+  <joint name="right_finger4_lower_to_finger4_middle" type="revolute">
+    <parent link="right_finger4_lower"/>
+    <child link="right_finger4_middle"/>
+    <origin xyz="0.00 0.00 -0.01822 " rpy="0 0 0"/>
+    <axis xyz="-1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger4_middle">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <!-- Right finger4 middle  to finger4 upper joint -->
+  <joint name="right_finger4_middle_to_finger4_upper" type="revolute">
+    <parent link="right_finger4_middle"/>
+    <child link="right_finger4_upper"/>
+    <origin xyz="0.00 0.00 -0.01509" rpy="0 0 0"/>
+    <axis xyz="-1 0 0" rpy="1 0 0"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="0" upper="1.20" effort="500" velocity="1.0"/>
+    <mimic joint="right_palm_to_finger4_lower" multiplier="1.0" offset="0.0"/>
+  </joint>
+
+  <link name="right_finger4_upper">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <gazebo>
+    <!-- right palm to thomb joint -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_thomb</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- tright_thomb_to_thomb_middle -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_thomb_to_thomb_middle</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right_thomb_middle_to_thomb_upper -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_thomb_middle_to_thomb_upper</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger1 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger1_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger2 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger2_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger3 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger3_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+
+    <!-- right palm  to finger4 lower -->
+    <plugin filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+      <joint_name>right_palm_to_finger4_lower</joint_name>
+      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+      <i_min>-6</i_min><i_max>6</i_max>
+    </plugin>
+  </gazebo>
+
+
+
+
+
+</robot>
