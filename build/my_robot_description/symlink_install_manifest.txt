@@ -5,10 +5,14 @@
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/common_properties.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/hruh.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/hruh_gazebo.xacro
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/left_arm.xacro
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/left_arm_gripper.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/lidar.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/mobile_base.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/mobile_base_gazebo.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/my_robot.urdf.xacro
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/right_arm.xacro
+/home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//urdf/right_arm_gripper.xacro
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/display.launch.xml
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//launch/my_robot_hurh.launch.xml
 /home/shreyas/ros2_ws/install/my_robot_description/share/my_robot_description//rviz/urdf_config.rviz
