@@ -58,43 +58,53 @@
   gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
   
-- ros_topic_name: "stereo_camera/left/camera_info"
-  gz_topic_name: "stereo_camera/left/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
+
+# Stereo left
+- ros_topic_name: /stereo/left/image_raw
+  gz_topic_name: /stereo/left/image_raw
+  ros_type_name: sensor_msgs/msg/Image
+  gz_type_name: gz.msgs.Image
+  direction: GZ_TO_ROS
+- ros_topic_name: /stereo/left/camera_info
+  gz_topic_name: /stereo/left/camera_info
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  gz_type_name: gz.msgs.CameraInfo
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/stereo_camera/left/image_raw"
-  gz_topic_name: "/stereo_camera/left/image_raw"
+# Stereo right
+- ros_topic_name: /stereo/right/image_raw
+  gz_topic_name: /stereo/right/image_raw
+  ros_type_name: sensor_msgs/msg/Image
+  gz_type_name: gz.msgs.Image
+  direction: GZ_TO_ROS
+- ros_topic_name: /stereo/right/camera_info
+  gz_topic_name: /stereo/right/camera_info
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  gz_type_name: gz.msgs.CameraInfo
+  direction: GZ_TO_ROS
+
+# === RGB-D camera (GZ -> ROS) ===
+- ros_topic_name: "/camera/image"
+  gz_topic_name: "/camera/image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "stereo_camera/right/camera_info"
-  gz_topic_name: "stereo_camera/right/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-- ros_topic_name: "/stereo_camera/right/image_raw"
-  gz_topic_name: "/stereo_camera/right/image_raw"
+- ros_topic_name: "/camera/depth_image"
+  gz_topic_name: "/camera/depth_image"
   ros_type_name: "sensor_msgs/msg/Image"
   gz_type_name: "gz.msgs.Image"
   direction: GZ_TO_ROS
 
-- ros_topic_name: "/kinect_camera"
-  gz_topic_name: "/kinect_camera"
-  ros_type_name: "sensor_msgs/msg/Image"
-  gz_type_name: "gz.msgs.Image"
-  direction: GZ_TO_ROS
-
-- ros_topic_name: "/kinect_camera/points"
-  gz_topic_name: "/kinect_camera/points"
+- ros_topic_name: "/camera/points"
+  gz_topic_name: "/camera/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
 
 
+
+# IMU data
 - ros_topic_name: "/imu"
   gz_topic_name: "/imu"
   ros_type_name: "sensor_msgs/msg/Imu"

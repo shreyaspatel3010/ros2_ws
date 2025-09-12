@@ -1,1 +1,47 @@
-/home/shreyas/ros2_ws/src/my_robot_description/urdf/arm_gazebo.xacro
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <gazebo reference="arm_base_link">
+        <material>Gazebo/Orange</material>
+    </gazebo> 
+
+    <gazebo reference="forearm_link">
+        <material>Gazebo/Yellow</material>
+    </gazebo> 
+
+    <gazebo reference="hand_link">
+        <material>Gazebo/Orange</material>
+    </gazebo>
+
+    
+
+    
+
+    <gazebo>
+        <plugin 
+            filename="gz-sim-joint-position-controller-system" 
+            name="gz::sim::systems::JointPositionController">
+            <joint_name>mobile_base_arm_joint</joint_name>
+            <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
+            <i_min>-6</i_min><i_max>6</i_max>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin 
+            filename="gz-sim-joint-state-publisher-system" 
+            name="gz::sim::systems::JointStatePublisher">
+            <joint_name>arm_base_forearm_joint</joint_name>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin 
+            filename="gz-sim-joint-state-publisher-system" 
+            name="gz::sim::systems::JointStatePublisher">
+            <joint_name>mobile_base_arm_joint</joint_name>
+        </plugin>
+    </gazebo>
+
+
+</robot>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Tweak these as you like -->
+  <xacro:property name="rgbd_w" value="640"/>
+  <xacro:property name="rgbd_h" value="480"/>
+  <xacro:property name="rgbd_fov" value="1.3962634"/>   <!-- ~60° -->
+  <xacro:property name="rgbd_near" value="0.2"/>
+  <xacro:property name="rgbd_far"  value="8.0"/>
+  <xacro:property name="camera_length" value="0.01" />
+    <xacro:property name="camera_width" value="0.1" />
+    <xacro:property name="camera_height" value="0.05" />
+
+  <!-- Physical mount -->
+  <link name="rgbd_link">
+        <visual>
+            <geometry>
+                <box size="${camera_length} ${camera_width} ${camera_height}" />
+            </geometry>
+            <material name="red" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${camera_length} ${camera_width} ${camera_height}" />
+            </geometry>
+        </collision>
+        <xacro:box_inertia m="0.1" l="${camera_length}" w="${camera_width}" h="${camera_height}"
+                           xyz="0 0 0" rpy="0 0 0" />
+    </link>
+
+  <!-- Mount on the base (change parent/pose to your link) -->
+  <joint name="rgbd_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="rgbd_link"/>
+    <origin xyz="${(base_length + camera_length) / 2.0} 0 ${base_height / 2.0}" rpy="0 0 0" />
+  </joint>
+
+ <!-- Optical frame — REP-103/104 (Z forward, X right, Y down) -->
+
+  <link name="rgbd_optical"/>
+  <joint name="rgbd_optical_joint" type="fixed">
+    <parent link="rgbd_link"/>
+    <child  link="rgbd_optical"/>
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+  </joint>
+
+  <!-- Gazebo Sim RGB-D sensor -->
+  <gazebo reference="rgbd_link">
+    <sensor name="rgbd_camera" type="rgbd_camera">
+      <always_on>1</always_on>
+      <update_rate>50</update_rate>
+      <!-- This base topic becomes /camera/image and /camera/depth_image in Gz -->
+      <topic>/camera</topic>
+      <camera>
+        <horizontal_fov>${rgbd_fov}</horizontal_fov>
+        <image>
+          <width>${rgbd_w}</width>
+          <height>${rgbd_h}</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip><near>${rgbd_near}</near><far>${rgbd_far}</far></clip>
+        <!-- Frame id used by the bridges -->
+        <optical_frame_id>rgbd_link</optical_frame_id>
+      </camera>
+      <visualize>true</visualize>
+    </sensor>
+  </gazebo>
+
+</robot>

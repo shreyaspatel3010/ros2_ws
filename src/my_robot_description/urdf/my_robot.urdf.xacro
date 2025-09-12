@@ -9,9 +9,10 @@
     <xacro:include filename="hruh.xacro" />
     <xacro:include filename="hruh_gazebo.xacro" />
 
-
-    <xacro:include filename="camera.xacro" />
-    <xacro:include filename="lidar.xacro" />
+    <!-- <xacro:include filename="stereo_camera.xacro" /> -->
+    <xacro:include filename="rgbd_camera.xacro"/>
+    <!-- <xacro:include filename="camera.xacro" /> -->
+    <!-- <xacro:include filename="lidar.xacro" /> -->
 
 
     <xacro:include filename="right_arm.xacro" />

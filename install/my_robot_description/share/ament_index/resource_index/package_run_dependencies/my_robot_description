@@ -1,1 +1,1 @@
-/home/shreyas/ros2_ws/build/my_robot_description/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/my_robot_description
+robot_state_publisher;ros_gz_sim;ros_gz_bridge;rviz2;controller_manager;ros2_control;ros2_controllers;geometry_msgs;ament_lint_auto;ament_lint_common

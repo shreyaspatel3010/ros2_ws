@@ -3,32 +3,40 @@
          value="$(find-pkg-share my_robot_description)/urdf/my_robot.urdf.xacro" />
     <let name="rviz_config_path"
          value="$(find-pkg-share my_robot_description)/rviz/urdf_config.rviz" />
-
-    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" />
-
     <let name="gazebo_config_path"
          value="$(find-pkg-share my_robot_description)/config/gazebo_bridge.yaml" />
 
+    <!-- GUI for joints (optional) -->
+    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" />
 
+    <!-- Robot state publisher -->
     <node pkg="robot_state_publisher" exec="robot_state_publisher">
-            <param name="robot_description"
-                   value="$(command 'xacro $(var urdf_path)')" />
+        <param name="robot_description" value="$(command 'xacro $(var urdf_path)')" />
+        <param name="use_sim_time" value="true" />
     </node>
 
-
+    <!-- Start Gazebo (gz sim) with your world -->
     <include file="$(find-pkg-share ros_gz_sim)/launch/gz_sim.launch.py">
         <arg name="gz_args" value="$(find-pkg-share my_robot_description)/worlds/test_world.sdf -r" />
     </include>
 
+    <!-- Spawn robot from robot_description -->
     <node pkg="ros_gz_sim" exec="create" args="-topic robot_description -entity my_robot" />
 
+    <!-- Bridge topics (uses your YAML config) -->
     <node pkg="ros_gz_bridge" exec="parameter_bridge">
         <param name="config_file" value="$(var gazebo_config_path)" />
     </node>
 
-    <node pkg="rviz2" exec="rviz2" output="screen" 
-          args="-d $(var rviz_config_path)" />
+    <!-- Stereo image processing -->
+    <!-- <include file="$(find-pkg-share stereo_image_proc)/launch/stereo_image_proc.launch.py">
+          <arg name="namespace" value="/stereo" />
+    </include> -->
+
     
-   
-    
+
+    <!-- RViz2 (optional) -->
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)">
+        <param name="use_sim_time" value="true" />
+    </node>
 </launch>

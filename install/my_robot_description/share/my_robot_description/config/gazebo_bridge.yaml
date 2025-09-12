@@ -1,1 +1,255 @@
-/home/shreyas/ros2_ws/src/my_robot_description/config/gazebo_bridge.yaml
+- ros_topic_name: "/clock"
+  gz_topic_name: "/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/joint_states"
+  gz_topic_name: "/world/empty/model/my_robot/joint_state"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/tf"
+  gz_topic_name: "/model/my_robot/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "gz.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/cmd_vel"
+  gz_topic_name: "/model/my_robot/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/camera/camera_info"
+  gz_topic_name: "/camera/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera_info"
+  gz_topic_name: "/camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/image_raw"
+  gz_topic_name: "/camera/image_raw"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/joint0/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/arm_base_forearm_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/joint1/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/mobile_base_arm_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/scan"
+  gz_topic_name: "/model/my_robot/scan"           # was /model/my_robot/scan
+  ros_type_name: "sensor_msgs/msg/LaserScan"  # was Range
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+  
+
+# Stereo left
+- ros_topic_name: /stereo/left/image_raw
+  gz_topic_name: /stereo/left/image_raw
+  ros_type_name: sensor_msgs/msg/Image
+  gz_type_name: gz.msgs.Image
+  direction: GZ_TO_ROS
+- ros_topic_name: /stereo/left/camera_info
+  gz_topic_name: /stereo/left/camera_info
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  gz_type_name: gz.msgs.CameraInfo
+  direction: GZ_TO_ROS
+
+# Stereo right
+- ros_topic_name: /stereo/right/image_raw
+  gz_topic_name: /stereo/right/image_raw
+  ros_type_name: sensor_msgs/msg/Image
+  gz_type_name: gz.msgs.Image
+  direction: GZ_TO_ROS
+- ros_topic_name: /stereo/right/camera_info
+  gz_topic_name: /stereo/right/camera_info
+  ros_type_name: sensor_msgs/msg/CameraInfo
+  gz_type_name: gz.msgs.CameraInfo
+  direction: GZ_TO_ROS
+
+# === RGB-D camera (GZ -> ROS) ===
+- ros_topic_name: "/camera/image"
+  gz_topic_name: "/camera/image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/depth_image"
+  gz_topic_name: "/camera/depth_image"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/camera/points"
+  gz_topic_name: "/camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+
+
+# IMU data
+- ros_topic_name: "/imu"
+  gz_topic_name: "/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "gz.msgs.IMU"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/model/my_robot/odometry"
+  gz_topic_name: "/model/my_robot/odometry"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/odom"
+  gz_topic_name: "/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/world/empty/light_config"
+  gz_topic_name: "/world/empty/light_config"
+  ros_type_name: "ros_gz_interfaces/msg/Light"
+  gz_type_name: "gz.msgs.Light"
+  direction: GZ_TO_ROS
+
+# Base velocity commands (Twist) -> DiffDrive
+- ros_topic_name: "/model/my_robot/cmd_vel"
+  gz_topic_name: "/model/my_robot/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "gz.msgs.Twist"
+  direction: ROS_TO_GZ
+
+# Arm position command (Float64) -> JointPositionController
+- ros_topic_name: "/arm_base_forearm_joint/cmd_pos"
+  gz_topic_name: "/model/my_robot/joint/arm_base_forearm_joint/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# === right arm position command bridges (ROS -> GZ) ===
+- ros_topic_name: "/right_arm/chest_to_right_shoulder/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/chest_to_right_shoulder/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_shoulder_to_bisecp/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_shoulder_to_bisecp/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_bisecp_uper_to_lower/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_bisecp_uper_to_lower/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_bisecp_to_elbow_inword/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_bisecp_to_elbow_inword/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_elbow_inword_to_midle/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_elbow_inword_to_midle/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_forarm_upper_to_lower_1/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_forarm_upper_to_lower_1/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_forarm_to_wrist/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_forarm_to_wrist/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/right_arm/right_wrist_to_palm/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/right_wrist_to_palm/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# === Left arm position command bridges (ROS -> GZ) ===
+- ros_topic_name: "/left_arm/chest_to_left_shoulder/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/chest_to_left_shoulder/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_shoulder_to_bisecp/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_shoulder_to_bisecp/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_bisecp_uper_to_lower/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_bisecp_uper_to_lower/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_bisecp_to_elbow_inword/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_bisecp_to_elbow_inword/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_elbow_inword_to_midle/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_elbow_inword_to_midle/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_forarm_upper_to_lower_1/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_forarm_upper_to_lower_1/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_forarm_to_wrist/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_forarm_to_wrist/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/left_arm/left_wrist_to_palm/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/left_wrist_to_palm/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/chest_to_neck/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/chest_to_neck/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+- ros_topic_name: "/neck_to_head/cmd_pos"
+  gz_topic_name:   "/world/empty/model/my_robot/joint/neck_to_head/0/cmd_pos"
+  ros_type_name:   "std_msgs/msg/Float64"
+  gz_type_name:    "gz.msgs.Double"
+  direction: ROS_TO_GZ
+

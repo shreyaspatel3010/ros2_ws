@@ -1,1 +1,116 @@
-/home/shreyas/ros2_ws/src/my_robot_description/urdf/hruh.xacro
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hruh">
+
+  
+
+  <!-- Base link -->
+  <link name="chest_hruh">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  
+    <inertial>
+      <mass value="4.0"/>
+      <inertia ixx="0.03" ixy="0.0" ixz="0.0" iyy="0.03" iyz="0.0" izz="0.02"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+  <joint name="arm_chest_joint" type="fixed">
+      <parent link="forearm_link" />
+      <child link="chest_hruh" />
+      <origin xyz="${base_length / 50.0} 0 ${forearm_length}" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="chest_hruh">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="chest_hruh">
+      <mu>1.1</mu>
+      <mu2>1.1</mu2>
+      <material>Gazebo/Wood</material>
+  </gazebo>
+
+  <!-- Neck -->
+  <joint name="chest_to_neck" type="revolute">
+    <parent link="chest_hruh"/>
+    <child link="neck"/>
+    <origin xyz="0 0 0.3723" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.57" upper="1.57" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="neck">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+      </geometry>
+      <material name="" >
+         <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <dynamics damping="1" friction="2"/>
+  
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.0008"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="neck">
+      <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <!-- Head -->
+  <joint name="neck_to_head" type="revolute">
+    <parent link="neck"/>
+    <child link="head_base"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="1" friction="2"/>
+    <limit lower="-1.0" upper="1.0" effort="500" velocity="1.0"/>
+  </joint>
+
+  <link name="head_base">
+    <visual>
+      <geometry>
+        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      </geometry>
+      <material name="grey" />
+    </visual>
+    <collision>
+      <geometry>
+      <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  
+    <inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.002" ixy="0.0" ixz="0.0" iyy="0.002" iyz="0.0" izz="0.0015"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </inertial>
+  </link>
+
+
+
+
+
+</robot>
