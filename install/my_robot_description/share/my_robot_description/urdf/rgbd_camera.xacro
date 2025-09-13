@@ -61,6 +61,7 @@
         <clip><near>${rgbd_near}</near><far>${rgbd_far}</far></clip>
         <!-- Frame id used by the bridges -->
         <optical_frame_id>rgbd_link</optical_frame_id>
+        <gz_frame_id>rgbd_link</gz_frame_id>
       </camera>
       <visualize>true</visualize>
     </sensor>

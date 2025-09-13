@@ -29,9 +29,9 @@
     </node>
 
     <!-- Stereo image processing -->
-    <!-- <include file="$(find-pkg-share stereo_image_proc)/launch/stereo_image_proc.launch.py">
+    <include file="$(find-pkg-share stereo_image_proc)/launch/stereo_image_proc.launch.py">
           <arg name="namespace" value="/stereo" />
-    </include> -->
+    </include>
 
     
 
