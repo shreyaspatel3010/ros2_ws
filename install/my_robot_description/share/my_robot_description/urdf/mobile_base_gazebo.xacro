@@ -5,20 +5,23 @@
         <material>Gazebo/Blue</material>
     </gazebo> 
 
-    <gazebo reference="right_wheel_link">
-        <material>Gazebo/Grey</material>
+    <gazebo reference="right_back_wheel_link">
+        <material>Gazebo/Red</material>
     </gazebo> 
 
-    <gazebo reference="left_wheel_link">
-        <material>Gazebo/Grey</material>
+    <gazebo reference="left_back_wheel_link">
+        <material>Gazebo/Red</material>
     </gazebo> 
+
+    <gazebo reference="right_front_wheel_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+    <gazebo reference="left_front_wheel_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
 
     
-    <gazebo reference="caster_wheel_link">
-        <material>Gazebo/Grey</material>
-        <mu1 value="0.1" />
-        <mu2 value="0.1" />
-    </gazebo>
 
     <gazebo>
         <plugin filename="libgz-sim-odometry-publisher-system"
@@ -46,8 +49,10 @@
         <plugin 
             filename="gz-sim-diff-drive-system" 
             name="gz::sim::systems::DiffDrive">
-            <left_joint>base_left_wheel_joint</left_joint>
-            <right_joint>base_right_wheel_joint</right_joint>
+            <left_joint>base_left_back_wheel_joint</left_joint>
+            <left_joint>base_left_front_wheel_joint</left_joint>
+            <right_joint>base_right_back_wheel_joint</right_joint>
+            <right_joint>base_right_front_wheel_joint</right_joint>
             <wheel_separation>0.45</wheel_separation>
             <wheel_radius>0.1</wheel_radius>
             <frame_id>odom</frame_id>
@@ -59,8 +64,10 @@
         <plugin 
             filename="gz-sim-joint-state-publisher-system" 
             name="gz::sim::systems::JointStatePublisher">
-            <joint_name>base_left_wheel_joint</joint_name>
-            <joint_name>base_right_wheel_joint</joint_name>
+            <joint_name>base_left_back_wheel_joint</joint_name>
+            <joint_name>base_left_front_wheel_joint</joint_name>
+            <joint_name>base_right_back_wheel_joint</joint_name>
+            <joint_name>base_right_front_wheel_joint</joint_name>
         </plugin>
     </gazebo>
 

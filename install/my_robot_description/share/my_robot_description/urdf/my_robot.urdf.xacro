@@ -9,7 +9,11 @@
     <xacro:include filename="hruh.xacro" />
     <xacro:include filename="hruh_gazebo.xacro" />
 
-    <!-- <xacro:include filename="stereo_camera.xacro" /> -->
+    <xacro:property name="enable_stereo_cameras" value="true"/>
+    <xacro:property name="enable_rgbd_camera" value="true"/>
+    <xacro:property name="enable_lidar" value="true"/>
+
+    <xacro:include filename="stereo_camera.xacro" />
     <xacro:include filename="rgbd_camera.xacro"/>
     <!-- <xacro:include filename="camera.xacro" /> -->
     <xacro:include filename="lidar_gz.xacro"/>
@@ -28,10 +32,6 @@
         <child link="arm_base_link" />
         <origin xyz="${base_length / 10.0} 0 ${base_height}" rpy="0 0 3.14" />
     </joint>
-    
-   
-
-   
     
 
     

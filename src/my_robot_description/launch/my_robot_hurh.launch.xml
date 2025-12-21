@@ -7,7 +7,7 @@
          value="$(find-pkg-share my_robot_description)/config/gazebo_bridge.yaml" />
 
     <!-- GUI for joints (optional) -->
-    <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" />
+    <!-- <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" /> -->
 
     <!-- Robot state publisher -->
     <node pkg="robot_state_publisher" exec="robot_state_publisher">

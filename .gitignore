@@ -1,0 +1,12 @@
+build/
+install/
+log/
+
+.vscode/
+
+
+src/my_robot_description.zip
+src/.vscode
+src/log
+src/my_robot_description/.vscode
+src/my_robot_description/log
