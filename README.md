@@ -30,7 +30,6 @@ A ROS 2 workspace containing **`my_robot_description`**, the URDF/Xacro model an
 
 ```
 ros2_ws/
-├── HRUH.webm                          # Demo video
 └── src/
     └── my_robot_description/
         ├── config/gazebo_bridge.yaml  # ROS <-> Gazebo topic bridge
@@ -187,11 +186,3 @@ python3 src/my_robot_description/scripts/teleop_whole_robot.py \
 ## Author
 
 **Shreyas Patel** — [@shreyaspatel3010](https://github.com/shreyaspatel3010)
-
-## Demo
-
-https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm
-
-<video src="https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm" controls width="100%"></video>
-
-▶️ If the player above doesn't load, [watch the demo video (HRUH.webm)](HRUH.webm).
