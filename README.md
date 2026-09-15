@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/8d7fba96-aebf-45c3-96a7-040d70d604c0
+
 # HRUH — Humanoid Mobile Manipulator (ROS 2 Jazzy + Gazebo Harmonic)
 
 A ROS 2 workspace containing **`my_robot_description`**, the URDF/Xacro model and simulation setup for **HRUH**: a humanoid upper body (chest, neck, head, two articulated arms with four-finger-and-thumb hands) mounted on a rotating torso column on top of a four-wheel mobile base, equipped with stereo, RGB-D, LiDAR and IMU sensors.
