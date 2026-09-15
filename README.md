@@ -30,6 +30,7 @@ A ROS 2 workspace containing **`my_robot_description`**, the URDF/Xacro model an
 
 ```
 ros2_ws/
+├── HRUH_github.mp4                    # Demo video (Git LFS)
 └── src/
     └── my_robot_description/
         ├── config/gazebo_bridge.yaml  # ROS <-> Gazebo topic bridge
@@ -186,3 +187,7 @@ python3 src/my_robot_description/scripts/teleop_whole_robot.py \
 ## Author
 
 **Shreyas Patel** — [@shreyaspatel3010](https://github.com/shreyaspatel3010)
+
+## Demo
+
+▶️ [Watch the HRUH simulation demo (HRUH_github.mp4)](HRUH_github.mp4)
