@@ -7,14 +7,14 @@
   <link name="chest_hruh">
     <visual>
       <geometry>
-        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
       <origin xyz="0 0 0" rpy="0 0 0" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/chest/chest.STL" scale="1 1 1"/>
       </geometry>
     </collision>
   
@@ -54,7 +54,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
       </geometry>
       <material name="" >
          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -63,7 +63,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/neck/neck.STL" scale="1 1 1"/>
       </geometry>
     </collision>
     <dynamics damping="1" friction="2"/>
@@ -92,13 +92,13 @@
   <link name="head_base">
     <visual>
       <geometry>
-        <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
       </geometry>
       <material name="grey" />
     </visual>
     <collision>
       <geometry>
-      <mesh filename="file:///home/shreyas/ros2_ws/src/my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
+      <mesh filename="package://my_robot_description/meshes/head/head.stl" scale="1 1 1"/>
       </geometry>
     </collision>
   
