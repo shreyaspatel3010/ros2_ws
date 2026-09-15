@@ -1,5 +1,9 @@
 
 
+https://github.com/user-attachments/assets/b1682c02-8cf9-47fd-bc55-2a95cd158ac4
+
+
+
 
 
 # HRUH — Humanoid Mobile Manipulator (ROS 2 Jazzy + Gazebo Harmonic)
