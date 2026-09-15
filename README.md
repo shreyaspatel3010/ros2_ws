@@ -12,6 +12,10 @@ A ROS 2 workspace containing **`my_robot_description`**, the URDF/Xacro model an
 - **Sensors**
   - Stereo camera pair (`/stereo/left|right/image_raw`, `camera_info`) + `stereo_image_proc`
   - RGB-D camera (`/camera/image`, `/camera/depth_image`, `/camera/points`)
+
+https://github.com/user-attachments/assets/231ffe8d-f9b1-43d1-a618-bcc002551119
+
+
   - GPU LiDAR (`/scan`, `/points`)
   - IMU (`/imu`)
 - **ros_gz_bridge** config covering clock, TF, odometry, sensors and all joint commands.
