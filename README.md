@@ -17,7 +17,7 @@ A ROS 2 workspace containing **`my_robot_description`**, the URDF/Xacro model an
   - Stereo camera pair (`/stereo/left|right/image_raw`, `camera_info`) + `stereo_image_proc`
   - RGB-D camera (`/camera/image`, `/camera/depth_image`, `/camera/points`)
 
-https://github.com/user-attachments/assets/231ffe8d-f9b1-43d1-a618-bcc002551119
+
 
 
   - GPU LiDAR (`/scan`, `/points`)
@@ -189,7 +189,7 @@ python3 src/my_robot_description/scripts/teleop_whole_robot.py \
 **Shreyas Patel** — [@shreyaspatel3010](https://github.com/shreyaspatel3010)
 
 ## Demo
-https://github.com/user-attachments/assets/8d7fba96-aebf-45c3-96a7-040d70d604c0
+https://github.com/user-attachments/assets/231ffe8d-f9b1-43d1-a618-bcc002551119
 https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm
 
 <video src="https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm" controls width="100%"></video>
