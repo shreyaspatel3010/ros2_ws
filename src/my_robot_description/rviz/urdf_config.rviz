@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /RobotModel1
         - /Camera1/Topic1
+        - /MarkerArray1
       Splitter Ratio: 0.5
     Tree Height: 707
   - Class: rviz_common/Selection
@@ -27,7 +28,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: rgbd_PointCloud
+    SyncSource: ""
 Visualization Manager:
   Class: ""
   Displays:
@@ -254,7 +255,6 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
         neck:
           Alpha: 1
           Show Axes: false
@@ -473,6 +473,7 @@ Visualization Manager:
         Value: /camera/image
       Value: false
       Visibility:
+        "": true
         Grid: true
         LaserScan: true
         Map: true
@@ -639,6 +640,18 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: false
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: visualization_marker_array
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -723,5 +736,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1854
-  X: 595
-  Y: 439
+  X: 3300
+  Y: 246

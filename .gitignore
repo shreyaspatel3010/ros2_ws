@@ -10,3 +10,4 @@ src/.vscode
 src/log
 src/my_robot_description/.vscode
 src/my_robot_description/log
+src/grasshopper_waypoint_follower

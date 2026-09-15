@@ -3,7 +3,7 @@
 
   <!-- simple mast link for LiDAR -->
   <link name="lidar_link">
-    <visual>
+    <!-- <visual>
       <geometry><cylinder radius="0.035" length="0.06"/></geometry>
       <material name="grey"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -15,7 +15,7 @@
       <mass value="0.15"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="1e-4" ixy="0" ixz="0" iyy="1e-4" iyz="0" izz="1e-4"/>
-    </inertial>
+    </inertial> -->
   </link>
 
   <!-- mount LiDAR somewhere reasonable above base_link -->

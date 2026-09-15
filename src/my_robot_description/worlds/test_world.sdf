@@ -8,7 +8,6 @@
     <plugin name='gz::sim::systems::Physics' filename='gz-sim-physics-system'/>
     <plugin name='gz::sim::systems::UserCommands' filename='gz-sim-user-commands-system'/>
     <plugin filename='gz-sim-imu-system' name='gz::sim::systems::Imu'/>
-    <plugin filename='gz-sim-joint-state-publisher-system' name='gz::sim::systems::JointStatePublisher'/>
     <plugin name='gz::sim::systems::SceneBroadcaster' filename='gz-sim-scene-broadcaster-system'/>
     <plugin name='gz::sim::systems::Contact' filename='gz-sim-contact-system'/>
     <plugin name='gz::sim::systems::Sensors' filename='gz-sim-sensors-system'>
