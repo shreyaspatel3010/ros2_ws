@@ -1,6 +1,6 @@
 
 
-https://github.com/user-attachments/assets/b1682c02-8cf9-47fd-bc55-2a95cd158ac4
+
 
 
 
@@ -193,5 +193,7 @@ python3 src/my_robot_description/scripts/teleop_whole_robot.py \
 **Shreyas Patel** — [@shreyaspatel3010](https://github.com/shreyaspatel3010)
 
 ## Demo
+
+https://github.com/user-attachments/assets/b1682c02-8cf9-47fd-bc55-2a95cd158ac4
 
 ▶️ [Watch the HRUH simulation demo (HRUH_github.mp4)](HRUH_github.mp4)
