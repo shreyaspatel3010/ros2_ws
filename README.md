@@ -1,6 +1,6 @@
 
 
-https://github.com/user-attachments/assets/8d7fba96-aebf-45c3-96a7-040d70d604c0
+
 
 # HRUH — Humanoid Mobile Manipulator (ROS 2 Jazzy + Gazebo Harmonic)
 
@@ -189,7 +189,7 @@ python3 src/my_robot_description/scripts/teleop_whole_robot.py \
 **Shreyas Patel** — [@shreyaspatel3010](https://github.com/shreyaspatel3010)
 
 ## Demo
-
+https://github.com/user-attachments/assets/8d7fba96-aebf-45c3-96a7-040d70d604c0
 https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm
 
 <video src="https://github.com/shreyaspatel3010/ros2_ws/raw/main/HRUH.webm" controls width="100%"></video>
