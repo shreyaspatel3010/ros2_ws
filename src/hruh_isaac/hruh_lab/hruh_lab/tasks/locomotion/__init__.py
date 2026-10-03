@@ -1,7 +1,7 @@
-"""Velocity-tracking locomotion: Hruh-Velocity-{Flat,Rough}[-Play]-v0."""
+"""Velocity-tracking locomotion: Hruh-Velocity-{Flat,Rough,Motion}[-Play]-v0."""
 import gymnasium as gym
 
-for terrain in ("Flat", "Rough"):
+for terrain in ("Flat", "Rough", "Motion"):
     for play in ("", "_PLAY"):
         gym.register(
             id=f"Hruh-Velocity-{terrain}{'-Play' if play else ''}-v0",

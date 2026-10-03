@@ -33,6 +33,7 @@
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>hruh_control</exec_depend>
   <exec_depend>gz_ros2_control</exec_depend>
+  <exec_depend>topic_based_ros2_control</exec_depend>
   <exec_depend>position_controllers</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>

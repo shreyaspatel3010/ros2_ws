@@ -9,7 +9,7 @@ Brings up planning only; something else must provide the controllers:
 hruh_bringup demo.launch.py (mock hardware) or sim.launch.py (Gazebo) include
 this file.
 
-    hardware:=mock|gz   which ros2_control hardware the robot_description describes
+    hardware:=mock|gz|isaac   which ros2_control hardware the robot_description describes
     use_sim_time:=...   true with Gazebo
     rviz:=false         no RViz
 """
@@ -55,7 +55,7 @@ def setup(context):
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument("hardware", default_value="mock", choices=["mock", "gz"]),
+        DeclareLaunchArgument("hardware", default_value="mock", choices=["mock", "gz", "isaac"]),
         DeclareLaunchArgument("use_sim_time", default_value="false"),
         DeclareLaunchArgument("rviz", default_value="true"),
         OpaqueFunction(function=setup),

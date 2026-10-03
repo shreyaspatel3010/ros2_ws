@@ -5,6 +5,7 @@ paths, no Gazebo / ros2_control tags); override with the HRUH_URDF variable.
 Isaac Lab converts it to USD once and caches it.
 """
 import os
+import xml.etree.ElementTree as ET
 
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
@@ -16,15 +17,21 @@ HRUH_URDF = os.path.expanduser(os.environ.get("HRUH_URDF", "~/.cache/hruh/hruh_i
 if not os.path.exists(HRUH_URDF):
     raise FileNotFoundError(f"{HRUH_URDF} not found: run `ros2 run hruh_isaac export_isaac_urdf.py` first")
 
+JOINT_LIMITS = {
+    joint.get("name"): (float(joint.find("limit").get("lower")), float(joint.find("limit").get("upper")))
+    for joint in ET.parse(HRUH_URDF).getroot().findall("joint") if joint.get("type") == "revolute"
+}
+
 
 def _spawn(fix_base: bool) -> sim_utils.UrdfFileCfg:
     return sim_utils.UrdfFileCfg(
         asset_path=HRUH_URDF,
         fix_base=fix_base,
         merge_fixed_joints=True,                       # massless frames (cameras, palm, pelvis) fold into parents
-        convert_mimic_joints_to_normal_joints=True,    # finger segments become independent joints
+        convert_mimic_joints_to_normal_joints=False,
         self_collision=False,
-        collider_type="convex_hull",
+        collision_type="Convex Hull",
+        usd_dir=os.path.join(os.path.dirname(HRUH_URDF), "usd_fixed" if fix_base else "usd"),
         activate_contact_sensors=True,
         joint_drive=sim_utils.UrdfConverterCfg.JointDriveCfg(
             gains=sim_utils.UrdfConverterCfg.JointDriveCfg.PDGainsCfg(stiffness=0.0, damping=0.0)),
@@ -40,7 +47,9 @@ ACTUATORS = {
     # PD gains in N*m/rad, N*m*s/rad; effort / speed limits follow the URDF
     "legs": ImplicitActuatorCfg(
         joint_names_expr=[".*_hip_yaw_joint", ".*_hip_roll_joint", ".*_hip_pitch_joint", ".*_knee_joint"],
-        effort_limit_sim=250.0, velocity_limit_sim=10.0,
+        effort_limit_sim={".*_hip_yaw_joint": 150.0, ".*_hip_roll_joint": 200.0,
+                          ".*_hip_pitch_joint": 250.0, ".*_knee_joint": 300.0},
+        velocity_limit_sim={".*_hip_.*": 8.0, ".*_knee_joint": 10.0},
         stiffness={".*_hip_yaw_joint": 150.0, ".*_hip_roll_joint": 200.0, ".*_hip_pitch_joint": 200.0,
                    ".*_knee_joint": 250.0},
         damping={".*_hip_yaw_joint": 5.0, ".*_hip_roll_joint": 5.0, ".*_hip_pitch_joint": 5.0, ".*_knee_joint": 6.0},
@@ -48,7 +57,8 @@ ACTUATORS = {
     ),
     "feet": ImplicitActuatorCfg(
         joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint", ".*_toe_joint"],
-        effort_limit_sim=120.0, velocity_limit_sim=10.0,
+        effort_limit_sim={".*_ankle_pitch_joint": 150.0, ".*_ankle_roll_joint": 100.0, ".*_toe_joint": 40.0},
+        velocity_limit_sim=10.0,
         stiffness={".*_ankle_.*": 60.0, ".*_toe_joint": 15.0},
         damping={".*_ankle_.*": 3.0, ".*_toe_joint": 0.5},
         armature=0.01,

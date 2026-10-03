@@ -8,13 +8,20 @@ waist motion with MoveIt 2, and the whole robot can be driven from one gamepad.
 
 ## Packages
 
+**Isaac learning:** see [`src/hruh_isaac/README.md`](src/hruh_isaac/README.md)
+for GPU training, measured evaluation and right-arm reaching / right-hand
+cube-lifting tasks. Policies that pass their benchmark are promoted to
+`src/hruh_isaac/policies/` and run by `isaac.launch.py` in place of the ZMP walker
+described below. They are trained and checked in simulation only.
+
 | Package | What it contains |
 |---|---|
 | [`my_robot_description`](src/my_robot_description) | URDF/Xacro, textured meshes (OBJ for ROS, GLB for other tools), Gazebo worlds and bridge, the walking pattern generator `hruh_walker.py`, Blender scripts that generate every asset, and the printable 3MF. |
 | [`hruh_control`](src/hruh_control) | ros2_control controller configuration. |
 | [`hruh_moveit_config`](src/hruh_moveit_config) | MoveIt 2: SRDF with groups, named poses and collision matrix, kinematics, joint limits, controllers, RViz layout and `moveit.launch.py`. |
 | [`hruh_teleop`](src/hruh_teleop) | Gamepad control of the whole robot (`hruh_joystick.py`) plus `joy_layout_normalizer.py`, taken from `aries_teleop`. |
-| [`hruh_bringup`](src/hruh_bringup) | Top-level launch files: Gazebo simulation, mock-hardware demo, kinematic RViz walking. |
+| [`hruh_bringup`](src/hruh_bringup) | Top-level launch files: Gazebo simulation, mock-hardware demo, kinematic RViz walking, Isaac Sim, trained-policy Gazebo. |
+| [`hruh_isaac`](src/hruh_isaac) | Isaac Sim 6.1 app, Isaac Lab training tasks, `train_robot_offline.sh` pipeline, promoted policies (`policies/`), policy runner. |
 
 ## The robot
 
@@ -59,6 +66,9 @@ Dependencies are Jazzy's `ros_gz`, `gz_ros2_control`, `ros2_controllers`, MoveIt
 | `ros2 launch hruh_bringup walk_rviz.launch.py walk:=true` | Kinematic walking in RViz, with full heel-strike and toe-off |
 | `ros2 launch my_robot_description gazebo.launch.py` | Gazebo, controllers and walker only (no MoveIt, no gamepad) |
 | `ros2 launch my_robot_description display.launch.py` | Model viewer with joint sliders |
+| `ros2 launch hruh_bringup isaac.launch.py` | Isaac Sim + ros2_control + MoveIt + RViz + gamepad; the legs use the promoted learned policy if there is one, otherwise the walker stands (`controller:=walker\|policy\|none`, `fake:=true` without Isaac) |
+| `ros2 launch hruh_bringup policy_gazebo.launch.py joystick:=true` | The promoted walking policy in Gazebo (effort control) |
+| `./train_robot_offline.sh` | Train → evaluate → Gazebo test → promote passing policies into the runtime (hours; resource-capped) |
 
 Common arguments:
 - `joystick:=false`

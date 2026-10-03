@@ -16,6 +16,10 @@ controller_manager:
       type: position_controllers/JointGroupPositionController
     waist_controller:
       type: joint_trajectory_controller/JointTrajectoryController
+    # learned locomotion (hruh_isaac/scripts/policy_runner.py) streams the waist with the legs;
+    # spawned instead of waist_controller by isaac.launch.py controller:=policy
+    waist_position_controller:
+      type: position_controllers/JointGroupPositionController
     head_controller:
       type: joint_trajectory_controller/JointTrajectoryController
     left_arm_controller:
@@ -52,6 +56,13 @@ legs_controller:
       - right_ankle_pitch_joint
       - right_ankle_roll_joint
       - right_toe_joint
+
+waist_position_controller:
+  ros__parameters:
+    joints:
+      - waist_yaw_joint
+      - waist_roll_joint
+      - waist_pitch_joint
 
 waist_controller:
   ros__parameters:

@@ -285,6 +285,13 @@ hardware_interface::return_type TopicBasedSystem::write(const rclcpp::Time& /*ti
   sensor_msgs::msg::JointState joint_state;
   for (std::size_t i = 0; i < info_.joints.size(); ++i)
   {
+    // HRUH patch: state-only joints (e.g. URDF mimic joints listed without command
+    // interfaces) must not be named in the command message, otherwise name/position
+    // lengths differ and Isaac Sim's articulation controller rejects every command.
+    if (info_.joints[i].command_interfaces.empty())
+    {
+      continue;
+    }
     joint_state.name.push_back(info_.joints[i].name);
     joint_state.header.stamp = node_->now();
     // only send commands to the interfaces that are defined for this joint
@@ -292,7 +299,25 @@ hardware_interface::return_type TopicBasedSystem::write(const rclcpp::Time& /*ti
     {
       if (interface.name == hardware_interface::HW_IF_POSITION)
       {
-        joint_state.position.push_back(joint_commands_[POSITION_INTERFACE_INDEX][i]);
+        // HRUH patch: ros2_control initialises commands to NaN until a controller writes
+        // one; forwarding NaN made Isaac drive joints to NaN and the physics diverged.
+        // Hold the measured position instead.
+        // Hold the last finite command; before the first one, latch the measured position
+        // once (re-reading it every cycle would let a loaded joint sag with no stiffness).
+        const double command = joint_commands_[POSITION_INTERFACE_INDEX][i];
+        if (held_position_commands_.size() != info_.joints.size())
+        {
+          held_position_commands_.assign(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
+        }
+        if (std::isfinite(command))
+        {
+          held_position_commands_[i] = command;
+        }
+        else if (!std::isfinite(held_position_commands_[i]))
+        {
+          held_position_commands_[i] = joint_states_[POSITION_INTERFACE_INDEX][i];
+        }
+        joint_state.position.push_back(held_position_commands_[i]);
       }
       else if (interface.name == hardware_interface::HW_IF_VELOCITY)
       {

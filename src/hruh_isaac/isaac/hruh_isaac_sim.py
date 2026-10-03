@@ -1,18 +1,23 @@
-"""HRUH in Isaac Sim 5.1 with a ROS 2 bridge (run with Isaac's Python).
+"""HRUH in Isaac Sim 6.1 with a ROS 2 bridge (run with Isaac's Python).
 
     isaac-python hruh_isaac_sim.py [--headless] [--fix-base] [--cameras] [--gains ros|rl]
 
-ROS 2 interface (consumed by topic_based_ros2_control / hruh_bringup isaac.launch.py):
+ROS 2 interface (used by topic_based_ros2_control in hruh_bringup isaac.launch.py):
     /isaac_joint_states    sensor_msgs/JointState   all joints (published)
     /isaac_joint_commands  sensor_msgs/JointState   position targets (subscribed)
     /clock /odom /imu, TF odom -> base_link
     --cameras: /stereo/{left,right}/image_raw + camera_info (the eye cameras)
 
-The URDF comes from `ros2 run hruh_isaac export_isaac_urdf.py`.
+Physics is PhysX (the articulation / odometry graph nodes are PhysX based), paced
+to real time so ros2_control, MoveIt and the walker run on a consistent clock.
+The URDF comes from `ros2 run hruh_isaac export_isaac_urdf.py`; the converted
+USD is cached in ~/.cache/hruh/isaac_usd/.
 """
 import argparse
+import hashlib
 import math
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 
@@ -25,9 +30,15 @@ ap.add_argument("--physics-hz", type=float, default=200.0)
 ap.add_argument("--gains", choices=["ros", "rl"], default="ros",
                 help="ros: stiff drives for the walker / MoveIt; rl: the Isaac Lab training actuators")
 ap.add_argument("--cameras", action="store_true", help="publish the stereo eye cameras")
+ap.add_argument("--hold-until-stand", metavar="BUNDLE_JSON", default="",
+                help="learned walking: hold the pelvis at --height until /isaac_joint_commands reach the "
+                     "policy's trained stand pose (policy_runner.py settles into it), then release it")
 ap.add_argument("--no-ros", action="store_true", help="no ROS 2 bridge (self-test)")
-ap.add_argument("--steps", type=int, default=0, help="quit after N physics steps (0 = run until closed)")
+ap.add_argument("--steps", type=int, default=0, help="quit after N app updates (0 = run until closed)")
 ap.add_argument("--report", action="store_true", help="print the articulation state when quitting")
+ap.add_argument("--physics", choices=["cpu", "gpu"], default="cpu",
+                help="cpu: PhysX CPU dynamics (one robot, low GPU memory); gpu: PhysX GPU dynamics")
+ap.add_argument("--tilt-deg", type=float, default=0.0, help="spawn tilted (falls over): physics robustness test")
 ap.add_argument("--threads", type=int, default=8,
                 help="worker threads for Isaac's task scheduler (keeps the laptop responsive)")
 args, _ = ap.parse_known_args()
@@ -37,146 +48,223 @@ if not os.path.exists(args.urdf):
 
 from isaacsim import SimulationApp  # noqa: E402
 
-app = SimulationApp({"headless": args.headless, "width": 1280, "height": 720,
-                     "extra_args": [f"--/plugins/carb.tasking.plugin/threadCount={args.threads}"]})
+app = SimulationApp({"headless": args.headless, "width": 1280, "height": 720, "extra_args": [
+    f"--/plugins/carb.tasking.plugin/threadCount={args.threads}",
+    "--/exts/isaacsim.core.simulation_manager/default_engine=physx",
+    "--/exts/isaacsim.physics.newton/auto_switch_on_startup=false",
+    "--/app/runLoops/main/rateLimitEnabled=true",         # real time
+    "--/app/runLoops/main/rateLimitFrequency=60",
+    # keep VRAM low: the desktop (Xorg, VS Code, browser) shares this GPU
+    "--/rtx-transient/resourcemanager/texturestreaming/memoryBudget=0.25",
+    "--/rtx/post/dlss/execMode=0",
+]})
 
-from isaacsim.core.utils.extensions import enable_extension  # noqa: E402
+import isaacsim.core.experimental.utils.app as app_utils  # noqa: E402
 
-enable_extension("isaacsim.asset.importer.urdf")
-enable_extension("isaacsim.sensors.physics")
-if not args.no_ros:
-    enable_extension("isaacsim.ros2.bridge")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "hruh_lab"))
+from hruh_lab import gpu_guard  # noqa: E402  (VRAM budget, HRUH_GPU_MEM_GB, default 8)
+
+gpu_guard.start(name="isaac_sim")
+
+for ext in ["isaacsim.asset.importer.urdf", "isaacsim.sensors.experimental.physics", "isaacsim.sensors.physics.nodes"] \
+        + ([] if args.no_ros else ["isaacsim.ros2.bridge"]):
+    app_utils.enable_extension(ext)
 app.update()
 
 import numpy as np  # noqa: E402
-import omni.kit.commands  # noqa: E402
-import omni.timeline  # noqa: E402
 import omni.usd  # noqa: E402
-from isaacsim.asset.importer.urdf import _urdf  # noqa: E402
-from isaacsim.core.api import World  # noqa: E402
-from isaacsim.core.api.objects import GroundPlane  # noqa: E402
-from pxr import Gf, Sdf, UsdGeom, UsdLux, UsdPhysics  # noqa: E402
+from isaacsim.asset.importer.urdf import URDFImporter, URDFImporterConfig  # noqa: E402
+from pxr import Gf, PhysxSchema, Sdf, UsdGeom, UsdLux, UsdPhysics, UsdShade  # noqa: E402
 
-# ------------------------------------------------------------------ joint drive gains
-# (stiffness N*m/rad, damping N*m*s/rad, max effort N*m) by joint-name pattern
-import re  # noqa: E402
-
+# ------------------------------------------------------------------ joint gains
+# (stiffness N*m/rad, damping N*m*s/rad, max effort N*m) by joint-name regex; first match wins
+ARM = r"(chest_to_.*_shoulder|.*_shoulder_to_bisecp|.*_bisecp_to_elbow_inword|.*_elbow_inword_to_midle|.*_forarm_to_wrist)"
+MIMIC = r".*_finger[1-4]_(lower_to_finger[1-4]_middle|middle_to_finger[1-4]_upper)"
 GAINS = {
-    "ros": [  # stiff position servos: the walker / MoveIt expect commanded = actual
+    "ros": [  # stiff position servos: the walker / MoveIt expect commanded ~= actual
+        (MIMIC, 0.0, 0.0, 10.0),
         (r".*_(hip_yaw|hip_roll|hip_pitch|knee)_joint", 1500.0, 40.0, 300.0),
         (r".*_ankle_(pitch|roll)_joint", 800.0, 20.0, 150.0),
         (r".*_toe_joint", 60.0, 2.0, 40.0),
         (r"waist_.*", 1200.0, 30.0, 150.0),
-        (r"(chest_to_.*_shoulder|.*_shoulder_to_bisecp|.*_bisecp_to_elbow_inword|.*_elbow_inword_to_midle|.*_forarm_to_wrist)",
-         400.0, 10.0, 80.0),
+        (ARM, 400.0, 10.0, 80.0),
         (r"(chest_to_neck|neck_to_head)", 100.0, 4.0, 20.0),
         (r".*(thomb|finger).*", 20.0, 0.5, 10.0),
     ],
-    "rl": [  # identical to hruh_lab.robots.ACTUATORS (policies trained with these)
-        (r".*_hip_yaw_joint", 150.0, 5.0, 250.0), (r".*_(hip_roll|hip_pitch)_joint", 200.0, 5.0, 250.0),
-        (r".*_knee_joint", 250.0, 6.0, 250.0), (r".*_ankle_.*", 60.0, 3.0, 120.0), (r".*_toe_joint", 15.0, 0.5, 120.0),
-        (r"waist_.*", 200.0, 6.0, 150.0),
-        (r"(chest_to_.*_shoulder|.*_shoulder_to_bisecp|.*_bisecp_to_elbow_inword|.*_elbow_inword_to_midle|.*_forarm_to_wrist)",
-         60.0, 3.0, 60.0),
-        (r"(chest_to_neck|neck_to_head)", 30.0, 2.0, 20.0), (r".*(thomb|finger).*", 5.0, 0.2, 10.0),
+    "rl": [  # identical to hruh_lab.robots.ACTUATORS (policies were trained with these)
+        (MIMIC, 0.0, 0.0, 10.0),
+        (r".*_hip_yaw_joint", 150.0, 5.0, 150.0), (r".*_hip_roll_joint", 200.0, 5.0, 200.0),
+        (r".*_hip_pitch_joint", 200.0, 5.0, 250.0), (r".*_knee_joint", 250.0, 6.0, 300.0),
+        (r".*_ankle_pitch_joint", 60.0, 3.0, 150.0), (r".*_ankle_roll_joint", 60.0, 3.0, 100.0),
+        (r".*_toe_joint", 15.0, 0.5, 40.0), (r"waist_.*", 200.0, 6.0, 150.0),
+        (ARM, 60.0, 3.0, 60.0), (r"(chest_to_neck|neck_to_head)", 30.0, 2.0, 20.0),
+        (r".*(thomb|finger).*", 5.0, 0.2, 10.0),
     ],
 }
+profile = GAINS[args.gains]
 
 
 def gains_for(name):
-    for pat, kp, kd, eff in GAINS[args.gains]:
+    for pat, kp, kd, eff in profile:
         if re.fullmatch(pat, name):
             return kp, kd, eff
     return 100.0, 5.0, 50.0
 
 
-urdf_root = ET.parse(args.urdf).getroot()
-MIMIC = {j.get("name") for j in urdf_root.findall("joint") if j.find("mimic") is not None}
-ROBOT_NAME = urdf_root.get("name")
+urdf_text = open(args.urdf, "rb").read()
+urdf_root = ET.fromstring(urdf_text)
+JOINTS = [j.get("name") for j in urdf_root.findall("joint") if j.get("type") in ("revolute", "continuous")]
+# URDF <mimic>: joint -> (driving joint, multiplier, offset)
+MIMICS = {j.get("name"): (j.find("mimic").get("joint"), float(j.find("mimic").get("multiplier", "1")),
+                          float(j.find("mimic").get("offset", "0")))
+          for j in urdf_root.findall("joint") if j.find("mimic") is not None}
+
+# ------------------------------------------------------------------ URDF -> USD (cached)
+key = hashlib.sha256(urdf_text + repr((profile, args.fix_base)).encode()).hexdigest()[:16]
+usd_dir = os.path.expanduser(f"~/.cache/hruh/isaac_usd/{args.gains}{'_fixed' if args.fix_base else ''}_{key}")
+import glob  # noqa: E402
+existing = sorted(glob.glob(os.path.join(usd_dir, "*", "*.usda")))   # <usd_dir>/<robot>/<robot>.usda
+if existing:
+    usd_path = existing[0]
+    print(f"[hruh] cached USD {usd_path}")
+else:
+    os.makedirs(usd_dir, exist_ok=True)
+    config = URDFImporterConfig(
+        urdf_path=args.urdf, usd_path=usd_dir,
+        merge_fixed_joints=True,          # massless frames fold into their parents (TF comes from ROS)
+        fix_base=args.fix_base,
+        collision_type="Convex Hull",
+        allow_self_collision=False,
+        joint_drive_type="force",
+        joint_target_type="position",
+        # exact names in the importer's regex dicts (SI units, converted to USD per-degree internally)
+        override_joint_stiffness={re.escape(n): gains_for(n)[0] for n in JOINTS},
+        override_joint_damping={re.escape(n): gains_for(n)[1] for n in JOINTS},
+    )
+    usd_path = URDFImporter(config).import_urdf()
+    print(f"[hruh] converted URDF -> {usd_path}")
 
 # ------------------------------------------------------------------ world
-world = World(stage_units_in_meters=1.0, physics_dt=1.0 / args.physics_hz, rendering_dt=1.0 / 60.0)
 stage = omni.usd.get_context().get_stage()
-GroundPlane("/World/ground", size=60.0, color=np.array([0.35, 0.37, 0.4]))
-light = UsdLux.DomeLight.Define(stage, "/World/dome")
-light.CreateIntensityAttr(1200.0)
+UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
+UsdGeom.SetStageMetersPerUnit(stage, 1.0)
+UsdGeom.Xform.Define(stage, "/World")
+scene = UsdPhysics.Scene.Define(stage, "/World/PhysicsScene")
+scene.CreateGravityDirectionAttr(Gf.Vec3f(0, 0, -1))
+scene.CreateGravityMagnitudeAttr(9.81)
+px = PhysxSchema.PhysxSceneAPI.Apply(scene.GetPrim())
+px.CreateTimeStepsPerSecondAttr(int(args.physics_hz))
+px.CreateSolverTypeAttr("TGS")
+# one robot: CPU physics is plenty and keeps GPU memory for rendering / the desktop
+if args.physics == "cpu":
+    px.CreateEnableGPUDynamicsAttr(False)
+    px.CreateBroadphaseTypeAttr(os.environ.get("HRUH_BROADPHASE", "SAP"))
+
+ground = UsdGeom.Cube.Define(stage, "/World/ground")
+ground.CreateSizeAttr(1.0)
+gx = UsdGeom.XformCommonAPI(ground)
+gx.SetTranslate(Gf.Vec3d(0, 0, -0.05))
+gx.SetScale(Gf.Vec3f(60.0, 60.0, 0.1))
+ground.CreateDisplayColorAttr([Gf.Vec3f(0.35, 0.37, 0.4)])
+UsdPhysics.CollisionAPI.Apply(ground.GetPrim())
+mat = UsdShade.Material.Define(stage, "/World/ground_material")
+pm = UsdPhysics.MaterialAPI.Apply(mat.GetPrim())
+pm.CreateStaticFrictionAttr(1.0)
+pm.CreateDynamicFrictionAttr(0.9)
+pm.CreateRestitutionAttr(0.0)
+UsdShade.MaterialBindingAPI.Apply(ground.GetPrim()).Bind(mat, UsdShade.Tokens.weakerThanDescendants, "physics")
+UsdLux.DomeLight.Define(stage, "/World/dome").CreateIntensityAttr(1200.0)
 sun = UsdLux.DistantLight.Define(stage, "/World/sun")
 sun.CreateIntensityAttr(2500.0)
 UsdGeom.Xformable(sun).AddRotateXYZOp().Set(Gf.Vec3f(-45.0, 20.0, 0.0))
 
 # ------------------------------------------------------------------ robot
-_, cfg = omni.kit.commands.execute("URDFCreateImportConfig")
-cfg.merge_fixed_joints = True          # massless frames fold into their parents (TF comes from ROS)
-cfg.fix_base = args.fix_base
-cfg.import_inertia_tensor = True
-cfg.make_default_prim = False
-cfg.create_physics_scene = False
-cfg.distance_scale = 1.0
-cfg.convex_decomp = False
-cfg.parse_mimic = True
-cfg.default_drive_type = _urdf.UrdfJointTargetType.JOINT_DRIVE_POSITION
-_, art_path = omni.kit.commands.execute("URDFParseAndImportFile", urdf_path=args.urdf, import_config=cfg,
-                                         get_articulation_root=True)
-robot_root = "/" + art_path.strip("/").split("/")[0]
-print(f"[hruh] imported {ROBOT_NAME}: root {robot_root}, articulation {art_path}")
-UsdGeom.XformCommonAPI(stage.GetPrimAtPath(robot_root)).SetTranslate(Gf.Vec3d(0.0, 0.0, args.height))
+robot_root = "/World/hruh"
+robot = stage.DefinePrim(robot_root, "Xform")
+robot.GetReferences().AddReference(usd_path)
+# the 6.1 importer authors one variant per physics engine and selects none by default
+physics_vs = robot.GetVariantSets().GetVariantSet("Physics")
+if physics_vs:
+    physics_vs.SetVariantSelection("physx")
+UsdGeom.XformCommonAPI(robot).SetTranslate(Gf.Vec3d(0.0, 0.0, args.height))
+if args.tilt_deg:
+    UsdGeom.XformCommonAPI(robot).SetRotate(Gf.Vec3f(args.tilt_deg, 0.0, 0.0))
 
-base_link = None
-n_drives = 0
+art_path = base_link = head = None
+joint_prims = {}
 for prim in stage.Traverse():
     p = str(prim.GetPath())
     if not p.startswith(robot_root):
         continue
-    if prim.GetName() == "base_link" and prim.IsA(UsdGeom.Xformable) and base_link is None:
+    if art_path is None and prim.HasAPI(UsdPhysics.ArticulationRootAPI):
+        art_path = p
+    if prim.GetName() == "base_link" and base_link is None and prim.HasAPI(UsdPhysics.RigidBodyAPI):
         base_link = p
+    if prim.GetName() == "head_base" and head is None and prim.HasAPI(UsdPhysics.RigidBodyAPI):
+        head = p
     if prim.IsA(UsdPhysics.RevoluteJoint):
-        name = prim.GetName()
-        kp, kd, eff = gains_for(name)
-        if name in MIMIC:            # driven by its mimic constraint
-            kp, kd = 0.0, 0.0
-        drive = UsdPhysics.DriveAPI.Apply(prim, "angular")
-        drive.CreateTypeAttr("force")
-        drive.CreateStiffnessAttr(kp * math.pi / 180.0)      # USD angular drives are per degree
-        drive.CreateDampingAttr(kd * math.pi / 180.0)
-        drive.CreateMaxForceAttr(eff)
-        drive.CreateTargetPositionAttr(0.0)
-        n_drives += 1
-print(f"[hruh] {n_drives} joint drives ({args.gains} gains), base link {base_link}")
+        joint_prims[prim.GetName()] = prim
+if art_path is None or not joint_prims:
+    sys.exit(f"[hruh] no articulation in {usd_path} (physics variant 'physx' missing?)")
+
+# PhysX mimic constraints (the importer only writes Newton mimic joints)
+ROT = {"X": UsdPhysics.Tokens.rotX, "Y": UsdPhysics.Tokens.rotY, "Z": UsdPhysics.Tokens.rotZ}
+n_mimic = 0
+for name, (ref, mult, off) in MIMICS.items():
+    if name in joint_prims and ref in joint_prims:
+        j, r = UsdPhysics.RevoluteJoint(joint_prims[name]), UsdPhysics.RevoluteJoint(joint_prims[ref])
+        api = PhysxSchema.PhysxMimicJointAPI.Apply(joint_prims[name], ROT[j.GetAxisAttr().Get()])
+        api.CreateReferenceJointRel().SetTargets([joint_prims[ref].GetPath()])
+        api.CreateReferenceJointAxisAttr(ROT[r.GetAxisAttr().Get()])
+        api.CreateGearingAttr(-mult)        # q + gearing * q_ref + offset = 0
+        api.CreateOffsetAttr(-off)
+        n_mimic += 1
+print(f"[hruh] robot {robot_root}: articulation {art_path}, base {base_link}, "
+      f"{len(joint_prims)} joints ({args.gains} gains), {n_mimic} mimic constraints")
+
+# learned walking: pin the pelvis to the world until the policy runner has the stand pose
+# (the training gains alone cannot keep the robot upright while ros2_control starts)
+hold_path, stand = None, {}
+if args.hold_until_stand and base_link:
+    import json
+    bundle = json.load(open(args.hold_until_stand))
+    stand = {n: bundle["default_positions"][n] for n in bundle["policy_joints"]}
+    hold_path = "/World/policy_hold"
+    hold = UsdPhysics.FixedJoint.Define(stage, hold_path)
+    hold.CreateBody1Rel().SetTargets([base_link])          # body0 empty = the world
+    world_tf = UsdGeom.Xformable(stage.GetPrimAtPath(base_link)).ComputeLocalToWorldTransform(0)
+    hold.CreateLocalPos0Attr(Gf.Vec3f(world_tf.ExtractTranslation()))
+    hold.CreateLocalRot0Attr(Gf.Quatf(world_tf.ExtractRotationQuat()))
+    hold.CreateLocalPos1Attr(Gf.Vec3f(0, 0, 0))
+    hold.CreateLocalRot1Attr(Gf.Quatf(1, 0, 0, 0))
+    hold.CreateExcludeFromArticulationAttr(True)
+    print(f"[hruh] pelvis held at {args.height:.3f} m until the stand pose of {len(stand)} policy joints is commanded")
 
 # pelvis IMU (same place as imu_frame in the URDF)
 imu_path = None
 if base_link:
-    ok, imu_prim = omni.kit.commands.execute("IsaacSensorCreateImuSensor", path="/imu", parent=base_link,
-                                             sensor_period=1.0 / args.physics_hz)
-    imu_path = str(imu_prim.GetPath()) if ok and imu_prim else None
-
-
-def find_prim(name):
-    for prim in stage.Traverse():
-        if prim.GetName() == name and str(prim.GetPath()).startswith(robot_root):
-            return str(prim.GetPath())
-    return None
-
+    try:
+        from isaacsim.sensors.experimental.physics import IMU
+        IMU(f"{base_link}/imu")
+        imu_path = f"{base_link}/imu"
+    except Exception as e:  # keep the robot usable without an IMU
+        print(f"[hruh] IMU not created: {e}")
 
 # ------------------------------------------------------------------ eye cameras
 cams = {}
-if args.cameras:
-    head = find_prim("head_base")
-    if head:
-        # head_base faces -x; USD cameras look along -Z with +Y up
-        rot = Gf.Rotation(Gf.Matrix3d(0, 1, 0, 0, 0, 1, 1, 0, 0)).GetQuat()   # rows = camera X, Y, Z in head frame
-        for side, y in (("left", -0.032), ("right", 0.032)):
-            cam = UsdGeom.Camera.Define(stage, f"{head}/{side}_eye_camera")
-            cam.CreateFocalLengthAttr(1.4)
-            cam.CreateHorizontalApertureAttr(2.35)   # ~80 deg horizontal FOV like the Gazebo cameras
-            cam.CreateClippingRangeAttr(Gf.Vec2f(0.05, 50.0))
-            xf = UsdGeom.XformCommonAPI(cam)
-            xf.SetTranslate(Gf.Vec3d(-0.080, y, 0.085))
-            q = rot
-            xf.SetRotate(Gf.Vec3f(*Gf.Rotation(q).Decompose(Gf.Vec3d.XAxis(), Gf.Vec3d.YAxis(), Gf.Vec3d.ZAxis())))
-            cams[side] = str(cam.GetPath())
-    else:
-        print("[hruh] head_base not found: no cameras")
+if args.cameras and head:
+    # head_base faces -x; USD cameras look along -Z with +Y up (rows = camera X, Y, Z in head frame)
+    rot = Gf.Rotation(Gf.Matrix3d(0, 1, 0, 0, 0, 1, 1, 0, 0))
+    euler = rot.Decompose(Gf.Vec3d.XAxis(), Gf.Vec3d.YAxis(), Gf.Vec3d.ZAxis())
+    for side, y in (("left", -0.032), ("right", 0.032)):
+        cam = UsdGeom.Camera.Define(stage, f"{head}/{side}_eye_camera")
+        cam.CreateFocalLengthAttr(1.4)
+        cam.CreateHorizontalApertureAttr(2.35)      # ~80 deg horizontal FOV like the Gazebo cameras
+        cam.CreateClippingRangeAttr(Gf.Vec2f(0.05, 50.0))
+        xf = UsdGeom.XformCommonAPI(cam)
+        xf.SetTranslate(Gf.Vec3d(-0.080, y, 0.085))
+        xf.SetRotate(Gf.Vec3f(*euler))
+        cams[side] = str(cam.GetPath())
 
 # ------------------------------------------------------------------ ROS 2 graph
 if not args.no_ros:
@@ -263,25 +351,47 @@ if not args.no_ros:
           + (" /imu" if imu_path else "") + (" /stereo/*" if cams else ""))
 
 # ------------------------------------------------------------------ run
-world.reset()
-omni.timeline.get_timeline_interface().play()
+app_utils.play()
 print("HRUH_ISAAC_READY", flush=True)
-render = (not args.headless) or bool(cams)
 step = 0
-while app.is_running():
-    world.step(render=render)
-    step += 1
-    if args.steps and step >= args.steps:
-        break
+settled = 0
+
+
+def stand_commanded():
+    """True when the last /isaac_joint_commands put every policy joint at its stand pose."""
+    try:
+        names = og.Controller.attribute("/HruhROS2/JointCmd.outputs:jointNames").get()
+        values = og.Controller.attribute("/HruhROS2/JointCmd.outputs:positionCommand").get()
+    except Exception:
+        return False
+    if names is None or values is None or len(names) != len(values):
+        return False
+    cmd = dict(zip([str(n) for n in names], values))
+    return all(n in cmd and math.isfinite(cmd[n]) and abs(cmd[n] - q) < 0.01 for n, q in stand.items())
+
+
+try:
+    while app.is_running():
+        app.update()
+        step += 1
+        if hold_path and not args.no_ros:
+            settled = settled + 1 if stand_commanded() else 0
+            if settled >= 10:
+                stage.RemovePrim(hold_path)
+                hold_path = None
+                print("[hruh] stand pose reached: pelvis released to the walking policy", flush=True)
+        if args.steps and step >= args.steps:
+            break
+except KeyboardInterrupt:          # Ctrl+C, launch shutdown or the GPU guard
+    print("[hruh] stopping", flush=True)
 
 if args.report:
-    from isaacsim.core.prims import SingleArticulation
-    art = SingleArticulation(prim_path=art_path)
-    art.initialize()
-    pos, _ = art.get_world_pose()
-    q = art.get_joint_positions()
-    names = art.dof_names
-    print(f"HRUH_REPORT dofs={len(names)} base_height={float(pos[2]):.3f} "
+    from isaacsim.core.experimental.prims import Articulation
+    art = Articulation(art_path)
+    pos = np.asarray(art.get_world_poses()[0].numpy() if hasattr(art.get_world_poses()[0], "numpy")
+                     else art.get_world_poses()[0]).reshape(-1, 3)
+    q = art.get_dof_positions()
+    q = np.asarray(q.numpy() if hasattr(q, "numpy") else q)
+    print(f"HRUH_REPORT dofs={len(art.dof_names)} base_height={float(pos[0, 2]):.3f} "
           f"max_abs_joint={float(np.max(np.abs(q))):.3f}")
-    print("HRUH_REPORT joints=" + ",".join(names))
 app.close()

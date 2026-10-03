@@ -97,6 +97,8 @@ private:
 
   /// The size of this vector is (standard_interfaces_.size() x nr_joints)
   std::vector<std::vector<double>> joint_commands_;
+  // HRUH patch: last finite position command per joint (see write())
+  std::vector<double> held_position_commands_;
   std::vector<std::vector<double>> joint_states_;
 
   // If the difference between the current joint state and joint command is less than this value,

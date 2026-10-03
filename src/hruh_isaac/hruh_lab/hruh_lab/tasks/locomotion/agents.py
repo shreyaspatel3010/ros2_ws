@@ -1,6 +1,6 @@
 from isaaclab.utils import configclass
 
-from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlMLPModelCfg, RslRlPpoAlgorithmCfg
 
 
 @configclass
@@ -9,13 +9,19 @@ class HruhRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     max_iterations = 3000
     save_interval = 100
     experiment_name = "hruh_rough"
-    obs_groups = {"policy": ["policy"], "critic": ["policy"]}
-    policy = RslRlPpoActorCriticCfg(
-        init_noise_std=1.0,
-        actor_obs_normalization=True,
-        critic_obs_normalization=True,
-        actor_hidden_dims=[512, 256, 128],
-        critic_hidden_dims=[512, 256, 128],
+    # raw actions in [-2, 2] -> +-1 rad around the stand pose (scale 0.5), then clipped to joint limits;
+    # +-0.5 rad capped the knee near 0.86 rad and limited stepping
+    clip_actions = 2.0
+    obs_groups = {"actor": ["policy"], "critic": ["critic"]}
+    actor = RslRlMLPModelCfg(
+        hidden_dims=[256, 128, 128],
+        obs_normalization=True,
+        distribution_cfg=RslRlMLPModelCfg.GaussianDistributionCfg(init_std=0.5),
+        activation="elu",
+    )
+    critic = RslRlMLPModelCfg(
+        hidden_dims=[256, 128, 128],
+        obs_normalization=True,
         activation="elu",
     )
     algorithm = RslRlPpoAlgorithmCfg(
@@ -31,5 +37,12 @@ class HruhFlatPPORunnerCfg(HruhRoughPPORunnerCfg):
         super().__post_init__()
         self.max_iterations = 1500
         self.experiment_name = "hruh_flat"
-        self.policy.actor_hidden_dims = [256, 128, 128]
-        self.policy.critic_hidden_dims = [256, 128, 128]
+
+
+@configclass
+class HruhMotionPPORunnerCfg(HruhFlatPPORunnerCfg):
+    """Walking / side-stepping / stopping with moving arms (more varied: train longer)."""
+    def __post_init__(self):
+        super().__post_init__()
+        self.max_iterations = 3000
+        self.experiment_name = "hruh_motion"

@@ -5,6 +5,8 @@
   hardware:=gz    Gazebo Sim (gz_ros2_control), the default
   hardware:=mock  mock_components/GenericSystem: commands are echoed back as
                   state, for MoveIt / RViz without a simulator
+  hardware:=isaac Isaac Sim through topic_based_ros2_control
+                  (/isaac_joint_commands -> Isaac -> /isaac_joint_states)
   hardware:=none  no ros2_control (e.g. joint_state_publisher_gui display)
 
   Controllers: hruh_control/config/ros2_controllers.yaml
@@ -71,6 +73,13 @@
         <xacro:if value="${hardware == 'mock'}">
           <plugin>mock_components/GenericSystem</plugin>
           <param name="calculate_dynamics">false</param>
+        </xacro:if>
+        <xacro:if value="${hardware == 'isaac'}">
+          <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+          <param name="joint_commands_topic">/isaac_joint_commands</param>
+          <param name="joint_states_topic">/isaac_joint_states</param>
+          <!-- Isaac reports revolute positions wrapped to +-2 pi -->
+          <param name="sum_wrapped_joint_states">true</param>
         </xacro:if>
       </hardware>
       <xacro:hruh_ctrl_joints names="${hruh_leg_joints + hruh_upper_joints}"/>

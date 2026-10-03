@@ -15,3 +15,6 @@ src/grasshopper_waypoint_follower
 __pycache__/
 *.pyc
 *.blend1
+artifacts/
+logs/
+*.egg-info/

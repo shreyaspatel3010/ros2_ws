@@ -35,6 +35,7 @@ def build(out_path=DEFAULT_OUT):
     missing = [m.get("filename") for m in root.iter("mesh") if not os.path.exists(m.get("filename"))]
     if missing:
         raise SystemExit("missing meshes: %s" % missing[:5])
+    out_path = os.path.abspath(out_path)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     ET.ElementTree(root).write(out_path, encoding="utf-8", xml_declaration=True)
     return out_path, root
