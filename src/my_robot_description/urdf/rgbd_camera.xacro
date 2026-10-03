@@ -8,8 +8,8 @@
   <xacro:property name="rgbd_near" value="0.2"/>
   <xacro:property name="rgbd_far"  value="8.0"/>
   <xacro:property name="camera_length" value="0.01" />
-    <xacro:property name="camera_width" value="0.1" />
-    <xacro:property name="camera_height" value="0.05" />
+    <xacro:property name="camera_width" value="0.07" />
+    <xacro:property name="camera_height" value="0.02" />
 
   <!-- Physical mount -->
   <link name="rgbd_link">
@@ -17,7 +17,9 @@
             <geometry>
                 <box size="${camera_length} ${camera_width} ${camera_height}" />
             </geometry>
-            <material name="red" />
+            <material name="sensor_black">
+                <color rgba="0.03 0.035 0.04 1"/>
+            </material>
         </visual>
         <collision>
             <geometry>
@@ -28,11 +30,11 @@
                            xyz="0 0 0" rpy="0 0 0" />
     </link>
 
-  <!-- Mount on the base (change parent/pose to your link) -->
+  <!-- Mounted on the upper sternum, between the clavicles (chest_hruh faces -x) -->
   <joint name="rgbd_mount_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="chest_hruh"/>
     <child  link="rgbd_link"/>
-    <origin xyz="${(base_length + camera_length) / 2.0} 0 ${base_height / 2.0}" rpy="0 0 0" />
+    <origin xyz="-0.089 0 0.29" rpy="0 0 ${pi}" />
   </joint>
 
  <!-- Optical frame — REP-103/104 (Z forward, X right, Y down) -->

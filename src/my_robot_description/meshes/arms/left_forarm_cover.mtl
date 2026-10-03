@@ -1,0 +1,12 @@
+# Blender 5.2.2 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl left_forarm_cover_mat
+Ns 40.000000
+Ka 0.800000 0.800000 0.800000
+Ks 0.150000 0.150000 0.150000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd left_forarm_cover_albedo.png
+map_Ke left_forarm_cover_glow.png

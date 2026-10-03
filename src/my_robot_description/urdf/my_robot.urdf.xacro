@@ -2,16 +2,22 @@
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:include filename="common_properties.xacro" />
-    <xacro:include filename="mobile_base.xacro" />
-    <xacro:include filename="mobile_base_gazebo.xacro" />
-    <xacro:include filename="arm.xacro" />
-    <xacro:include filename="arm_gazebo.xacro" />
+    <!-- lower body: pelvis (base_link) + two 7-DOF legs, then the 3-DOF waist -->
+    <xacro:include filename="legs.xacro" />
+    <xacro:include filename="legs_gazebo.xacro" />
+    <xacro:include filename="torso.xacro" />
     <xacro:include filename="hruh.xacro" />
-    <xacro:include filename="hruh_gazebo.xacro" />
+    <!-- ros2_control for all joints; hardware:=gz (default) | mock | none -->
+    <xacro:include filename="hruh.ros2_control.xacro" />
 
-    <xacro:property name="enable_stereo_cameras" value="true"/>
-    <xacro:property name="enable_rgbd_camera" value="true"/>
-    <xacro:property name="enable_lidar" value="true"/>
+    <!-- sensors can be switched off for faster simulation, e.g.
+         xacro my_robot.urdf.xacro enable_lidar:=false enable_stereo_cameras:=false -->
+    <xacro:arg name="enable_stereo_cameras" default="true"/>
+    <xacro:arg name="enable_rgbd_camera" default="true"/>
+    <xacro:arg name="enable_lidar" default="true"/>
+    <xacro:property name="enable_stereo_cameras" value="$(arg enable_stereo_cameras)"/>
+    <xacro:property name="enable_rgbd_camera" value="$(arg enable_rgbd_camera)"/>
+    <xacro:property name="enable_lidar" value="$(arg enable_lidar)"/>
 
     <xacro:include filename="stereo_camera.xacro" />
     <xacro:include filename="rgbd_camera.xacro"/>
@@ -27,11 +33,6 @@
     <xacro:include filename="left_arm.xacro" />
     <xacro:include filename="left_arm_gripper.xacro" />
 
-    <joint name="mobile_base_arm_joint" type="fixed">
-        <parent link="base_link" />
-        <child link="arm_base_link" />
-        <origin xyz="${base_length / 10.0} 0 ${base_height}" rpy="0 0 3.14" />
-    </joint>
     
 
     

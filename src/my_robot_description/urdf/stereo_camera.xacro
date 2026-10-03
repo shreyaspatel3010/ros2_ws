@@ -1,16 +1,19 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:property name="baseline" value="0.12"/>   <!-- 12 cm total; change as needed -->
+  <xacro:property name="baseline" value="0.064"/>  <!-- human inter-pupillary distance (64 mm) -->
+  <!-- eye cameras sit in the head's eye sockets; head_base faces -x, robot-left is -y -->
+  <xacro:property name="eye_x" value="-0.080"/>
+  <xacro:property name="eye_z" value="0.085"/>
   <xacro:property name="cam_w" value="1024"/>
   <xacro:property name="cam_h" value="1024"/>
   <xacro:property name="fov"   value="1.3962634"/> <!-- ~80° -->
 
-  <!-- Left camera physical link mounted on base_link -->
+  <!-- Left eye camera (in the head) -->
   <link name="stereo_left"/>
   <joint name="stereo_left_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="head_base"/>
     <child  link="stereo_left"/>
-    <origin xyz="${(base_length + 0.01)/2.0} ${baseline/2.0} ${base_height/2.0}" rpy="0 0 0"/>
+    <origin xyz="${eye_x} ${-baseline/2.0} ${eye_z}" rpy="0 0 ${pi}"/>
   </joint>
 
   <!-- Left optical frame (Z forward, X right, Y down) -->
@@ -21,12 +24,12 @@
     <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
   </joint>
 
-  <!-- Right camera physical link -->
+  <!-- Right eye camera (in the head) -->
   <link name="stereo_right"/>
   <joint name="stereo_right_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="head_base"/>
     <child  link="stereo_right"/>
-    <origin xyz="${(base_length + 0.01)/2.0} ${-baseline/2.0} ${base_height/2.0}" rpy="0 0 0"/>
+    <origin xyz="${eye_x} ${baseline/2.0} ${eye_z}" rpy="0 0 ${pi}"/>
   </joint>
 
   <!-- Right optical frame -->

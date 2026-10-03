@@ -14,13 +14,12 @@
   <link name="right_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_palm.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_palm.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_palm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -43,13 +42,12 @@
   <link name="right_thomb_to_palm">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_thomb_to_palm.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_to_palm.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_thomb_to_palm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -72,13 +70,12 @@
   <link name="right_thomb_midle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_thomb_midle.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_midle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_thomb_midle.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -101,13 +98,12 @@
   <link name="right_thomb_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_thomb_upper.obj"/>
       </geometry>
-      <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_thomb_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_thomb_upper.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -131,13 +127,12 @@
   <link name="right_finger1_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger1_lower.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger1_lower.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -161,13 +156,12 @@
   <link name="right_finger1_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger1_middle.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger1_middle.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -191,13 +185,12 @@
   <link name="right_finger1_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger1_upper.obj"/>
       </geometry>
-      <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger1_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger1_upper.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -222,13 +215,12 @@
   <link name="right_finger2_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger2_lower.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger2_lower.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -252,13 +244,12 @@
   <link name="right_finger2_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger2_middle.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger2_middle.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -282,13 +273,12 @@
   <link name="right_finger2_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger2_upper.obj"/>
       </geometry>
-      <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger2_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger2_upper.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -312,13 +302,12 @@
   <link name="right_finger3_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger3_lower.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger3_lower.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -342,13 +331,12 @@
   <link name="right_finger3_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger3_middle.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger3_middle.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -372,13 +360,12 @@
   <link name="right_finger3_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger3_upper.obj"/>
       </geometry>
-      <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger3_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger3_upper.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -402,13 +389,12 @@
   <link name="right_finger4_lower">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger4_lower.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_lower.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger4_lower.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -432,13 +418,12 @@
   <link name="right_finger4_middle">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger4_middle.obj"/>
       </geometry>
-      <material name="grey" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_middle.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger4_middle.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -462,13 +447,12 @@
   <link name="right_finger4_upper">
     <visual>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/right_finger4_upper.obj"/>
       </geometry>
-      <material name="blue" />
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://my_robot_description/meshes/right_arm/right_finger4_upper.stl" scale="1 1 1"/>
+        <mesh filename="package://my_robot_description/meshes/arms/collision/right_finger4_upper.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -477,64 +461,7 @@
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </inertial>
   </link>
-
-  <gazebo>
-    <!-- right palm to thomb joint -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_palm_to_thomb</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- tright_thomb_to_thomb_middle -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_thomb_to_thomb_middle</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- right_thomb_middle_to_thomb_upper -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_thomb_middle_to_thomb_upper</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- right palm  to finger1 lower -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_palm_to_finger1_lower</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- right palm  to finger2 lower -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_palm_to_finger2_lower</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- right palm  to finger3 lower -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-        name="gz::sim::systems::JointPositionController">
-      <joint_name>right_palm_to_finger3_lower</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-
-    <!-- right palm  to finger4 lower -->
-    <plugin filename="gz-sim-joint-position-controller-system"
-            name="gz::sim::systems::JointPositionController">
-      <joint_name>right_palm_to_finger4_lower</joint_name>
-      <p_gain>300</p_gain><i_gain>2</i_gain><d_gain>3</d_gain>
-      <i_min>-6</i_min><i_max>6</i_max>
-    </plugin>
-  </gazebo>
+  <!-- finger joints are driven by <side>_hand_controller (ros2_control) -->
 
 
 

@@ -13,4 +13,9 @@ install(
   DESTINATION share/${PROJECT_NAME}/
 )
 
+install(
+  PROGRAMS scripts/hruh_walker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

@@ -18,12 +18,12 @@
     </inertial> -->
   </link>
 
-  <!-- mount LiDAR somewhere reasonable above base_link -->
-  <joint name="base_to_lidar" type="fixed">
-    <parent link="base_link"/>
+  <!-- LiDAR is built into the crown of the head (optical centre of the ring
+       window); head_base faces -x so the sensor is yawed 180 deg to look forward -->
+  <joint name="head_to_lidar" type="fixed">
+    <parent link="head_base"/>
     <child link="lidar_link"/>
-    <!-- tweak xyz if you want it higher/forward -->
-    <origin xyz="0.20 0.0 1.40" rpy="0 0 0"/>
+    <origin xyz="0.010 0.0 0.178" rpy="0 0 ${pi}"/>
   </joint>
 
   <!-- Gazebo Sim LiDAR sensor -->
@@ -43,15 +43,17 @@
               <min_angle>-3.14159</min_angle>
               <max_angle> 3.14159</max_angle>
             </horizontal>
+            <!-- 64 beams from -30 deg to +15 deg (like a 3D spinning LiDAR);
+                 a full +-180 deg vertical sweep from the crown would mostly hit the robot itself -->
             <vertical>
-              <samples>1025</samples>
+              <samples>64</samples>
               <resolution>1</resolution>
-              <min_angle>-3.14159</min_angle>  <!-- -15° -->
-              <max_angle> 3.14159</max_angle>  <!-- +15° -->
+              <min_angle>-0.5236</min_angle>
+              <max_angle> 0.2618</max_angle>
             </vertical>
           </scan>
           <range>
-            <min>0.05</min>
+            <min>0.12</min>  <!-- ignore returns from the head itself -->
             <max>45.0</max>
             <resolution>0.01</resolution>
           </range>
