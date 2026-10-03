@@ -3,7 +3,7 @@
     ros2 launch my_robot_description gazebo.launch.py [walk:=true] [rviz:=false]
         [sensors:=false] [gui:=false] [world:=<sdf>]
 
-walk:=true      walk forward on its own; otherwise stand and follow /cmd_vel
+walk:=true      walk forward on its own (vx:=0.15 m/s); otherwise stand and follow /cmd_vel
 sensors:=false  skip stereo / RGB-D / LiDAR (much faster simulation)
 gui:=false      Gazebo server only (headless)
 
@@ -36,6 +36,12 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument("walk", default_value="false"),
+        DeclareLaunchArgument("vx", default_value="0.15", description="auto-walk speed (m/s)"),
+        # Heel-to-toe roll-off works kinematically (walk_demo, GLB animation) but makes
+        # the feet slip and tip on Gazebo's edge contacts, so physics walks flat-footed.
+        DeclareLaunchArgument("toe_off", default_value="0.0", description="push-off heel lift (rad)"),
+        DeclareLaunchArgument("heel_strike", default_value="0.0", description="landing toe lift (rad)"),
+        DeclareLaunchArgument("step_time", default_value="0.6", description="seconds per step"),
         DeclareLaunchArgument("rviz", default_value="true"),
         DeclareLaunchArgument("sensors", default_value="true"),
         DeclareLaunchArgument("gui", default_value="true"),
@@ -56,9 +62,9 @@ def generate_launch_description():
         # spawn standing: pelvis height with straight legs
         Node(package="ros_gz_sim", executable="create", output="screen",
              arguments=["-topic", "robot_description", "-name", "my_robot", "-z", "0.84"]),
-        # controller manager runs inside Gazebo (gz_ros2_control); config/ros2_controllers.yaml
+        # controller manager runs inside Gazebo (gz_ros2_control); hruh_control/config/ros2_controllers.yaml
         Node(package="controller_manager", executable="spawner", output="screen",
-             arguments=CONTROLLERS + ["--controller-manager-timeout", "120"], parameters=[sim]),
+             arguments=CONTROLLERS + ["--controller-manager-timeout", "120"]),
         Node(package="ros_gz_bridge", executable="parameter_bridge", output="screen",
              parameters=[{"config_file": PathJoinSubstitution([pkg, "config", "gazebo_bridge.yaml"])}, sim]),
 
@@ -66,8 +72,12 @@ def generate_launch_description():
         Node(package="my_robot_description", executable="hruh_walker.py", output="screen",
              parameters=[{"robot_description": robot_description, "mode": "ros2_control",
                           "auto_walk": ParameterValue(LaunchConfiguration("walk"), value_type=bool),
-                          # gentler heel-strike / toe-off than the kinematic demo
-                          "toe_off": 0.12, "heel_strike": 0.08}, sim]),
+                          "auto_vx": ParameterValue(LaunchConfiguration("vx"), value_type=float),
+                          "toe_off": ParameterValue(LaunchConfiguration("toe_off"), value_type=float),
+                          "heel_strike": ParameterValue(LaunchConfiguration("heel_strike"), value_type=float),
+                          "step_time": ParameterValue(LaunchConfiguration("step_time"), value_type=float),
+                          "max_vx": 0.2},  # tested stable up to ~0.2 m/s in Gazebo
+                         sim]),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution(

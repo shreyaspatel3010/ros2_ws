@@ -1,0 +1,7 @@
+{
+  "names": {
+    "topic_based_ros2_control": {
+      "cmake-args": ["-DBUILD_TESTING=OFF"]
+    }
+  }
+}

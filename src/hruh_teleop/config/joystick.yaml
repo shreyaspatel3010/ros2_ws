@@ -1,0 +1,57 @@
+# HRUH whole-robot gamepad (hruh_joystick) -- canonical Xbox layout from
+# joy_layout_normalizer, same conventions as aries_teleop:
+#   A=0 B=1 X=2 Y=3 LB=4 RB=5 BACK=6 START=7
+#   axes 0/1 left stick X/Y, 2 LT, 3/4 right stick X/Y, 5 RT, 6/7 D-pad X/Y
+#
+#   Hold LB            walk: left stick move/sidestep, right stick X turn  (blocks arms)
+#   Hold RB            Cartesian jog of the selected hand (position, damped least squares):
+#                      left stick fwd/side, D-pad up/down, right stick X wrist, Y upper-arm rotation
+#   Hold RT            joint jog of the selected chain (arm, or head + waist)
+#   RB/RT + X / B      open / close the selected hand
+#   Press BACK         next chain: right arm -> left arm -> head/waist
+#   Hold LT + Y/A/B/X  MoveIt preset: home / wave / hands_up / reach_forward
+#   Hold LT + D-pad    head center (up) / look down (down)
+hruh_joystick:
+  ros__parameters:
+    joy_topic: "/joy"
+    cmd_vel_topic: "/cmd_vel"
+    # stop everything if /joy goes quiet (unplugged pad, radio dropout)
+    joy_timeout_sec: 0.35
+    rate_hz: 50.0
+    deadzone: 0.08
+
+    button_walk: 4
+    button_cartesian: 5
+    button_select: 6
+    button_a: 0
+    button_b: 1
+    button_x: 2
+    button_y: 3
+    # triggers are press fractions after the normalizer (0 released -> 1 pressed);
+    # release below press for hysteresis
+    axis_lt: 2
+    axis_rt: 5
+    trigger_press: 0.5
+    trigger_release: 0.35
+    axis_left_x: 0
+    axis_left_y: 1
+    axis_right_x: 3
+    axis_right_y: 4
+    axis_dpad_x: 6
+    axis_dpad_y: 7
+
+    # walking (hruh_walker clamps again; Gazebo is tested stable to ~0.2 m/s)
+    walk_max_vx: 0.2
+    walk_max_vy: 0.08
+    walk_max_wz: 0.4
+
+    cartesian_linear: 0.15    # m/s at full stick
+    cartesian_damping: 0.03   # damped-least-squares lambda (m); larger = calmer near a straight arm
+    joint_speed: 0.7          # rad/s at full stick
+    jog_horizon_sec: 0.12
+
+    preset_home: ["both_arms", "home"]
+    preset_hands_up: ["both_arms", "hands_up"]
+    preset_reach: ["both_arms", "reach_forward"]
+    preset_velocity_scale: 0.4
+    hand_close_duration: 0.6

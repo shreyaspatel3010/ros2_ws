@@ -7,12 +7,13 @@
                   state, for MoveIt / RViz without a simulator
   hardware:=none  no ros2_control (e.g. joint_state_publisher_gui display)
 
-  Controllers: config/ros2_controllers.yaml
+  Controllers: hruh_control/config/ros2_controllers.yaml
     legs_controller        14 leg joints, streamed by hruh_walker
     waist_controller       3-DOF waist        (JointTrajectoryController)
     head_controller        neck yaw + nod     (JointTrajectoryController)
     left/right_arm_controller   5 joints each (MoveIt, servo, joystick)
-    left/right_hand_controller 15 joints each (open / close grasp)
+    left/right_hand_controller 7 joints each: thumb x3 + finger base x4
+                          (middle / upper finger joints are URDF mimic joints)
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
@@ -24,9 +25,11 @@
       + ['chest_to_left_shoulder', 'left_shoulder_to_bisecp', 'left_bisecp_to_elbow_inword', 'left_elbow_inword_to_midle', 'left_forarm_to_wrist',
          'chest_to_right_shoulder', 'right_shoulder_to_bisecp', 'right_bisecp_to_elbow_inword', 'right_elbow_inword_to_midle', 'right_forarm_to_wrist']
       + [s + '_' + n for s in ['left', 'right'] for n in ['palm_to_thomb', 'thomb_to_thomb_middle', 'thomb_middle_to_thomb_upper']
-                                                         + ['palm_to_finger%d_lower' % i for i in [1, 2, 3, 4]]
-                                                         + ['finger%d_lower_to_finger%d_middle' % (i, i) for i in [1, 2, 3, 4]]
-                                                         + ['finger%d_middle_to_finger%d_upper' % (i, i) for i in [1, 2, 3, 4]]]}"/>
+                                                         + ['palm_to_finger%d_lower' % i for i in [1, 2, 3, 4]]]}"/>
+  <!-- middle / upper finger joints mimic the lower one (URDF <mimic>): state only -->
+  <xacro:property name="hruh_mimic_joints" value="${[s + '_' + n for s in ['left', 'right']
+                                                     for n in ['finger%d_lower_to_finger%d_middle' % (i, i) for i in [1, 2, 3, 4]]
+                                                            + ['finger%d_middle_to_finger%d_upper' % (i, i) for i in [1, 2, 3, 4]]]}"/>
 
   <xacro:macro name="hruh_ctrl_joint" params="name">
     <joint name="${name}">
@@ -36,6 +39,20 @@
       </state_interface>
       <state_interface name="velocity"/>
     </joint>
+  </xacro:macro>
+
+  <xacro:macro name="hruh_mimic_joint" params="name">
+    <joint name="${name}">
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="hruh_mimic_joints" params="names">
+    <xacro:if value="${len(names) > 0}">
+      <xacro:hruh_mimic_joint name="${names[0]}"/>
+      <xacro:hruh_mimic_joints names="${names[1:]}"/>
+    </xacro:if>
   </xacro:macro>
 
   <xacro:macro name="hruh_ctrl_joints" params="names">
@@ -57,13 +74,17 @@
         </xacro:if>
       </hardware>
       <xacro:hruh_ctrl_joints names="${hruh_leg_joints + hruh_upper_joints}"/>
+      <xacro:hruh_mimic_joints names="${hruh_mimic_joints}"/>
     </ros2_control>
   </xacro:unless>
 
   <xacro:if value="${hardware == 'gz'}">
     <gazebo>
+      <!-- controller config lives in hruh_control (see the note at the top of that file) -->
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-        <parameters>$(find my_robot_description)/config/ros2_controllers.yaml</parameters>
+        <parameters>$(find hruh_control)/config/ros2_controllers.yaml</parameters>
+        <robot_param>robot_description</robot_param>
+        <robot_param_node>robot_state_publisher</robot_param_node>
       </plugin>
     </gazebo>
   </xacro:if>

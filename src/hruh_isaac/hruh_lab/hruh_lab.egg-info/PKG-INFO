@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: hruh_lab
+Version: 0.1.0
+Summary: Isaac Lab RL tasks for the HRUH humanoid: locomotion, motion imitation, reaching
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

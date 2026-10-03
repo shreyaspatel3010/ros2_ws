@@ -1,5 +1,11 @@
 # ros2_control controllers for HRUH (used by gz_ros2_control and by the mock
 # hardware in hruh_moveit_config/launch/demo.launch.py).
+#
+# This file deliberately lives outside my_robot_description: ros2_control 4.x
+# drops every controller-manager argument containing "robot_description" when
+# it builds the controller nodes, so a params-file path under
+# .../my_robot_description/... loses its path and every controller fails with
+# "Couldn't parse params file: '--params-file -p'".
 controller_manager:
   ros__parameters:
     update_rate: 250  # Hz
@@ -120,14 +126,6 @@ left_hand_controller:
       - left_palm_to_finger2_lower
       - left_palm_to_finger3_lower
       - left_palm_to_finger4_lower
-      - left_finger1_lower_to_finger1_middle
-      - left_finger2_lower_to_finger2_middle
-      - left_finger3_lower_to_finger3_middle
-      - left_finger4_lower_to_finger4_middle
-      - left_finger1_middle_to_finger1_upper
-      - left_finger2_middle_to_finger2_upper
-      - left_finger3_middle_to_finger3_upper
-      - left_finger4_middle_to_finger4_upper
     command_interfaces: [position]
     state_interfaces: [position, velocity]
     allow_partial_joints_goal: true
@@ -147,14 +145,6 @@ right_hand_controller:
       - right_palm_to_finger2_lower
       - right_palm_to_finger3_lower
       - right_palm_to_finger4_lower
-      - right_finger1_lower_to_finger1_middle
-      - right_finger2_lower_to_finger2_middle
-      - right_finger3_lower_to_finger3_middle
-      - right_finger4_lower_to_finger4_middle
-      - right_finger1_middle_to_finger1_upper
-      - right_finger2_middle_to_finger2_upper
-      - right_finger3_middle_to_finger3_upper
-      - right_finger4_middle_to_finger4_upper
     command_interfaces: [position]
     state_interfaces: [position, velocity]
     allow_partial_joints_goal: true

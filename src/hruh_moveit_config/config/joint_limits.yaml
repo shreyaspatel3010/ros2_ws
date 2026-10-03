@@ -1,0 +1,150 @@
+# Planning limits (MoveIt time parameterisation).  Velocity caps follow the URDF;
+# accelerations are conservative for a humanoid upper body.
+default_velocity_scaling_factor: 0.4
+default_acceleration_scaling_factor: 0.4
+joint_limits:
+  chest_to_left_shoulder:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_shoulder_to_bisecp:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_bisecp_to_elbow_inword:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_elbow_inword_to_midle:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_forarm_to_wrist:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  chest_to_right_shoulder:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_shoulder_to_bisecp:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_bisecp_to_elbow_inword:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_elbow_inword_to_midle:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  right_forarm_to_wrist:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  left_palm_to_thomb:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_thomb_to_thomb_middle:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_thomb_middle_to_thomb_upper:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_palm_to_finger1_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_palm_to_finger2_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_palm_to_finger3_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  left_palm_to_finger4_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_palm_to_thomb:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_thomb_to_thomb_middle:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_thomb_middle_to_thomb_upper:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_palm_to_finger1_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_palm_to_finger2_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_palm_to_finger3_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  right_palm_to_finger4_lower:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  chest_to_neck:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  neck_to_head:
+    has_velocity_limits: true
+    max_velocity: 1.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  waist_yaw_joint:
+    has_velocity_limits: true
+    max_velocity: 4.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  waist_roll_joint:
+    has_velocity_limits: true
+    max_velocity: 4.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  waist_pitch_joint:
+    has_velocity_limits: true
+    max_velocity: 4.00
+    has_acceleration_limits: true
+    max_acceleration: 2.0

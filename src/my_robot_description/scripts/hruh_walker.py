@@ -590,9 +590,12 @@ def main():
             self.declare_parameter("step_height", 0.055)
             self.declare_parameter("toe_off", 0.30)
             self.declare_parameter("heel_strike", 0.20)
+            self.declare_parameter("arm_swing", 0.32)
+            self.declare_parameter("pelvis_yaw", 0.07)
             self.declare_parameter("cmd_timeout", 0.5)
+            self.declare_parameter("max_vx", 0.35)               # forward speed limit for /cmd_vel
             self.declare_parameter("balance", True)              # IMU stabilizer (gazebo mode)
-            self.declare_parameter("heading_gain", 0.8)          # auto_walk keeps its start heading
+            self.declare_parameter("heading_gain", 0.6)          # foot-slip heading correction (ros2_control mode)
             urdf = self.get_parameter("robot_description").value
             if not urdf:
                 raise RuntimeError("parameter robot_description is empty")
@@ -600,7 +603,10 @@ def main():
             gp = GaitParams(step_time=self.get_parameter("step_time").value,
                             step_height=self.get_parameter("step_height").value,
                             toe_off=self.get_parameter("toe_off").value,
-                            heel_strike=self.get_parameter("heel_strike").value)
+                            heel_strike=self.get_parameter("heel_strike").value,
+                            arm_swing=self.get_parameter("arm_swing").value,
+                            pelvis_yaw=self.get_parameter("pelvis_yaw").value,
+                            max_vx=self.get_parameter("max_vx").value)
             self.gen = WalkingPatternGenerator(urdf, gp)
             self.get_logger().info("HRUH walker: mass %.1f kg, CoM height %.3f m, pelvis %.3f m, mode=%s"
                                    % (self.gen.mass, self.gen.zc, self.gen.pelvis_h, self.mode))
@@ -610,6 +616,9 @@ def main():
                 self.mode = "ros2_control"
             self.tick_n = 0
             self.was_walking = False
+            self.plan_yaw = 0.0
+            self.drift_f = 0.0
+            self.fix_yaw = 0.0
             if self.mode == "ros2_control":
                 self.legs_pub = self.create_publisher(Float64MultiArray, "/legs_controller/commands", 10)
                 self.waist_pub = self.create_publisher(JointTrajectory, "/waist_controller/joint_trajectory", 10)
@@ -650,18 +659,25 @@ def main():
         def tick(self):
             cmd = (0.0, 0.0, 0.0)
             if self.get_parameter("auto_walk").value:
-                wz = 0.0
-                if self.mode == "gazebo" and self.yaw is not None:
-                    # hold the starting heading (feet can slip a little in simulation)
-                    wz = self.get_parameter("heading_gain").value * wrap(self.yaw0 - self.yaw)
-                    wz = max(-0.15, min(0.15, wz))
-                cmd = (self.get_parameter("auto_vx").value, 0.0, wz)
+                cmd = (self.get_parameter("auto_vx").value, 0.0, 0.0)
             if self.last_cmd is not None:
                 age = (self.get_clock().now() - self.last_cmd[0]).nanoseconds * 1e-9
                 if age < self.get_parameter("cmd_timeout").value:
                     cmd = self.last_cmd[1]
+            if self.mode == "ros2_control" and self.yaw is not None and self.gen.walking:
+                # heading drift = measured heading - planned heading (the plan already
+                # contains the deliberate pelvis rotation and any commanded turn), so
+                # only foot slip is corrected, not the gait's own yaw rhythm
+                # (the turns added here are subtracted again, otherwise correcting the
+                # plan would never reduce the measured drift)
+                drift = wrap((self.yaw - self.yaw0) - (self.plan_yaw - self.fix_yaw))
+                self.drift_f += (drift - self.drift_f) * 0.02          # ~0.5 s low-pass at 100 Hz
+                wz_fix = max(-0.2, min(0.2, -self.get_parameter("heading_gain").value * self.drift_f))
+                self.fix_yaw += wz_fix * self.gen.p.dt
+                cmd = (cmd[0], cmd[1], cmd[2] + wz_fix)
             self.gen.set_command(*cmd)
             q, Rb, pb = self.gen.update()
+            self.plan_yaw = math.atan2(Rb[1, 0], Rb[0, 0])
             now = self.get_clock().now().to_msg()
             if self.mode == "ros2_control":
                 if self.get_parameter("balance").value and self.imu is not None:
@@ -712,6 +728,9 @@ def main():
         rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
         pass
+    except Exception:
+        if rclpy.ok():
+            raise
     finally:
         node.destroy_node()
         if rclpy.ok():

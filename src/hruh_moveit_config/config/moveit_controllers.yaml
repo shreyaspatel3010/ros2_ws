@@ -1,0 +1,82 @@
+# MoveIt -> ros2_control (hruh_control/config/ros2_controllers.yaml)
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.3
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.05
+  execution_duration_monitoring: false
+
+moveit_simple_controller_manager:
+  controller_names:
+    - left_arm_controller
+    - right_arm_controller
+    - left_hand_controller
+    - right_hand_controller
+    - head_controller
+    - waist_controller
+
+  left_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - chest_to_left_shoulder
+      - left_shoulder_to_bisecp
+      - left_bisecp_to_elbow_inword
+      - left_elbow_inword_to_midle
+      - left_forarm_to_wrist
+
+  right_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - chest_to_right_shoulder
+      - right_shoulder_to_bisecp
+      - right_bisecp_to_elbow_inword
+      - right_elbow_inword_to_midle
+      - right_forarm_to_wrist
+
+  left_hand_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - left_palm_to_thomb
+      - left_thomb_to_thomb_middle
+      - left_thomb_middle_to_thomb_upper
+      - left_palm_to_finger1_lower
+      - left_palm_to_finger2_lower
+      - left_palm_to_finger3_lower
+      - left_palm_to_finger4_lower
+
+  right_hand_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - right_palm_to_thomb
+      - right_thomb_to_thomb_middle
+      - right_thomb_middle_to_thomb_upper
+      - right_palm_to_finger1_lower
+      - right_palm_to_finger2_lower
+      - right_palm_to_finger3_lower
+      - right_palm_to_finger4_lower
+
+  head_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - chest_to_neck
+      - neck_to_head
+
+  waist_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - waist_yaw_joint
+      - waist_roll_joint
+      - waist_pitch_joint
