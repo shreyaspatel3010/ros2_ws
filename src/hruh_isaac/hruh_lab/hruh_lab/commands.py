@@ -17,14 +17,18 @@ class ControllableVelocityCommand(UniformVelocityCommand):
 class MotionVelocityCommand(ControllableVelocityCommand):
     """Velocity commands drawn from explicit movements, so each is trained often:
     stand, walk forward, walk backward, side-step left/right, turn in place and free
-    combinations. Short resampling times add many starts, stops and direction changes."""
+    combinations. Short resampling times add many starts, stops and direction changes;
+    a robot moving fast is often told to stop instantly (cfg.stop_after_moving)."""
 
     def _resample_command(self, env_ids):
         import torch
-        super()._resample_command(env_ids)
         cfg, n = self.cfg, len(env_ids)
         if n == 0:
             return
+        # who is moving right now: their next command may be a sudden stop
+        previous = self.vel_command_b[env_ids].clone()
+        was_moving = (previous[:, :2].norm(dim=1) > 0.3) | (previous[:, 2].abs() > 0.5)
+        super()._resample_command(env_ids)
         probs = torch.tensor([cfg.mode_probabilities[m] for m in self.MODES], device=self.device)
         mode = torch.multinomial(probs / probs.sum(), n, replacement=True)
         u = lambda lo, hi: torch.empty(n, device=self.device).uniform_(lo, hi)  # noqa: E731
@@ -33,7 +37,7 @@ class MotionVelocityCommand(ControllableVelocityCommand):
         vx_hi, vy_hi, wz_hi = cfg.ranges.lin_vel_x[1], cfg.ranges.lin_vel_y[1], cfg.ranges.ang_vel_z[1]
         small = lambda: u(-0.1, 0.1)  # noqa: E731  (a little turning while walking straight)
         rows = {
-            1: (u(0.1, vx_hi), torch.zeros(n, device=self.device), small()),               # forward
+            1: (u(0.2, vx_hi), torch.zeros(n, device=self.device), small()),               # forward
             2: (u(cfg.ranges.lin_vel_x[0], -0.05), torch.zeros(n, device=self.device), small()),  # backward
             3: (torch.zeros(n, device=self.device), sign * u(0.05, vy_hi), small()),      # side-step
             4: (torch.zeros(n, device=self.device), torch.zeros(n, device=self.device), sign * u(0.2, wz_hi)),  # turn
@@ -41,6 +45,10 @@ class MotionVelocityCommand(ControllableVelocityCommand):
         for index, (vx, vy, wz) in rows.items():
             pick = mode == index
             cmd[pick] = torch.stack((vx, vy, wz), dim=1)[pick]
+        # sudden stops: from walking fast / turning, instantly to standing still
+        sudden = was_moving & (torch.rand(n, device=self.device) < cfg.stop_after_moving)
+        mode = torch.where(sudden, torch.zeros_like(mode), mode)
+        cmd[sudden] = 0.0
         self.vel_command_b[env_ids] = cmd
         self.is_standing_env[env_ids] = mode == 0                                           # stop / stand
 

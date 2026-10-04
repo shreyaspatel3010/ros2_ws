@@ -6,6 +6,7 @@ Observations use only what the real robot / ROS runner has: pelvis IMU
 no ground-truth base velocity, no height scan on flat ground.
 """
 from isaaclab.managers import EventTermCfg as EventTerm
+from isaaclab.managers import ObservationGroupCfg as ObsGroup
 from isaaclab.managers import ObservationTermCfg as ObsTerm
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
@@ -34,12 +35,17 @@ class HruhRewards(RewardsCfg):
     alive = RewTerm(func=mdp.is_alive, weight=0.25)
     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-200.0)
     lin_vel_z_l2 = None
+    # std 0.25, not H1's 0.5: HRUH's commands are slow (<= 0.4 m/s). With 0.5, standing still
+    # against a 0.3 m/s command still earned 70% of this reward, and offline run auto_5ae95cbb56
+    # learned to stand and shuffle (forward error 0.28 of 0.30 m/s, turning 0.1 of 0.4 rad/s).
     track_lin_vel_xy_exp = RewTerm(func=mdp.track_lin_vel_xy_yaw_frame_exp, weight=1.5,
-                                   params={"command_name": "base_velocity", "std": 0.5})
+                                   params={"command_name": "base_velocity", "std": 0.25})
     track_ang_vel_z_exp = RewTerm(func=mdp.track_ang_vel_z_world_exp, weight=1.0,
-                                  params={"command_name": "base_velocity", "std": 0.5})
-    feet_air_time = RewTerm(func=mdp.feet_air_time_positive_biped, weight=0.25,
-                            params={"command_name": "base_velocity", "threshold": 0.4,
+                                  params={"command_name": "base_velocity", "std": 0.25})
+    # real steps (that run earned 0.001 here: it never lifted a foot long enough); slow
+    # gaits have ~0.35 s swing phases
+    feet_air_time = RewTerm(func=mdp.feet_air_time_positive_biped, weight=1.0,
+                            params={"command_name": "base_velocity", "threshold": 0.35,
                                     "sensor_cfg": SceneEntityCfg("contact_forces", body_names=FEET)})
     feet_slide = RewTerm(func=mdp.feet_slide, weight=-0.25,
                          params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=FEET),
@@ -55,6 +61,15 @@ class HruhRewards(RewardsCfg):
                              params={"command_name": "base_velocity"})
     joint_deviation_toes = RewTerm(func=mdp.joint_deviation_l1, weight=-0.05,
                                    params={"asset_cfg": SceneEntityCfg("robot", joint_names=".*_toe_joint")})
+
+
+@configclass
+class EstimatorTargetCfg(ObsGroup):
+    base_lin_vel = ObsTerm(func=mdp.base_lin_vel)
+
+    def __post_init__(self):
+        self.enable_corruption = False
+        self.concatenate_terms = True
 
 
 @configclass
@@ -93,6 +108,9 @@ class HruhRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.observations.critic.history_length = 1
         self.observations.critic.enable_corruption = False
         self.observations.critic.base_lin_vel = ObsTerm(func=mdp.base_lin_vel)
+        # supervised target of the concurrent velocity estimator (hruh_lab/estimator.py):
+        # simulator ground truth, used for training only, never by the deployed policy
+        self.observations.estimator_target = EstimatorTargetCfg()
 
         # keep arms / head / hands in the standing pose (no action drives them)
         self.events.hold_upper_body = EventTerm(func=hruh_mdp.hold_default_pose, mode="reset",
@@ -140,9 +158,11 @@ class HruhRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.debug_vis = False
         self.commands.base_velocity.resampling_time_range = (3.0, 7.0)
         self.commands.base_velocity.rel_standing_envs = 0.1
-        self.commands.base_velocity.ranges.lin_vel_x = (-0.2, 0.4)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.2, 0.2)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
+        # at least 0.4 m/s in every direction, faster forward: training beyond the speeds used
+        # day to day gives better control at all speeds
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.4, 0.8)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.4, 0.4)
+        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
         # terminations: torso / pelvis / head touching the ground, or pelvis too low
         self.terminations.base_contact.params["sensor_cfg"].body_names = ["base_link", "torso_link", "head_base"]

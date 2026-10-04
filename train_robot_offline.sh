@@ -12,8 +12,17 @@ Runs everything automatically and shows live progress in the terminal: a bar per
 training round (iteration, reward, task error, ETA), every evaluation scenario,
 the Gazebo test and the final summary. No API calls, downloads or cloud logging.
 
-Defaults: whole-body movement, reaching, lifting; up to 3 rounds of 1000 PPO
-iterations per skill, 128 parallel environments. A skill stops early when its benchmark passes.
+Defaults: whole-body movement, reaching, lifting; rounds of 1000 PPO iterations,
+repeated until the skill passes its benchmark; 2048 robots trained in parallel
+in one GPU scene (lift: 1024, contact-heavy).
+  * Between rounds the training is tuned automatically (scripts/auto_tune.py): the
+    evaluation and training log are diagnosed and reward weights / strengths, the
+    movement / arm / push curriculum and the exploration noise are adjusted by fixed
+    rules (each change is printed with its reason). The next round resumes from the
+    best checkpoint so far, so a worse round never replaces progress.
+  * A skill is finished only when one policy passes its benchmark REQUIRED_PASSES=5
+    times: the round's evaluation plus 4 confirmations on new random seeds. Until then
+    the run does not move on to the next skill (it keeps tuning and training). A skill stops early when its benchmark passes.
   * The laptop is kept awake (no suspend) until the run ends.
   * A crashed stage is retried automatically (RETRIES=2) from the latest
     checkpoint; if it ran out of GPU/RAM, with half the parallel environments.
@@ -37,12 +46,21 @@ Environment overrides:
               arms hold, swing with the gait or move to random poses (MoveIt-like)
       flat    walking with the arms fixed (older task), rough  uneven terrain
       reach   right-arm reaching, lift  right-hand cube lifting
-  ROUNDS=3 ITERATIONS=1000 NUM_ENVS=128 EVAL_ENVS=32 RETRIES=2
-  GAZEBO=1 GAZEBO_SECONDS=20
+  ROUNDS=0                   0 = until the benchmark passes; N = at most N rounds
+  REQUIRED_PASSES=5          independent passing evaluations (different seeds) per skill
+  PATIENCE=0                 0 = never move on before success; N = give up on a skill
+                             after N rounds without improvement (avoids endless runs)
+  AUTO_TUNE=1                0 = keep the training settings fixed between rounds
+  ITERATIONS=1000 EVAL_ENVS=32 RETRIES=2
+  NUM_ENVS=<n>               same count for every skill (default per skill: 2048 / lift 1024;
+                             halved automatically if the 8 GB GPU budget is exceeded)
+  GAZEBO=1 GAZEBO_SECONDS=30     walking skills walk every movement with sudden stops in Gazebo
   PROMOTE=1                  0 = never touch the runtime policies
   POLICY_DIR=src/hruh_isaac/policies   where promoted policies go (the launch files read it)
   REQUIRE_GAZEBO=0           1 = locomotion must also finish the Gazebo test without a fall
   BUILD=1                    0 = skip the automatic colcon build
+  WARM_START=1               a new experiment starts from the previous run's best policy
+                             of each skill (0 = train from scratch)
   HRUH_GPU_MEM_GB=8 HRUH_CPU_CORES=12 HRUH_MEM_GB=18   resource caps (defaults scale with the PC)
   ISAAC_PYTHON=/opt/isaac/venv-6.1/bin/python
   RUN_ID=<name>              fixed experiment name (default: auto_<code fingerprint>);
@@ -51,7 +69,7 @@ Environment overrides:
 Examples:
   ./train_robot_offline.sh --check
   SKILLS=reach ROUNDS=1 ITERATIONS=500 ./train_robot_offline.sh
-  ROUNDS=5 ./train_robot_offline.sh      continue failed skills for two more rounds
+  PATIENCE=8 ./train_robot_offline.sh    move on if a skill stops improving for 8 rounds
   nohup ./train_robot_offline.sh > training.out 2>&1 &   (plain progress lines, survives closing the terminal)
 
 Current tasks are experimental. A failed score is never promoted.
@@ -67,10 +85,16 @@ PY="${ISAAC_PYTHON:-/opt/isaac/venv-6.1/bin/python}"
 # empty = automatic: named after the robot/task code fingerprint (see below)
 RUN_ID="${RUN_ID:-}"
 [[ -z "$RUN_ID" || "$RUN_ID" =~ ^[a-zA-Z0-9_-]+$ ]] || { echo 'Invalid RUN_ID'; exit 2; }
-for key in ROUNDS ITERATIONS NUM_ENVS EVAL_ENVS GAZEBO_SECONDS; do
+NUM_ENVS="${NUM_ENVS:-}"   # empty: per-skill default (skill_envs)
+[[ -z "$NUM_ENVS" || "$NUM_ENVS" =~ ^[1-9][0-9]*$ ]] || { echo 'NUM_ENVS must be a positive integer'; exit 2; }
+ROUNDS="${ROUNDS:-0}" PATIENCE="${PATIENCE:-0}" AUTO_TUNE="${AUTO_TUNE:-1}" REQUIRED_PASSES="${REQUIRED_PASSES:-5}"
+[[ "$ROUNDS" =~ ^[0-9]+$ && "$PATIENCE" =~ ^[0-9]+$ ]] || { echo 'ROUNDS and PATIENCE must be 0 or positive integers'; exit 2; }
+[[ "$REQUIRED_PASSES" =~ ^[1-9][0-9]*$ ]] || { echo 'REQUIRED_PASSES must be a positive integer'; exit 2; }
+[[ "$AUTO_TUNE" == 0 || "$AUTO_TUNE" == 1 ]] || { echo 'AUTO_TUNE must be 0 or 1'; exit 2; }
+for key in ITERATIONS EVAL_ENVS GAZEBO_SECONDS; do
   case "$key" in
-    ROUNDS) default=3;; ITERATIONS) default=1000;; NUM_ENVS) default=128;;
-    EVAL_ENVS) default=32;; GAZEBO_SECONDS) default=20;;
+    ITERATIONS) default=1000;;
+    EVAL_ENVS) default=32;; GAZEBO_SECONDS) default=30;;
   esac
   value="${!key:-$default}"
   [[ "$value" =~ ^[1-9][0-9]*$ ]] || { echo "$key must be a positive integer"; exit 2; }
@@ -79,7 +103,8 @@ done
 RETRIES="${RETRIES:-2}"
 [[ "$RETRIES" =~ ^[0-9]+$ ]] || { echo 'RETRIES must be 0 or a positive integer'; exit 2; }
 GAZEBO="${GAZEBO:-1}" PROMOTE="${PROMOTE:-1}" REQUIRE_GAZEBO="${REQUIRE_GAZEBO:-0}" BUILD="${BUILD:-1}"
-for key in GAZEBO PROMOTE REQUIRE_GAZEBO BUILD; do
+WARM_START="${WARM_START:-1}"
+for key in GAZEBO PROMOTE REQUIRE_GAZEBO BUILD WARM_START; do
   [[ "${!key}" == 0 || "${!key}" == 1 ]] || { echo "$key must be 0 or 1"; exit 2; }
 done
 read -r -a skills <<< "${SKILLS:-motion reach lift}"
@@ -216,8 +241,6 @@ if [[ -f "$STATE/source.sha256" && "$(cat "$STATE/source.sha256")" != "$fingerpr
   exit 1
 fi
 printf '%s\n' "$fingerprint" > "$STATE/source.sha256"
-say "Skills: ${skills[*]} | up to $ROUNDS rounds x $ITERATIONS iterations | $NUM_ENVS envs | caps: GPU ${HRUH_GPU_MEM_GB} GB"
-say "Run $RUN_ID | logs and reports: $STATE"
 
 latest_checkpoint() {
   /usr/bin/python3 - "$1" <<'PY'
@@ -228,21 +251,61 @@ if files:
     print(max(files, key=lambda p: (p.stat().st_mtime_ns, p.name)).resolve())
 PY
 }
+# Parallel environments per skill: more samples per iteration is what these tasks lacked
+# (128 envs gave ~3 M steps per round, 20-50x fewer than Isaac Lab's reference recipes).
+skill_envs() {
+  if [[ -n "$NUM_ENVS" ]]; then echo "$NUM_ENVS"; return; fi
+  # measured: 512 robots 2.9 GB, 1024 robots 3.4 GB and 2x the speed (CPU-bound, GPU 43% busy);
+  # 2048 ~4.4 GB fits the 8 GB budget with room for the desktop
+  case "$1" in lift) echo 1024;; *) echo 2048;; esac
+}
+round_of() { ((ROUNDS)) && echo "/$ROUNDS"; }
+warm_start_checkpoint() {   # newest other run's best.json for $skill whose checkpoint still exists
+  /usr/bin/python3 - "$OFFLINE" "$RUN_ID" "$skill" <<'PY'
+import json, sys
+from pathlib import Path
+offline, run, skill = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+for best in sorted(offline.glob(f"*/{skill}/best.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+    if best.parent.parent.name == run:
+        continue
+    checkpoint = json.loads(best.read_text()).get("checkpoint", "")
+    if Path(checkpoint).is_file():
+        print(checkpoint)
+        break
+PY
+}
+best_checkpoint() {   # auto_tune.py's best round so far for $skill
+  ((AUTO_TUNE)) || return 0
+  /usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["checkpoint"])' \
+    "$STATE/$skill/best.json" 2>/dev/null || true
+}
 benchmark_passed() {
   /usr/bin/python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("passed_benchmark") else 1)' "$1"
 }
+
+say "Skills: ${skills[*]} | rounds of $ITERATIONS iterations $( ((ROUNDS)) && echo "(at most $ROUNDS)" || echo "until passed")$( ((PATIENCE)) && echo ", stop after $PATIENCE without improvement") | success = $REQUIRED_PASSES passing evaluations | auto-tune $( ((AUTO_TUNE)) && echo on || echo off) | envs: $(for k in "${skills[@]}"; do printf '%s=%s ' "$k" "$(skill_envs "$k")"; done)| caps: GPU ${HRUH_GPU_MEM_GB} GB"
+say "Run $RUN_ID | logs and reports: $STATE"
 
 # ------------------------------------------------------------------ stages
 # train_round: one training round with automatic retries. Returns 0 when trained.
 train_round() {
   local dir="$STATE/$skill" log="$STATE/$skill/train_$round.log" attempt status envs checkpoint
   for ((attempt = 1; attempt <= RETRIES + 1; attempt++)); do
-    envs="$(cat "$dir/num_envs" 2>/dev/null || echo "$NUM_ENVS")"
-    checkpoint="$(latest_checkpoint "$ROOT/logs/rsl_rl/$experiment")"
+    envs="$(cat "$dir/num_envs" 2>/dev/null || skill_envs "$skill")"
+    # resume the best round so far (auto-tune); otherwise the newest checkpoint
+    checkpoint="$(best_checkpoint)"
+    [[ -f "$checkpoint" ]] || checkpoint="$(latest_checkpoint "$ROOT/logs/rsl_rl/$experiment")"
+    # new experiment (code changed): start from the best policy of the previous run of this
+    # skill. Only on the first attempt - if the network no longer fits, retry from scratch.
+    if [[ ! -f "$checkpoint" && "$WARM_START" == 1 && "$attempt" == 1 ]]; then
+      checkpoint="$(warm_start_checkpoint)"
+      [[ -z "$checkpoint" ]] || say "Warm start: continuing from the previous run's best $skill policy"
+    fi
     local resume=()
     [[ -z "$checkpoint" ]] || resume=(--checkpoint "$checkpoint")
-    say "Training $skill round $round/$ROUNDS: $ITERATIONS iterations, $envs envs$([[ -n "$checkpoint" ]] && echo ", resuming $(basename "$(dirname "$checkpoint")")/$(basename "$checkpoint")")"
-    run_stage train "[$skill $round/$ROUNDS]" "$log" "$ITERATIONS" \
+    say "Training $skill round $round$(round_of): $ITERATIONS iterations, $envs envs$([[ -n "$checkpoint" ]] && echo ", resuming $(basename "$(dirname "$checkpoint")")/$(basename "$checkpoint")")$([[ -s "$dir/tuning.json" && "$(cat "$dir/tuning.json")" != "{}" ]] && echo ", auto-tuned settings")"
+    run_stage train "[$skill $round$(round_of)]" "$log" "$ITERATIONS" \
+      env HRUH_TUNING="$( ((AUTO_TUNE)) && echo "$dir/tuning.json")" \
       "$LIMIT" "$PY" src/hruh_isaac/scripts/rl.py train --task "$task" --visualizer none \
       --num_envs "$envs" --max_iterations "$ITERATIONS" --logger tensorboard \
       --experiment_name "$experiment" --run_name "round_$round" "${resume[@]}"
@@ -265,17 +328,21 @@ train_round() {
 }
 
 # evaluate_round: held-out evaluation + export with retries. Returns 0 when the report exists.
-evaluate_round() {
-  local log="$STATE/$skill/evaluate_$round.log" attempt status evaluator
+evaluator_for_skill() {
   if [[ "$skill" == motion || "$skill" == flat || "$skill" == rough ]]; then
     evaluator=(src/hruh_isaac/scripts/evaluate.py --terrain "$skill")
   else
     evaluator=(src/hruh_isaac/scripts/evaluate_manipulation.py --skill "$skill")
   fi
+}
+
+evaluate_round() {
+  local log="$STATE/$skill/evaluate_$round.log" attempt status evaluator
+  evaluator_for_skill
   for ((attempt = 1; attempt <= RETRIES + 1; attempt++)); do
     say "Evaluating $skill round $round on held-out seeds and exporting the policy"
     rm -f "$report"
-    run_stage eval "[$skill $round/$ROUNDS eval]" "$log" 0 \
+    run_stage eval "[$skill $round$(round_of) eval]" "$log" 0 \
       "$LIMIT" "$PY" "${evaluator[@]}" --checkpoint "$checkpoint" --num_envs "$EVAL_ENVS" \
       --visualizer none --export --output "$report"
     status=$?
@@ -288,6 +355,43 @@ evaluate_round() {
   done
   rm -f "$report"
   return 1
+}
+
+# confirm_round: the round's checkpoint must also pass REQUIRED_PASSES-1 more evaluations on
+# new seeds (4242 + 1000 k). Returns 0 when all pass. On a failing confirmation it returns 1
+# with CONFIRM_FAILED=<report>; if an evaluation keeps crashing, CONFIRM_ERROR=1.
+confirm_round() {
+  local k file attempt status evaluator log="$STATE/$skill/confirm_$round.log"
+  CONFIRM_FAILED="" CONFIRM_ERROR=""
+  evaluator_for_skill
+  for ((k = 2; k <= REQUIRED_PASSES; k++)); do
+    file="$STATE/$skill/confirm_${round}_$k.json"
+    attempt=0
+    while [[ ! -f "$file" ]] && ((++attempt <= RETRIES + 1)); do
+      say "Confirmation $k/$REQUIRED_PASSES for $skill round $round (new seed $((4242 + 1000 * (k - 1))))"
+      run_stage eval "[$skill $round check $k/$REQUIRED_PASSES]" "$log" 0 \
+        "$LIMIT" "$PY" "${evaluator[@]}" --checkpoint "$checkpoint" --num_envs "$EVAL_ENVS" \
+        --seed "$((4242 + 1000 * (k - 1)))" --visualizer none --output "$file"
+      status=$?
+      stop_if_interrupted
+      [[ "$status" == 0 && -f "$file" ]] && break
+      rm -f "$file"
+      say "Confirmation attempt $attempt/$((RETRIES + 1)) failed (exit $status)"
+      show_failure "$log"
+    done
+    if [[ ! -f "$file" ]]; then
+      CONFIRM_ERROR=1
+      return 1
+    fi
+    if benchmark_passed "$file"; then
+      say "  confirmation $k/$REQUIRED_PASSES: PASS"
+    else
+      say "  confirmation $k/$REQUIRED_PASSES: FAIL - $((k - 1))/$REQUIRED_PASSES passed, not reliable yet"
+      CONFIRM_FAILED="$file"
+      return 1
+    fi
+  done
+  return 0
 }
 
 gazebo_test() {
@@ -303,6 +407,7 @@ gazebo_test() {
     timeout --foreground --signal=INT --kill-after=30s "$((GAZEBO_SECONDS * 20 + 150))s" \
     "$LIMIT" ros2 launch "$ROOT/src/hruh_bringup/launch/policy_gazebo.launch.py" \
     workspace:="$ROOT" bundle:="$bundle" python:="$PY" gui:=false seconds:="$GAZEBO_SECONDS" \
+    scripted:="$( [[ "$skill" == motion || "$skill" == flat || "$skill" == rough ]] && echo true || echo false)" \
     || say "  Gazebo exited unsuccessfully; see $log"
   # gz sim's server can outlive its launcher
   pkill -f "^gz sim .*artifacts/hruh/gazebo/" 2>/dev/null || true
@@ -339,8 +444,9 @@ for index in "${!skills[@]}"; do
   mkdir -p "$STATE/$skill"
   rm -f "$STATE/$skill/failed.txt"
   heading "Skill $((index + 1))/${#skills[@]}: $skill ($task)"
-  report="" checkpoint="" skill_ok=1
-  for ((round = 1; round <= ROUNDS; round++)); do
+  report="" checkpoint="" skill_ok=1 confirmed=0
+  rm -f "$STATE/$skill/outcome.txt"
+  for ((round = 1; ROUNDS == 0 || round <= ROUNDS; round++)); do
     report="$STATE/$skill/evaluation_$round.json"
     if [[ ! -f "$STATE/$skill/trained_$round" ]]; then
       if ! train_round; then
@@ -349,7 +455,7 @@ for index in "${!skills[@]}"; do
         break
       fi
     else
-      say "Round $round/$ROUNDS already trained (resuming)"
+      say "Round $round$(round_of) already trained (resuming)"
     fi
     checkpoint="$(cat "$STATE/$skill/trained_$round")"
     if [[ ! -f "$report" || ! -f "$(dirname "$checkpoint")/exported/bundle.json" ]]; then
@@ -360,12 +466,58 @@ for index in "${!skills[@]}"; do
       fi
     fi
     printf '%s\n' "$checkpoint" > "$STATE/$skill/latest_checkpoint.txt"
+    diagnosis="$report"
     if benchmark_passed "$report"; then
-      say "Isaac benchmark: PASS (round $round)"
-      break
+      say "Isaac benchmark: PASS (round $round)$( ((REQUIRED_PASSES > 1)) && echo " - confirming on $((REQUIRED_PASSES - 1)) more evaluations with new seeds")"
+      if confirm_round; then
+        say "$skill: SUCCESS - passed $REQUIRED_PASSES/$REQUIRED_PASSES evaluations (round $round)"
+        echo "passed $REQUIRED_PASSES/$REQUIRED_PASSES evaluations in round $round" > "$STATE/$skill/outcome.txt"
+        confirmed=1
+        break
+      fi
+      if [[ -n "$CONFIRM_ERROR" ]]; then
+        printf 'confirmation of round %s failed after %s attempts\n' "$round" "$((RETRIES + 1))" > "$STATE/$skill/failed.txt"
+        skill_ok=0
+        break
+      fi
+      diagnosis="$CONFIRM_FAILED"   # tune against the evaluation it failed
+    else
+      say "Isaac benchmark: FAIL (round $round)"
     fi
-    say "Isaac benchmark: FAIL (round $round)$( ((round < ROUNDS)) && echo ': training another round')"
+    if ((AUTO_TUNE)); then
+      # diagnose this round and adjust the next one (idempotent when resuming)
+      while IFS= read -r line; do say "$line"; done < <(/usr/bin/python3 src/hruh_isaac/scripts/auto_tune.py \
+        --skill "$skill" --round "$round" --evaluation "$diagnosis" --train-log "$STATE/$skill/train_$round.log" \
+        --checkpoint "$checkpoint" --state-dir "$STATE/$skill" 2>&1)
+      # rounds without improvement *as of this round* (correct when replaying a resumed run)
+      since="$(/usr/bin/python3 -c 'import json,sys
+rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+print(next((r["since_improvement"] for r in rows if r["round"] == int(sys.argv[2])), 0))' \
+        "$STATE/$skill/tuning_history.jsonl" "$round" 2>/dev/null || echo 0)"
+      if ((PATIENCE && since >= PATIENCE)); then
+        say "$skill: no improvement for $since rounds even with automatic tuning - moving on (PATIENCE=$PATIENCE)"
+        echo "stopped after round $round: no improvement for $since rounds" > "$STATE/$skill/outcome.txt"
+        break
+      fi
+    fi
+    if ((ROUNDS && round >= ROUNDS)); then
+      echo "stopped at the round limit ROUNDS=$ROUNDS" > "$STATE/$skill/outcome.txt"
+    else
+      say "Training another round"
+    fi
   done
+  # a skill that did not pass is tested / reported with its best round, not its last
+  if [[ "$skill_ok" == 1 && "$confirmed" != 1 ]]; then
+    best="$(best_checkpoint)"
+    if [[ -f "$best" && "$best" != "$checkpoint" ]]; then
+      for ((r = 1; r <= round; r++)); do
+        if [[ "$(cat "$STATE/$skill/trained_$r" 2>/dev/null)" == "$best" ]]; then
+          checkpoint="$best" report="$STATE/$skill/evaluation_$r.json"
+          say "$skill: using its best round $r for the Gazebo test and summary"
+        fi
+      done
+    fi
+  fi
   if [[ "$skill_ok" == 0 ]]; then
     say "$skill FAILED: $(cat "$STATE/$skill/failed.txt") - continuing with the next skill"
     failed_skills+=("$skill")
@@ -376,8 +528,8 @@ for index in "${!skills[@]}"; do
     gazebo_test
   fi
   # Deploy: a passing policy replaces the robot's runtime policy unless it is worse.
-  if [[ "$PROMOTE" == 1 && "$(cat "$STATE/$skill/promotion_checkpoint.txt" 2>/dev/null)" != "$checkpoint" ]] \
-     && benchmark_passed "$report"; then
+  if [[ "$PROMOTE" == 1 && "$confirmed" == 1 \
+        && "$(cat "$STATE/$skill/promotion_checkpoint.txt" 2>/dev/null)" != "$checkpoint" ]]; then
     promote_skill
   fi
 done
@@ -396,7 +548,14 @@ for s in sorted(p.iterdir()):
     reports = sorted(s.glob('evaluation_*.json'), key=lambda f: int(f.stem.split('_')[-1]))
     if not reports: continue
     r = json.loads(reports[-1].read_text())
-    rows.append(f"{s.name}: Isaac benchmark {'PASS' if r.get('passed_benchmark') else 'FAIL'} after {len(reports)} round(s)")
+    outcome = (s / 'outcome.txt').read_text().strip() if (s / 'outcome.txt').exists() else ''
+    rows.append(f"{s.name}: {'SUCCESS' if outcome.startswith('passed') else 'NOT PASSED'}"
+                f" after {len(reports)} round(s){'; ' + outcome if outcome else ''}")
+    history = s / 'tuning_history.jsonl'
+    if history.exists():
+        lines = [json.loads(l) for l in history.read_text().splitlines() if l.strip()]
+        rows.append(f"  Auto-tune: {sum(len(l['changes']) for l in lines)} adjustment(s) over {len(lines)} round(s); "
+                    f"best score {lines[-1]['best_score']:.3f} (round {lines[-1]['best_round']}); see {history.name}")
     g = s / 'gazebo.json'
     if g.exists():
         d = json.loads(g.read_text())
@@ -404,11 +563,13 @@ for s in sorted(p.iterdir()):
     else: rows.append('  Gazebo: no report; transfer NOT verified')
     promo = s / 'promotion.txt'
     rows.append('  Runtime: ' + (promo.read_text().strip() if promo.exists() else
-                                 'not promoted' + ('' if r.get('passed_benchmark') else ' (benchmark not passed)')))
+                                 'not promoted' + ('' if outcome.startswith('passed') else ' (not passed)')))
 rows += ['', 'Promoted policies: src/hruh_isaac/policies/<name>/PROMOTED.json',
          '  ros2 launch hruh_bringup isaac.launch.py  |  policy_gazebo.launch.py joystick:=true',
-         'Failed benchmarks: rerun with more rounds (ROUNDS=5 ./train_robot_offline.sh) or improve the task.',
+
          'This script does not implement general tool use or guarantee fall-free behavior.']
+if any('no improvement' in row for row in rows):
+    rows.insert(-1, 'Stopped without improvement: rerun with PATIENCE=10 to keep tuning, or the task needs new work.')
 print('\n'.join(rows))
 PY
 say "Finished in $(elapsed). Reports and checkpoint paths: $STATE"

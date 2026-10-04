@@ -41,6 +41,32 @@ def grasp_contact(env):
     return (touching("thumb") & fingers).float()
 
 
+def touch(env):
+    """0.5 for the thumb and 0.5 for any finger touching the cube (partial credit)."""
+    def touching(name):
+        forces = env.scene[name].data.force_matrix_w.torch
+        return (forces.norm(dim=-1).reshape(env.num_envs, -1).max(dim=-1).values > 0.1).float()
+    fingers = torch.stack([touching(f"finger{i}") for i in range(1, 5)], dim=-1).max(dim=-1).values
+    return 0.5 * touching("thumb") + 0.5 * fingers
+
+
+FINGER_BASES = ["right_palm_to_thomb"] + [f"right_palm_to_finger{i}_lower" for i in range(1, 5)]
+
+
+def close_when_near(env):
+    """Finger / thumb flexion (0 open .. 1 closed) while the grasp point is within 6 cm of the cube."""
+    robot = env.scene["robot"]
+    if not hasattr(env, "_hruh_finger_ids"):
+        ids, _ = robot.find_joints(FINGER_BASES, preserve_order=True)
+        limits = robot.data.joint_pos_limits.torch[0, ids]
+        env._hruh_finger_ids, env._hruh_finger_limits = ids, limits
+    ids, limits = env._hruh_finger_ids, env._hruh_finger_limits
+    q = robot.data.joint_pos.torch[:, ids]
+    closure = ((q - limits[:, 0]) / (limits[:, 1] - limits[:, 0]).clamp_min(1e-3)).clamp(0.0, 1.0).mean(dim=-1)
+    near = (env.scene["object"].data.root_pos_w.torch - grasp_position(env)).norm(dim=-1) < 0.06
+    return closure * near.float()
+
+
 def lift_height(env):
     height = env.scene["object"].data.root_pos_w.torch[:, 2] - env.scene.env_origins[:, 2] - 1.165
     return height.clamp(0.0, 0.15) / 0.15 * grasp_contact(env)

@@ -16,10 +16,10 @@ class VelocityGuardTest(unittest.TestCase):
     def test_idle_ramp_limits_and_timeout(self):
         self.assertEqual(self.guard.step(0.02), (0, 0, 0))
         self.guard.update((10, -10, 10))
-        self.assertEqual(self.guard.step(0.02), (0.008, -0.008, 0.02))
+        self.assertEqual(self.guard.step(0.02), (0.016, -0.016, 0.03))
         for _ in range(100):
             self.guard.step(0.02)
-        self.assertEqual(self.guard.step(0.02), (0.4, -0.2, 0.5))
+        self.assertEqual(self.guard.step(0.02), (0.8, -0.4, 1.0))
         self.now += 0.36
         self.assertEqual(self.guard.step(0.02), (0, 0, 0))
 
@@ -30,6 +30,15 @@ class VelocityGuardTest(unittest.TestCase):
         self.assertEqual(self.guard.step(0.02), (0, 0, 0))
         self.assertFalse(self.guard.update((0, float("inf"), 0)))
         self.assertFalse(self.guard.update((0, 0)))
+
+    def test_stop_is_instant_and_not_latched(self):
+        self.guard.update((0.6, 0, 0))
+        for _ in range(100):
+            self.guard.step(0.02)
+        self.guard.stop()
+        self.assertEqual(self.guard.step(0.02), (0, 0, 0))
+        self.guard.update((0.3, 0, 0))                      # motion resumes without a neutral command
+        self.assertGreater(self.guard.step(0.02)[0], 0)
 
     def test_fall_requires_fresh_neutral(self):
         self.guard.update((0.3, 0, 0))

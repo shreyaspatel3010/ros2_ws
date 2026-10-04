@@ -16,8 +16,9 @@ class VelocityGuard:
             raise ValueError("timeout must be positive")
         self.timeout = timeout
         self.clock = clock
-        self.limits = ((-0.2, 0.4), (-0.2, 0.2), (-0.5, 0.5))
-        self.acceleration = (0.4, 0.4, 1.0)
+        # the trained command range (Hruh-Velocity-* tasks): >= 0.4 m/s in every direction
+        self.limits = ((-0.4, 0.8), (-0.4, 0.4), (-1.0, 1.0))
+        self.acceleration = (0.8, 0.8, 1.5)
         self.target = [0.0] * 3
         self.value = [0.0] * 3
         self.received = -math.inf
@@ -33,6 +34,12 @@ class VelocityGuard:
         self.target = [max(lo, min(hi, x)) for x, (lo, hi) in zip(command, self.limits)]
         self.received = self.clock()
         return True
+
+    def stop(self):
+        """Instant zero command (a sudden stop, as trained) without latching: motion resumes
+        with the next command after the caller lets it."""
+        self.target = [0.0] * 3
+        self.value = [0.0] * 3
 
     def fall(self):
         self.latched = True

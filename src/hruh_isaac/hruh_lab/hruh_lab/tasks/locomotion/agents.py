@@ -1,6 +1,8 @@
 from isaaclab.utils import configclass
 
-from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlMLPModelCfg, RslRlPpoAlgorithmCfg
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlMLPModelCfg, RslRlPpoAlgorithmCfg, RslRlSymmetryCfg
+
+from ...symmetry import compute_symmetric_states
 
 
 @configclass
@@ -13,21 +15,28 @@ class HruhRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     # +-0.5 rad capped the knee near 0.86 rad and limited stepping
     clip_actions = 2.0
     obs_groups = {"actor": ["policy"], "critic": ["critic"]}
+    # Deep RL: PPO, asymmetric actor-critic (the critic sees simulator truth), plus
+    #  - a concurrent velocity estimator (supervised DL inside the actor, hruh_lab/estimator.py)
+    #  - left-right symmetry data augmentation (hruh_lab/symmetry.py): every sample also mirrored
     actor = RslRlMLPModelCfg(
-        hidden_dims=[256, 128, 128],
+        class_name="hruh_lab.estimator:EstimatorActor",
+        hidden_dims=[512, 256, 128],
         obs_normalization=True,
         distribution_cfg=RslRlMLPModelCfg.GaussianDistributionCfg(init_std=0.5),
         activation="elu",
     )
     critic = RslRlMLPModelCfg(
-        hidden_dims=[256, 128, 128],
+        hidden_dims=[512, 256, 128],
         obs_normalization=True,
         activation="elu",
     )
     algorithm = RslRlPpoAlgorithmCfg(
+        class_name="hruh_lab.estimator:EstimatorPPO",
         value_loss_coef=1.0, use_clipped_value_loss=True, clip_param=0.2, entropy_coef=0.01,
         num_learning_epochs=5, num_mini_batches=4, learning_rate=1.0e-3, schedule="adaptive",
         gamma=0.99, lam=0.95, desired_kl=0.01, max_grad_norm=1.0,
+        symmetry_cfg=RslRlSymmetryCfg(use_data_augmentation=True,
+                                      data_augmentation_func=compute_symmetric_states),
     )
 
 

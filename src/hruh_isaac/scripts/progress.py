@@ -150,8 +150,10 @@ def main():
                 state["started"] = True
                 if "scenario" in row:
                     mae = row.get("velocity_mae_while_alive_vx_vy_wz") or [float("nan")] * 3
+                    settle = row.get("stop_settle_s_max")
                     display.line(f"{row['scenario']:>14}: survived {row['survival_fraction'] * 100:5.1f}%  "
-                                 f"error vx {mae[0]:.2f} vy {mae[1]:.2f} m/s, yaw {mae[2]:.2f} rad/s")
+                                 f"error vx {mae[0]:.2f} vy {mae[1]:.2f} m/s, yaw {mae[2]:.2f} rad/s"
+                                 + (f", stands still {settle:.1f} s after a stop" if settle is not None else ""))
                 elif "seed" in row and "successes" in row:
                     display.line(f"  seed {row['seed']}: {row['successes']}/{row['trials']} successes "
                                  f"({row['success_fraction'] * 100:.0f}%)")
@@ -165,13 +167,19 @@ def main():
                 display.line("released: policy in control")
             elif "Fall detected" in line:
                 display.line("FALL detected")
+            elif "movement: " in line:
+                display.line("movement: " + line.split("movement: ", 1)[1])
             elif '"simulator": "Gazebo' in line:
                 body = line[line.index("{"):]
                 try:
                     r = json.loads(body)
                     display.line(f"{r.get('elapsed_sim_s', 0):.1f} s simulated, {r.get('policy_steps')} policy "
-                                 f"steps at {r.get('policy_rate_hz', '?')} Hz, falls {r.get('falls')}, "
-                                 f"completed {r.get('completed')}")
+                                 f"steps at {r.get('policy_rate_hz', '?')} Hz, falls {r.get('falls')}"
+                                 + (f" (during {r['fell_during']})" if r.get("fell_during") else "")
+                                 + f", completed {r.get('completed')}")
+                    for movement, stats in (r.get("measured_velocity") or {}).items():
+                        display.line(f"  {movement:>18}: commanded {stats['command']}  measured "
+                                     f"vx {stats['mean'][0]:+.2f} vy {stats['mean'][1]:+.2f} m/s, wz {stats['mean'][2]:+.2f} rad/s")
                 except ValueError:
                     pass
 

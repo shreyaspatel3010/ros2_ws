@@ -33,6 +33,16 @@ case "$mode" in
     set -u
     exec "$LIMIT" "$HRUH_PYTHON" src/hruh_isaac/scripts/evaluate.py --mode joystick --seconds 600 --visualizer kit "$@"
     ;;
+  watch)
+    # Live view of training: a few robots that always run the newest checkpoint of the current
+    # offline run (swapped in place as training saves them). Never touches the training files.
+    # Small share of the machine next to the training run.
+    # (the Isaac GUI peaks above 9 GB RAM while starting: 10 GB was too tight)
+    export HRUH_CPU_CORES="${HRUH_CPU_CORES:-4}" HRUH_GPU_MEM_GB="${HRUH_GPU_MEM_GB:-5}" HRUH_MEM_GB="${HRUH_MEM_GB:-14}"
+    mkdir -p "$HRUH_ROOT/artifacts/hruh/watch"
+    "$LIMIT" "$HRUH_PYTHON" src/hruh_isaac/scripts/watch_live.py "${1:-motion}" --num_envs 4 --visualizer kit "${@:2}" \
+      2>&1 | tee "$HRUH_ROOT/artifacts/hruh/watch/live.log"
+    ;;
   promote)
     exec /usr/bin/python3 src/hruh_isaac/scripts/promote_policy.py "$@"
     ;;
@@ -40,6 +50,6 @@ case "$mode" in
     exec "$LIMIT" "$HRUH_PYTHON" src/hruh_isaac/scripts/rl.py "$mode" --task Hruh-Velocity-Flat-v0 "$@"
     ;;
   *)
-    echo "Usage: bash src/hruh_isaac/scripts/run.sh {prepare|doctor|train|evaluate|joystick|play|zero|promote} [options]"
+    echo "Usage: bash src/hruh_isaac/scripts/run.sh {prepare|doctor|train|evaluate|joystick|play|zero|promote|watch} [options]"
     ;;
 esac

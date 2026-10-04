@@ -25,16 +25,27 @@ def scenario_command(name, seconds):
     if name in ("stand", "push_stand"):
         return (0.0, 0.0, 0.0)
     if name in ("forward", "push_walk"):
-        return (0.3, 0.0, 0.0)
+        return (0.4, 0.0, 0.0)          # minimum required walking speed
+    if name == "fast":
+        return (0.6, 0.0, 0.0)
     if name == "reverse":
-        return (-0.15, 0.0, 0.0)
+        return (-0.3, 0.0, 0.0)
     if name == "sidestep":
-        return (0.0, 0.15, 0.0)
+        return (0.0, 0.3, 0.0)
     if name == "turn":
-        return (0.0, 0.0, 0.4)
+        return (0.0, 0.0, 0.8)
+    if name == "sudden_stop":
+        # full speed in every direction, each followed by an instant stop (2.5 s segments)
+        return ((0.6, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.4, 0.0), (0.0, 0.0, 0.0),
+                (0.0, 0.0, 1.0), (0.0, 0.0, 0.0), (-0.4, 0.0, 0.0), (0.0, 0.0, 0.0))[int(seconds / 2.5) % 8]
     # Abrupt joystick changes, including a full stop and reversing direction.
-    return ((0.3, 0.0, 0.0), (0.0, 0.0, 0.0), (-0.15, 0.0, 0.0),
-            (0.0, -0.15, -0.4))[int(seconds / 5) % 4]
+    return ((0.5, 0.0, 0.0), (0.0, 0.0, 0.0), (-0.3, 0.0, 0.0),
+            (0.0, -0.3, -0.6))[int(seconds / 5) % 4]
+
+
+STOP_SCENARIOS = ("stop_reverse", "sudden_stop")
+SETTLE_LIMIT_S = 2.0        # after a stop: below 0.1 m/s and 0.2 rad/s within this time
+TRANSITION_S = 1.0          # stop scenarios: tracking error ignored this long after a command step
 
 
 def main():
@@ -64,6 +75,8 @@ def main():
     parser.add_argument("--num_envs", type=int, default=32)
     parser.add_argument("--seconds", type=float, default=20.0, help="Seconds per evaluation trial or joystick session")
     parser.add_argument("--seed", type=int, default=4242)
+    parser.add_argument("--min-survival", type=float, default=1.0,
+                        help="fraction of trials per scenario that must not fall (1.0 = no falls at all)")
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts/hruh/evaluation.json")
     parser.add_argument("--topic", default="/cmd_vel")
     parser.add_argument("--export", action="store_true", help="Also export normalized actor and policy contract")
@@ -163,7 +176,8 @@ def set_arm_mode(env, name):
 
 def evaluate(env, policy, args):
     import torch
-    names = ("stand", "forward", "reverse", "sidestep", "turn", "stop_reverse", "push_stand", "push_walk")
+    names = ("stand", "forward", "fast", "reverse", "sidestep", "turn", "stop_reverse", "sudden_stop",
+             "push_stand", "push_walk")
     if "arm_motion" in env.unwrapped.command_manager.active_terms:
         names += ARM_SCENARIOS
     dt = env.unwrapped.step_dt
@@ -180,6 +194,11 @@ def evaluate(env, policy, args):
                 policy.reset(torch.ones(env.num_envs, dtype=torch.bool, device=env.device))
             alive = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
             lifetime = torch.zeros(env.num_envs, device=env.device)
+            # sudden stops: time from the stop command until the robot stands still (per trial, worst)
+            settle = torch.zeros(env.num_envs, device=env.device)
+            settled = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+            stop_onset, previous_command = None, None
+            last_change = (None, 0.0)
             error_sum = torch.zeros(3, device=env.device)
             yaw_rate_sum = torch.zeros((), device=env.device)    # signed: spin vs. wobble diagnostic
             start_heading = None
@@ -197,11 +216,31 @@ def evaluate(env, policy, args):
                 measured = torch.cat((robot.data.root_lin_vel_b.torch[:, :2],
                                       robot.data.root_ang_vel_b.torch[:, 2:3]), dim=-1)
                 error = (measured - torch.tensor(command, device=env.device)).abs()
-                error_sum += error[alive].sum(dim=0)
-                yaw_rate_sum += (measured[:, 2] - command[2])[alive].sum()
+                if command != last_change[0]:
+                    last_change = (command, step * dt)
+                # stop scenarios: the second after a command step is judged by the settle time, not
+                # by tracking error (no robot follows a 0.6 -> 0 m/s step instantly)
+                if not (name in STOP_SCENARIOS and step * dt - last_change[1] < TRANSITION_S):
+                    error_sum += error[alive].sum(dim=0)
+                    yaw_rate_sum += (measured[:, 2] - command[2])[alive].sum()
+                    samples += int(alive.sum())
                 if start_heading is None:
                     start_heading = robot.data.heading_w.torch.clone()
-                samples += int(alive.sum())
+                if name in STOP_SCENARIOS:
+                    now = step * dt
+                    moving = any(abs(c) > 1e-6 for c in command)
+                    if previous_command is not None and any(abs(c) > 1e-6 for c in previous_command) and not moving:
+                        stop_onset = now
+                        settled[:] = False
+                    if stop_onset is not None and moving:          # stop window over: never settled = whole window
+                        settle = torch.where(alive & ~settled, torch.clamp(settle, min=now - stop_onset), settle)
+                        stop_onset = None
+                    elif stop_onset is not None:
+                        calm = (measured[:, :2].norm(dim=1) < 0.1) & (measured[:, 2].abs() < 0.2)
+                        newly = calm & ~settled
+                        settle = torch.where(newly, torch.clamp(settle, min=now - stop_onset), settle)
+                        settled |= calm
+                    previous_command = command
                 lifetime += alive * dt
                 actions = policy(obs)
                 if not torch.isfinite(actions).all():
@@ -212,6 +251,8 @@ def evaluate(env, policy, args):
                     policy.reset(dones)
                 if not alive.any():
                     break  # reset episodes never count as successful trials
+            if name in STOP_SCENARIOS and stop_onset is not None:
+                settle = torch.where(alive & ~settled, torch.clamp(settle, min=steps * dt - stop_onset), settle)
             result = {
                 "scenario": name, "trials": env.num_envs, "duration_s": steps * dt,
                 "falls": int((~alive).sum()), "survival_fraction": float(alive.float().mean()),
@@ -226,17 +267,25 @@ def evaluate(env, policy, args):
                     if start_heading is not None else None,
                 "push_delta_velocity_world_xy": [0.2, 0.3] if name.startswith("push_") else None,
                 "push_applied_trials": push_applied_trials,
+                # worst time to stand still again after a stop command (stop scenarios only)
+                "stop_settle_s_max": (float(settle[alive].max()) if alive.any() else None)
+                if name in STOP_SCENARIOS else None,
             }
             results.append(result)
             print(json.dumps(result), flush=True)
     # An explicit benchmark gate, not a claim of universal or hardware safety.
-    passed = all(r["survival_fraction"] >= 0.95
+    passed = all(r["survival_fraction"] >= args.min_survival
                  and max(r["velocity_mae_while_alive_vx_vy_wz"][:2]) <= 0.15
-                 and r["velocity_mae_while_alive_vx_vy_wz"][2] <= 0.25 for r in results)
+                 and r["velocity_mae_while_alive_vx_vy_wz"][2] <= 0.25
+                 and (r["stop_settle_s_max"] is None or r["stop_settle_s_max"] <= SETTLE_LIMIT_S)
+                 for r in results)
     return {"checkpoint": str(args.checkpoint) if args.checkpoint else "zero-action baseline",
             "seed": args.seed, "terrain": args.terrain, "sensor_noise": True,
             "startup_randomization": True, "passed_benchmark": passed,
-            "gate": "Every scenario: >=95% survival, vx/vy MAE <=0.15 m/s, yaw MAE <=0.25 rad/s",
+            "gate": (f"Every scenario: {'no falls' if args.min_survival >= 1.0 else f'>={args.min_survival:.0%} survival'}"
+                     ", vx/vy MAE <=0.15 m/s, yaw MAE <=0.25 rad/s"
+                     f", standing still within {SETTLE_LIMIT_S:.0f} s of every stop command"),
+            "falls": sum(r["falls"] for r in results),
             "scope": "Simulation locomotion benchmark; no hardware, manipulation or get-up validation"
                      + ("; motion: arms swing (standard scenarios) or move to random poses (*_arms)"
                         if args.terrain == "motion" else ""),

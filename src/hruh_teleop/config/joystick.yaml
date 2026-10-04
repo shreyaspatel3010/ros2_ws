@@ -41,9 +41,10 @@ hruh_joystick:
     axis_dpad_y: 7
 
     # walking (hruh_walker clamps again; Gazebo is tested stable to ~0.2 m/s)
-    walk_max_vx: 0.2
-    walk_max_vy: 0.08
-    walk_max_wz: 0.4
+    # full stick = the learned policy's trained range (the ZMP walker clamps to its own limits)
+    walk_max_vx: 0.8
+    walk_max_vy: 0.4
+    walk_max_wz: 1.0
 
     cartesian_linear: 0.15    # m/s at full stick
     cartesian_damping: 0.03   # damped-least-squares lambda (m); larger = calmer near a straight arm

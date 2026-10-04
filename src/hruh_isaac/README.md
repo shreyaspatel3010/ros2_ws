@@ -65,11 +65,19 @@ bash src/hruh_isaac/scripts/run.sh evaluate \
   --output artifacts/hruh/evaluation.json --export
 ```
 
-Eight scenarios test standing, forward/reverse motion, sidestepping, turning,
-stop/reverse transitions, and two controlled pushes. A trial ends at its first
+Ten scenarios test standing, walking forward at 0.4 m/s (the minimum required speed)
+and fast at 0.6 m/s, reverse and side-step at 0.3 m/s, turning at 0.8 rad/s,
+stop/reverse transitions, **sudden stops** (full speed forward / sideways / turning /
+backward, each cut instantly to zero), and two controlled pushes.
+
+**The robot must not fall.** The gate requires **zero falls** in every scenario. After
+every stop command, the robot must be standing still (< 0.1 m/s, < 0.2 rad/s) within 2 s.
+In the stop scenarios, the 1 s after each command step counts toward that settle time
+rather than tracking error. Training practises this: a robot moving faster than
+0.3 m/s or 0.5 rad/s gets an instant stop as its next command 30% of the time. A trial ends at its first
 fall. Automatic simulator resets do not count as successful recovery. Reports
 include survival, time to fall, and command error while upright. The benchmark
-passes only if **every** scenario has at least 95% survival, linear velocity MAE
+passes only if **every** scenario has no falls, linear velocity MAE
 at most 0.15 m/s per axis, and yaw-rate MAE at most 0.25 rad/s. Repeat with other
 seeds and longer trials before making stronger claims.
 
@@ -100,9 +108,26 @@ older than 0.35 s request zero velocity while the balance policy continues.
 After a fall, the simulation resets and motion stays latched until a fresh neutral
 command arrives. This reset is not a learned get-up behavior.
 
-The existing joystick configuration requests at most 0.2 m/s forward and 0.08 m/s
-sideways. Arm/MoveIt buttons are not connected to the locomotion policy. Do not
+Full stick requests the trained range: 0.8 m/s forward, 0.4 m/s backward and sideways,
+1.0 rad/s turning. The ZMP walker clamps the same commands to its own limit (0.2 m/s in
+Gazebo and Isaac). Arm/MoveIt buttons are not connected to the locomotion policy. Do not
 run the old walker or a separate Isaac ROS bridge as a second actuator source.
+
+### Learning methods (walking skills)
+
+| Method | Kind | Where |
+|---|---|---|
+| PPO, asymmetric actor-critic: the critic also sees simulator truth (pelvis velocity) | Deep RL | `tasks/locomotion/agents.py` |
+| 2048 robots simulated in parallel on the GPU, domain randomization (friction, mass, centre of mass, motor gains, sensor noise, pushes) | RL at scale | `train_robot_offline.sh`, `env_cfg.py` |
+| **Left–right symmetry augmentation**: every sample is also learned mirrored. This doubles the data and gives a symmetric, human-like gait. The mirror is derived from the URDF joint axes and verified by forward kinematics (`tests/test_symmetry.py`) | Data augmentation (Mittal et al. 2024) | `hruh_lab/symmetry.py` |
+| **Concurrent velocity estimator**: a network inside the actor learns, by supervised regression on simulator truth, to predict the pelvis velocity from the IMU and joint history. The policy uses the estimate | Supervised DL (Ji et al. 2022) | `hruh_lab/estimator.py` |
+| Curricula (movement modes, sudden stops, arm motion, pushes) and automatic tuning between rounds | Training curriculum | `commands.py`, `scripts/auto_tune.py` |
+
+Actor and critic are [512, 256, 128] ELU networks. The exported `policy.pt` / `policy.onnx`
+contain the estimator, so deployment (`policy_runner.py`, Gazebo) is unchanged. Reach and
+lift use plain PPO: one arm, so no left–right symmetry or pelvis velocity applies.
+Measured GPU use on this laptop: 512 robots 2.9 GB, 1024 robots 3.4 GB at twice the
+speed; 2048 robots (default) is about 4.5 GB, inside the 8 GB budget.
 
 ### Whole-body movement (`Hruh-Velocity-Motion-v0`, skill `motion`)
 
@@ -134,7 +159,11 @@ makes the legs return to the stand pose when stopped.
 The arms are not policy outputs. The policy **observes** the 10 arm joints, so it learns
 to keep its balance whatever the arms do.
 
-**Evaluation** runs the eight standard scenarios with swinging arms, plus
+**Speeds.** Training covers −0.4…0.8 m/s forward/backward, ±0.4 m/s sideways and
+±1.0 rad/s turning. Forward walking is practised at 0.2–0.8 m/s, so the robot is never
+limited below 0.4 m/s.
+
+**Evaluation** runs the nine standard scenarios with swinging arms, plus
 `stand_arms`, `forward_arms`, `sidestep_arms` and `turn_arms` with arms moving to
 random poses. The same pass gate applies to every scenario.
 
@@ -253,6 +282,17 @@ Findings from evaluating `balance_v1/model_1499.pt` and the reach task:
   - Its Python loop ran the 50 Hz policy at about 23 Hz. It now steps on each joint-state
     message and measures 50 Hz.
 
+### After the first full offline run (auto_5ae95cbb56, 2026-10-03)
+
+All three skills failed their benchmarks. The pipeline itself ran cleanly.
+
+| Skill | Result | Cause | Fix |
+|---|---|---|---|
+| Motion | Survived, but stood and shuffled: forward error 0.28 of a 0.30 m/s command; turning 0.1 of 0.4 rad/s; the step reward earned 0.001 | Velocity-tracking std 0.5 is meant for H1's 1 m/s commands. At HRUH's ≤ 0.4 m/s, standing still still earned ~70% of the tracking reward | Tracking std 0.25 (walking tasks); `feet_air_time` weight 1.0, threshold 0.35 s |
+| Reach | 12–16% success; the hand stalled ~3 cm from the target (gate 2.5 cm) | Exploration noise stayed at ~0.6 (entropy 0.01); `tanh(d / 0.08)` is nearly flat at 2–3 cm | `entropy_coef` 0.001, initial std 0.3; extra `tanh(d / 0.02)` reward (weight 2) |
+| Lift | 0%; the hand reached the cube but never touched it with thumb + finger | Noise grew to 1.15 (random fingers) | `entropy_coef` 0.002; shaping rewards `touch` (partial contact) and `close_when_near` (flex the fingers within 6 cm), grasp contact weight 2 |
+| All | — | 128 environments gave ~3 M steps per round, 20–50× fewer than Isaac Lab's reference recipes | 512 parallel environments (lift 256). Halved automatically if the 8 GB GPU budget is exceeded |
+
 These change the policy contract, so earlier checkpoints are rejected; the offline
 script starts a new experiment automatically when the code changes.
 
@@ -263,13 +303,37 @@ or `--check` for installed prerequisites. No API tokens, downloads or cloud logg
 For each skill (whole-body movement `motion`, right-arm reaching, right-hand cube
 lifting; `flat` and `rough` are optional) it:
 
-1. **Trains** PPO in Isaac (rounds of 1,000 iterations, 128 environments, at most 3 rounds).
-2. **Evaluates** the checkpoint on held-out seeds and **exports** it (`policy.pt`/`.onnx`,
-   `bundle.json`). It stops early when the Isaac benchmark passes.
-3. **Tests transfer to Gazebo** (effort control, different physics engine). This is a
-   diagnostic: it reports completion, falls, policy rate and minimum pelvis height.
-4. **Promotes** a passing policy into the robot's runtime (see below). A failed benchmark
-   is never promoted. With `REQUIRE_GAZEBO=1`, walking must also finish the Gazebo test
+1. **Trains** PPO in Isaac in rounds of 1,000 iterations, with 2048 robots simulated
+   in parallel in one GPU scene (lift 1024). Rounds repeat **until the benchmark passes**.
+2. **Evaluates** each round on held-out seeds and **exports** it (`policy.pt`/`.onnx`,
+   `bundle.json`).
+   - **If the round failed, the next round is tuned automatically** (`scripts/auto_tune.py`).
+     It diagnoses the evaluation and the end of the training log, then adjusts reward
+     weights and strengths, the movement / arm / push curriculum and the exploration noise.
+     These are fixed rules with hard limits; each change is printed with its reason and
+     written to `<run>/<skill>/tuning_history.jsonl`. The overrides
+     (`<run>/<skill>/tuning.json`, read through `HRUH_TUNING`) apply to training only;
+     evaluation always measures the task as written in the source.
+   - **The next round resumes from the best checkpoint so far,** so a worse round never
+     replaces progress.
+   - **Success means 5 passes.** A round that passes is re-evaluated 4 more times with new
+     random seeds (`confirm_<round>_<k>.json`). Only when the same policy passes all 5 is the
+     skill finished and the policy promoted. A failed confirmation goes back to the tuner
+     like any other failure, and training continues. **The run does not move on to the next
+     skill until this happens.** `REQUIRED_PASSES=N` changes the count; `PATIENCE=N` allows
+     moving on after N rounds without improvement (default 0 = never); `ROUNDS=N` caps the
+     rounds; `AUTO_TUNE=0` keeps the settings fixed.
+   - **What tuning cannot do:** it never changes observations, actions or actuators, which
+     would make the saved network unusable. It cannot write new task code either. If every
+     relevant setting is at its limit, the history says so, and the skill needs new
+     development.
+3. **Tests transfer to Gazebo** (effort control, different physics engine). Walking skills
+   walk every movement by themselves: forward, side-step, turn and backward, each followed
+   by a sudden stop. The test reports falls (and during which movement) and the measured
+   speed per movement. It is a diagnostic; `REQUIRE_GAZEBO=1` makes a fall-free Gazebo
+   test a promotion requirement.
+4. **Promotes** a policy that passed 5/5 evaluations into the robot's runtime (see below).
+   A failed or unconfirmed policy is never promoted. With `REQUIRE_GAZEBO=1`, walking must also finish the Gazebo test
    without a fall.
 
 Everything is automatic:
@@ -325,6 +389,10 @@ ros2 launch hruh_bringup policy_gazebo.launch.py joystick:=true
 ```
 
 How the Isaac policy mode works (`scripts/policy_runner.py`):
+
+- **Balance guard.** If the robot starts to tip (tilt > 20° or pelvis < 0.65 m), it
+  stops moving at once and only balances: an instant stop, as practised in training.
+  It ignores `/cmd_vel` until it has been upright for 1 s.
 
 - **Gains.** Isaac uses the training actuator gains (`gains:=rl`).
 - **Start-up.** The pelvis is held at the training reset height. The runner moves the

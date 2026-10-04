@@ -15,6 +15,7 @@ class MotionVelocityCommandCfg(ControllableVelocityCommandCfg):
     class_type: str = "hruh_lab.commands:MotionVelocityCommand"
     mode_probabilities: dict = {"stand": 0.15, "forward": 0.25, "backward": 0.10,
                                 "side": 0.20, "turn": 0.10, "mixed": 0.20}
+    stop_after_moving: float = 0.3   # moving > 0.3 m/s or 0.5 rad/s: chance the next command is 0
 
 
 @configclass

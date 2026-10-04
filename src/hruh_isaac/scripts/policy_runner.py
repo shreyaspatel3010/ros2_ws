@@ -15,9 +15,12 @@ controllers as the rest of the stack, so MoveIt, RViz and the gamepad keep worki
   reach       goal: geometry_msgs/PoseStamped on /hruh/hand_target (frame base_link,
               clamped to the trained workspace) -> policy -> /right_arm_controller
 
-Status: std_msgs/String on /hruh_policy/status.  A fall (tilt > 1 rad or pelvis
-< 0.45 m, the training terminations) latches the walking policy off: the legs hold
-their last targets and /cmd_vel is ignored until restart.
+Status: std_msgs/String on /hruh_policy/status.
+Balance guard: when the robot starts to tip (tilt > 20 deg or pelvis < 0.65 m) it stops
+moving at once and only balances (a sudden stop, as trained); /cmd_vel is ignored until
+it has been upright again for 1 s.  A fall (tilt > 1 rad or pelvis < 0.45 m, the
+training terminations) latches the walking policy off: the legs hold their last
+targets and /cmd_vel is ignored until restart.
 
 The control step runs on each /joint_states message and uses message stamps as the
 clock (simulation time), so it needs no /clock subscription of its own.
@@ -110,7 +113,7 @@ def main():
                 swing = contract.get("arm_motion") if not args.no_arm_swing else None
                 self.walk = dict(contract=contract, model=model, io=io, legs=legs, waist=waist, phase="wait",
                                  guard=VelocityGuard(), last=None, start=None, targets=None,
-                                 swing=swing, swinging=False)
+                                 swing=swing, swinging=False, recovering=False, calm_since=None)
                 self.legs_pub = self.create_publisher(Float64MultiArray, "/legs_controller/commands", 1)
                 self.waist_pub = self.create_publisher(Float64MultiArray, "/waist_position_controller/commands", 1)
                 self.create_subscription(Twist, "/cmd_vel", self.on_cmd_vel, 1)
@@ -147,6 +150,8 @@ def main():
                 self.imu_time = self.stamp(message)
 
         def on_cmd_vel(self, message):
+            if self.walk["recovering"]:
+                return   # balance guard active: stand still until stable
             self.walk["guard"].update((message.linear.x, message.linear.y, message.angular.z))
 
         def on_hand_target(self, message):
@@ -209,11 +214,27 @@ def main():
             if w["phase"] != "run":
                 return
             height = w["io"].pelvis_height(self.positions, self.quaternion)
-            if rotation(self.quaternion)[2, 2] < np.cos(1.0) or height < 0.45:
+            upright = rotation(self.quaternion)[2, 2]
+            if upright < np.cos(1.0) or height < 0.45:
                 w["phase"] = "fallen"
                 w["guard"].fall()
                 self.say(f"FALL detected (pelvis {height:.2f} m): walking policy stopped; restart to retry", warn=True)
                 return
+            tilt = float(np.degrees(np.arccos(np.clip(upright, -1.0, 1.0))))
+            if tilt > 20.0 or height < 0.65:
+                if not w["recovering"]:
+                    self.say(f"Balance guard: tilt {tilt:.0f} deg, pelvis {height:.2f} m - stopping to stabilise",
+                             warn=True)
+                w["guard"].stop()
+                w["recovering"], w["calm_since"] = True, None
+            elif w["recovering"]:
+                if tilt < 10.0 and height > 0.7:
+                    w["calm_since"] = now if w["calm_since"] is None else w["calm_since"]
+                    if now - w["calm_since"] >= 1.0:
+                        w["recovering"] = False
+                        self.say("Balance guard: stable again - accepting motion commands")
+                else:
+                    w["calm_since"] = None
             if w["last"] is not None and now - w["last"] < c["control_dt"] - 1e-4:
                 return
             w["last"] = now if w["last"] is None or now - w["last"] > 2 * c["control_dt"] else w["last"] + c["control_dt"]

@@ -70,6 +70,12 @@ class HruhReachEnvCfg(ReachEnvCfg):
             func=mdp.position_command_error_tanh, weight=1.0,
             params={"asset_cfg": SceneEntityCfg("robot", body_names=["right_wrist"]),
                     "command_name": "ee_pose", "std": 0.08})
+        # last-centimetre precision: tanh(d / 0.08) is almost flat between 2 and 3 cm, where
+        # the previous policies stalled (mean best error ~3 cm, gate 2.5 cm)
+        self.rewards.position_precise = RewTerm(
+            func=mdp.position_command_error_tanh, weight=2.0,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names=["right_wrist"]),
+                    "command_name": "ee_pose", "std": 0.02})
         self.rewards.end_effector_orientation_tracking = None
         self.rewards.joint_vel.params["asset_cfg"].joint_names = ARM
         self.events.reset_robot_joints.params["position_range"] = (0.9, 1.1)
@@ -140,8 +146,13 @@ class HruhLiftEnvCfg(HruhReachEnvCfg):
                 filter_prim_paths_expr=["{ENV_REGEX_NS}/Object"]))
         self.rewards.end_effector_position_tracking = None
         self.rewards.position_fine = None
+        self.rewards.position_precise = None
         self.rewards.reach_object = RewTerm(func="hruh_lab.tasks.reach.mdp:reach_object", weight=2.0)
-        self.rewards.grasp_contact = RewTerm(func="hruh_lab.tasks.reach.mdp:grasp_contact", weight=0.5)
+        # stepping stones to a grasp (the previous run never touched the cube with thumb + finger):
+        # touch it at all -> close the fingers around it -> opposed thumb / finger contact -> lift
+        self.rewards.touch = RewTerm(func="hruh_lab.tasks.reach.mdp:touch", weight=1.0)
+        self.rewards.close_when_near = RewTerm(func="hruh_lab.tasks.reach.mdp:close_when_near", weight=0.5)
+        self.rewards.grasp_contact = RewTerm(func="hruh_lab.tasks.reach.mdp:grasp_contact", weight=2.0)
         self.rewards.lift = RewTerm(func="hruh_lab.tasks.reach.mdp:lift_height", weight=5.0)
         self.terminations.success = DoneTerm(func="hruh_lab.tasks.reach.mdp:SustainedGrasp")
         self.terminations.dropped = DoneTerm(func=mdp.root_height_below_minimum,

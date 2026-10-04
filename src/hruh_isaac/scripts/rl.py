@@ -13,6 +13,24 @@ sys.path.insert(0, str(ROOT / "src/hruh_isaac/hruh_lab"))
 os.environ.setdefault("HRUH_URDF", str(ROOT / "artifacts/hruh/hruh_isaac.urdf"))
 
 
+def install_tuning():
+    """Apply auto_tune.py's overrides (HRUH_TUNING, training only) after every HRUH config
+    class builds itself; the most-derived class applies them last (idempotent)."""
+    import inspect
+    from hruh_lab import tuning
+    from hruh_lab.tasks.locomotion import agents as loco_agents, env_cfg as loco_env
+    from hruh_lab.tasks.reach import agents as reach_agents, env_cfg as reach_env
+    for module, apply in ((loco_env, tuning.apply_env), (reach_env, tuning.apply_env),
+                          (loco_agents, tuning.apply_agent), (reach_agents, tuning.apply_agent)):
+        for name, cls in inspect.getmembers(module, inspect.isclass):
+            if name.startswith("Hruh") and cls.__module__ == module.__name__ and hasattr(cls, "__post_init__"):
+                def wrapped(self, _original=cls.__post_init__, _apply=apply):
+                    _original(self)
+                    _apply(self)
+                cls.__post_init__ = wrapped
+    print(f"HRUH auto-tuning overrides: {os.environ['HRUH_TUNING']} {json.dumps(tuning.load())}", flush=True)
+
+
 def main():
     from hruh_lab import gpu_guard   # stay inside HRUH_GPU_MEM_GB (default 8) so the desktop survives
     gpu_guard.cap_torch()
@@ -20,6 +38,8 @@ def main():
     import warp as wp
     wp.config.enable_backward = False
     import hruh_lab  # noqa: F401: registers the external gym tasks
+    if os.environ.get("HRUH_TUNING"):
+        install_tuning()
     from isaaclab_rl.entrypoints import run_train_cli, run_play_cli, run_zero_agent_cli
 
     if len(sys.argv) < 2 or sys.argv[1] not in ("train", "play", "zero"):

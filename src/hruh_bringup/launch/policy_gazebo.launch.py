@@ -42,7 +42,8 @@ def setup(context):
     teleop_launch = Path(get_package_share_directory("hruh_teleop")) / "launch/joystick.launch.py"
     policy = ExecuteProcess(cmd=[LaunchConfiguration("python"), str(root / "src/hruh_isaac/scripts/gazebo_policy.py"),
         "--bundle", str(bundle), "--seconds", LaunchConfiguration("seconds"),
-        "--report", str(output / "report.json")], output="screen")
+        "--report", str(output / "report.json")]
+        + (["--scripted"] if LaunchConfiguration("scripted").perform(context) == "true" else []), output="screen")
     return [
         RegisterEventHandler(OnProcessExit(target_action=policy,
             on_exit=[EmitEvent(event=Shutdown(reason="Policy test finished"))])),
@@ -76,5 +77,7 @@ def generate_launch_description():
         DeclareLaunchArgument("gui", default_value="true"),
         DeclareLaunchArgument("joystick", default_value="false"),
         DeclareLaunchArgument("seconds", default_value="0", description="Policy run time in sim seconds; 0 = until stopped"),
+        DeclareLaunchArgument("scripted", default_value="false",
+                              description="true: walk every movement with sudden stops by itself (transfer test)"),
         OpaqueFunction(function=setup),
     ])

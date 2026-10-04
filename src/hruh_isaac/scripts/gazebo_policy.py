@@ -8,6 +8,19 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[3]
+# --scripted: every movement, each followed by a sudden stop (seconds, name, vx, vy, wz); 30 s
+MOVEMENTS = [(3, "stand", 0, 0, 0), (4, "forward 0.4 m/s", 0.4, 0, 0), (3, "sudden stop", 0, 0, 0),
+             (4, "side-step 0.3 m/s", 0, 0.3, 0), (3, "sudden stop", 0, 0, 0),
+             (4, "turn 0.8 rad/s", 0, 0, 0.8), (3, "sudden stop", 0, 0, 0),
+             (3, "backward 0.3 m/s", -0.3, 0, 0), (3, "sudden stop", 0, 0, 0)]
+
+
+def movement_at(seconds):
+    for duration, name, *command in MOVEMENTS:
+        if seconds < duration:
+            return name, tuple(command)
+        seconds -= duration
+    return MOVEMENTS[-1][1], tuple(MOVEMENTS[-1][2:])
 # reach training box (pelvis frame, m) for bundles exported before bundle.json carried "target_box"
 TARGET_BOX = [[0.22, 0.34], [-0.36, -0.22], [0.16, 0.32]]
 sys.path.insert(0, str(ROOT / "src/hruh_isaac/hruh_lab"))
@@ -34,6 +47,8 @@ def main():
                         help="Exported policy folder (default: the promoted locomotion policy)")
     parser.add_argument("--seconds", type=float, default=60.0,
                         help="Measured simulator time after receiving sensors; 0 = run until stopped")
+    parser.add_argument("--scripted", action="store_true",
+                        help="drive every movement with sudden stops (no /cmd_vel needed); report falls per movement")
     parser.add_argument("--hold", type=float, default=1.0,
                         help="Simulator seconds to hold the stand pose (pelvis held) before the policy starts")
     parser.add_argument("--report", type=Path, default=ROOT / "artifacts/hruh/gazebo_report.json")
@@ -75,6 +90,8 @@ def main():
             self.create_subscription(JointState, "/joint_states", self.joints, latest)
             self.create_subscription(Imu, "/imu", self.imu, latest)
             self.create_subscription(Odometry, "/hruh/object_odom", self.object_odom, latest)
+            self.velocity = None   # measured (vx, vy, wz) in the pelvis frame
+            self.create_subscription(Odometry, "/odom", self.odom, latest)
             self.create_subscription(PoseStamped, "/hruh/hand_target", self.hand_target, 1)
             self.create_subscription(Twist, "/cmd_vel", self.command, 1)
             self.get_logger().info("Simulation effort controller ready; waiting for /clock and fresh sensors")
@@ -100,6 +117,10 @@ def main():
             if np.isfinite(values).all() and np.linalg.norm(values[:4]) > 0.5:
                 self.quaternion, self.angular_velocity = values[:4], values[4:]
                 self.imu_time = self.stamp(message)
+
+        def odom(self, message):
+            t = message.twist.twist   # gz odometry twist is in the pelvis (child) frame
+            self.velocity = (t.linear.x, t.linear.y, t.angular.z)
 
         def object_odom(self, message):
             p, q, v, w = message.pose.pose.position, message.pose.pose.orientation, message.twist.twist.linear, message.twist.twist.angular
@@ -127,6 +148,8 @@ def main():
             if not self.fallen:
                 self.fallen = True
                 self.report["falls"] += 1
+                if args.scripted:
+                    self.report["fell_during"] = movement_at(self.report["elapsed_sim_s"])[0]
                 self.guard.fall()
                 self.get_logger().warning("Fall detected; policy output stopped. Reset the Gazebo world to restart.")
 
@@ -189,6 +212,18 @@ def main():
                 self.publish([0.0] * len(contract["effort_joints"]))
                 return
             if self.last_policy is None or now - self.last_policy >= contract["control_dt"] - 1e-6:
+                if args.scripted:
+                    name, command = movement_at(now - self.start)
+                    if name != self.report.get("movement"):
+                        self.get_logger().info(f"movement: {name}")
+                        self.report["movement"] = name
+                    self.guard.update(command)
+                    if self.velocity is not None and not self.fallen:
+                        # mean measured velocity per movement (did it really walk / turn / stop?)
+                        stats = self.report.setdefault("measured_velocity", {}).setdefault(
+                            name, {"command": list(command), "mean": [0.0, 0.0, 0.0], "samples": 0})
+                        n = stats["samples"] = stats["samples"] + 1
+                        stats["mean"] = [round(m + (v - m) / n, 3) for m, v in zip(stats["mean"], self.velocity)]
                 if self.count_publishers("/policy_effort_controller/commands") > 1:
                     raise RuntimeError("Another effort-command publisher is active")
                 observation = io.observation(self.positions, self.velocities, self.quaternion, self.angular_velocity,
