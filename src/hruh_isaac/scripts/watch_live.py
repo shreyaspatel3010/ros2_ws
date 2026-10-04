@@ -62,6 +62,15 @@ def main():
 
     cfg = load_cfg_from_registry(task, "env_cfg_entry_point")
     agent = load_cfg_from_registry(task, "rsl_rl_cfg_entry_point")
+    # same scene as training: the run's auto-tuned movement / arm / push curriculum
+    run_file = ROOT / "artifacts/hruh/offline/last_auto_run"
+    tuning_file = ROOT / "artifacts/hruh/offline" / (run_file.read_text().strip() if run_file.is_file() else "") \
+        / args.skill / "tuning.json"
+    if tuning_file.is_file():
+        from hruh_lab import tuning
+        os.environ["HRUH_TUNING"] = str(tuning_file)
+        tuning.apply_env(cfg)
+        print(f"Training settings applied: {tuning_file.read_text().strip()}", flush=True)
     cfg.scene.num_envs = args.num_envs
     cfg.scene.env_spacing = 2.5
     cfg.observations.policy.enable_corruption = False
@@ -80,7 +89,9 @@ def main():
             copy = copy_dir / "model.pt"
             shutil.copyfile(checkpoint, copy)              # never read the file training writes
             runner.load(str(copy), load_cfg={"actor": True}, map_location=cfg.sim.device)   # the policy only
-            print(f"Now showing {checkpoint.parent.name}/{checkpoint.name}", flush=True)
+            iteration = torch.load(copy, map_location="cpu", weights_only=False).get("iter")
+            print(f"Now showing {checkpoint.parent.name}/{checkpoint.name} (training iteration {iteration}, "
+                  f"deterministic policy: no exploration noise)", flush=True)
             return runner.get_inference_policy(device=cfg.sim.device)
 
         current = first

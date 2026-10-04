@@ -3,7 +3,10 @@
   HRUH lower body: pelvis + two 7-DOF legs.
 
   Kinematics follow the human leg:
-    hip   : yaw (z) -> roll (x) -> pitch (y), all three axes meet at the hip centre (ball joint)
+    hip   : yaw (z) -> roll (x) -> pitch (y), all three axes meet at the hip centre (ball joint).
+            The actuators sit along their own axes where they physically fit (blender HIP):
+            yaw motor inside the pelvis above the hip, roll motor behind the hip centre,
+            pitch motor outside the thigh. Link masses / centres of mass follow the motors.
     knee  : pitch (y), flexion positive
     ankle : pitch (y) -> roll (x), axes meet at the ankle centre
     toe   : pitch (y) hinge at the ball of the foot (heel-to-toe roll-off)
@@ -13,7 +16,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!-- Geometry (keep in sync with KIN in blender/build_parts.py) -->
-  <xacro:property name="hip_y"        value="0.085"/>
+  <xacro:property name="hip_y"        value="0.105"/>  <!-- 0.085 let the thighs collide -->
   <xacro:property name="hip_yaw_z"    value="-0.03"/>
   <xacro:property name="hip_roll_z"   value="-0.06"/>
   <xacro:property name="thigh_length" value="0.34"/>
@@ -62,10 +65,11 @@
   <link name="pelvis_link">
     <xacro:mesh_visual file="pelvis.obj"/>
     <collision>
-      <origin xyz="0 0 0.01" rpy="0 0 0"/>
-      <geometry><box size="0.18 0.26 0.10"/></geometry>
+      <origin xyz="0 0 0.03" rpy="0 0 0"/>
+      <geometry><box size="0.18 0.30 0.09"/></geometry>
     </collision>
-    <xacro:solid_box_inertial m="7.0" x="0.18" y="0.28" z="0.12" oz="0.005"/>
+    <!-- shell, battery and both hip-yaw actuators -->
+    <xacro:solid_box_inertial m="9.0" x="0.18" y="0.30" z="0.10" oz="0.015"/>
   </link>
 
   <joint name="base_pelvis_joint" type="fixed">
@@ -85,50 +89,65 @@
   <!-- side: left|right, s: +1 (left) / -1 (right) -->
   <xacro:macro name="hruh_leg" params="side s">
 
-    <!-- Hip yaw: internal/external rotation (~40 / 45 deg) -->
+    <!-- Hip yaw: internal/external rotation 40 / 43 deg (one leg reaches its mechanism limit at 45;
+         both feet toed out > 21 deg make the rear roll actuators touch: self-collision) -->
     <joint name="${side}_hip_yaw_joint" type="revolute">
       <parent link="pelvis_link"/>
       <child link="${side}_hip_yaw_link"/>
       <origin xyz="0 ${s*hip_y} ${hip_yaw_z}" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-0.70 if s > 0 else -0.79}" upper="${0.79 if s > 0 else 0.70}" effort="150" velocity="8.0"/>
+      <limit lower="${-0.70 if s > 0 else -0.75}" upper="${0.75 if s > 0 else 0.70}" effort="150" velocity="8.0"/>
       <dynamics damping="0.5" friction="0.1"/>
     </joint>
     <link name="${side}_hip_yaw_link">
       <xacro:mesh_visual file="${side}_hip_yaw.obj"/>
-      <xacro:solid_cyl_inertial m="1.4" r="0.045" h="0.06" oz="-0.03"/>
+      <!-- carries the hip roll actuator, 13 cm behind the hip centre -->
+      <collision>
+        <origin xyz="-0.130 0 ${hip_roll_z}" rpy="0 ${pi/2} 0"/>
+        <geometry><cylinder radius="0.050" length="0.055"/></geometry>
+      </collision>
+      <xacro:solid_cyl_inertial m="2.7" r="0.05" h="0.06" ox="-0.115" oz="-0.055"/>
     </link>
 
-    <!-- Hip roll: abduction 45 deg / adduction 25 deg -->
+    <!-- Hip roll: abduction 31 deg / adduction 24 deg. Measured on the meshes (blender/design check):
+         the pitch actuator meets the pelvis at 33 deg abduction; the hip itself allows 25 deg
+         adduction (the other leg may be touched before that: self-collision) -->
     <joint name="${side}_hip_roll_joint" type="revolute">
       <parent link="${side}_hip_yaw_link"/>
       <child link="${side}_hip_roll_link"/>
       <origin xyz="0 0 ${hip_roll_z}" rpy="0 0 0"/>
       <axis xyz="1 0 0"/>
-      <limit lower="${-0.44 if s > 0 else -0.79}" upper="${0.79 if s > 0 else 0.44}" effort="200" velocity="8.0"/>
+      <limit lower="${-0.42 if s > 0 else -0.54}" upper="${0.54 if s > 0 else 0.42}" effort="200" velocity="8.0"/>
       <dynamics damping="0.5" friction="0.1"/>
     </joint>
     <link name="${side}_hip_roll_link">
       <xacro:mesh_visual file="${side}_hip_roll.obj"/>
-      <xacro:solid_box_inertial m="1.8" x="0.11" y="0.09" z="0.08" oy="${s*0.03}"/>
+      <!-- carries the hip pitch actuator, outside the thigh -->
+      <collision>
+        <origin xyz="0 ${s*0.080} 0" rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="0.056" length="0.050"/></geometry>
+      </collision>
+      <xacro:solid_box_inertial m="2.9" x="0.12" y="0.10" z="0.11" ox="-0.02" oy="${s*0.07}"/>
     </link>
 
-    <!-- Hip pitch: flexion 120 deg (negative) / extension 30 deg (positive) -->
+    <!-- Hip pitch: flexion 89 deg (negative) / extension 29 deg (positive). The thigh meets the
+         hip-yaw link at 91.6 deg flexion and the roll actuator / pelvis at 30 deg extension -->
     <joint name="${side}_hip_pitch_joint" type="revolute">
       <parent link="${side}_hip_roll_link"/>
       <child link="${side}_thigh_link"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <axis xyz="0 1 0"/>
-      <limit lower="-2.09" upper="0.52" effort="250" velocity="8.0"/>
+      <limit lower="-1.55" upper="0.50" effort="250" velocity="8.0"/>
       <dynamics damping="0.5" friction="0.1"/>
     </joint>
     <link name="${side}_thigh_link">
       <xacro:mesh_visual file="${side}_thigh.obj"/>
       <collision>
         <origin xyz="0.005 0 ${-thigh_length*0.47}" rpy="0 0 0"/>
-        <geometry><cylinder radius="0.055" length="${thigh_length*0.68}"/></geometry>
+        <geometry><cylinder radius="0.050" length="${thigh_length*0.68}"/></geometry>
       </collision>
-      <xacro:solid_cyl_inertial m="5.0" r="0.06" h="${thigh_length}" oz="${-thigh_length*0.4}"/>
+      <!-- structure + knee actuator at the bottom -->
+      <xacro:solid_cyl_inertial m="4.3" r="0.055" h="${thigh_length}" oz="${-thigh_length*0.55}"/>
     </link>
 
     <!-- Knee: flexion 0..140 deg -->

@@ -70,6 +70,7 @@ class Tuner:
     def __init__(self, env, agent, tuning, train):
         self.env, self.agent, self.tuning, self.train = env, agent, tuning, train
         self.changes, self.at_limit = [], []
+        self.noise_cut_before = False   # set from the history: entropy was cut for noise last round
 
     # ---- current values (what the last round trained with)
     def weight(self, name):
@@ -136,6 +137,27 @@ class Tuner:
         self.tuning.setdefault("events", {}).setdefault("push_robot", {})["interval_range_s"] = new
         self._record("events.push_robot.interval_range_s", list(old), new, reason)
 
+    def relax_weight(self, name, factor, floor, reason):
+        """Reduce a penalty's magnitude (never below `floor`)."""
+        old = self.weight(name)
+        if old is None or abs(old) <= floor + 1e-9:
+            if old is not None:
+                self.at_limit.append(f"rewards.{name}.weight")
+            return
+        new = round(old * factor if abs(old * factor) >= floor else (floor if old > 0 else -floor), 6)
+        self.tuning.setdefault("rewards", {}).setdefault(name, {})["weight"] = new
+        self._record(f"rewards.{name}.weight", old, new, reason)
+
+    def cap_noise(self, noise, reason):
+        """Cap the policy's exploration std (RSL-RL GaussianDistribution std_range; applied by rl.py)."""
+        old = self.tuning.get("actor", {}).get("max_std")
+        new = round(max(0.3, min(old if old is not None else noise, noise) * 0.75), 3)
+        if old is not None and new >= old - 1e-9:
+            self.at_limit.append("actor.max_std")
+            return
+        self.tuning.setdefault("actor", {})["max_std"] = new
+        self._record("actor.max_std", old, new, reason)
+
     def scale_entropy(self, factor, low, high, reason):
         old = float((self.agent.get("algorithm") or {}).get("entropy_coef", 0.0))
         new = max(low, min(high, old * factor))
@@ -176,6 +198,11 @@ class Tuner:
         if worst is not None and mae(worst, 2) > 0.25:
             self.scale_weight("yaw_rate_error", 1.3, 2.0,
                               f"pelvis yaw wobble {mae(worst, 2):.2f} rad/s (worst in {worst}; limit 0.25)")
+            if worst.endswith("_arms"):   # the arms' reaction turns the pelvis: practise that more
+                self.shift_mode("arm_motion", "pose", 0.05, 0.5,
+                                f"pelvis yaw wobble is worst while the arms move ({worst})")
+                # (relaxing the waist penalty was tried in run auto_499964175a round 5: pelvis yaw got
+                #  worse in *every* scenario - a freer torso rocks the pelvis - so it is not a rule)
         if max(mae("stand", 0), mae("stand", 1)) > 0.08:
             self.scale_weight("stand_still", 1.3, 1.5, f"drifts while told to stand ({max(mae('stand', 0), mae('stand', 1)):.2f} m/s)")
         # the robot must never fall: any fall in any scenario is a failure to fix
@@ -200,7 +227,15 @@ class Tuner:
             self.scale_weight("stand_still", 1.3, 1.5, why)
             self.shift_mode("base_velocity", "stand", 0.05, 0.35, why + ": practise stopping more")
         if noise is not None and noise > 0.8:
-            self.scale_entropy(0.5, 0.001, 0.02, f"exploration noise {noise:.2f} too high")
+            entropy = float((self.agent.get("algorithm") or {}).get("entropy_coef", 0.0))
+            if entropy <= 0.0002 + 1e-9:
+                # the entropy bonus is already at its floor: cap the noise directly
+                self.cap_noise(noise, f"exploration noise {noise:.2f} stays high with the minimum entropy bonus")
+            else:
+                # halving did not bring the noise down last round: cut harder
+                factor = 0.25 if self.noise_cut_before else 0.5
+                self.scale_entropy(factor, 0.0002, 0.02, f"exploration noise {noise:.2f} too high"
+                                   + (" (still high after the last cut)" if self.noise_cut_before else ""))
         elif noise is not None and noise < 0.2 and lin > 0.15:
             self.scale_entropy(1.5, 0.001, 0.02, f"exploration noise {noise:.2f} collapsed before tracking works")
 
@@ -241,7 +276,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--skill", required=True, choices=LOCOMOTION + ("reach", "lift"))
     parser.add_argument("--round", type=int, required=True)
-    parser.add_argument("--evaluation", type=Path, required=True)
+    parser.add_argument("--evaluation", type=Path, required=True, help="the evaluation to diagnose (it failed)")
+    parser.add_argument("--score-evaluation", type=Path,
+                        help="the round's main evaluation (same seed every round) used to rank rounds; "
+                             "default --evaluation")
+    parser.add_argument("--passes", type=int, default=0,
+                        help="evaluations this round passed before failing (confirmations)")
     parser.add_argument("--train-log", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--state-dir", type=Path, required=True)
@@ -254,21 +294,26 @@ def main():
     if done is None:   # (rerun after Ctrl+C: the round was already tuned - just report it)
         evaluation = json.loads(args.evaluation.read_text())
         kind = "locomotion" if args.skill in LOCOMOTION else args.skill
-        round_score = benchmark_score(kind, evaluation)
+        # rank rounds fairly: first by passed evaluations, then by the score on the same main evaluation
+        # (a worst-of-several confirmation score is not comparable with another round's single evaluation)
+        round_score = benchmark_score(kind, json.loads((args.score_evaluation or args.evaluation).read_text()))
         params = args.checkpoint.resolve().parent / "params"
         env = load_yaml(params / "env.yaml") if (params / "env.yaml").is_file() else {}
         agent = load_yaml(params / "agent.yaml") if (params / "agent.yaml").is_file() else {}
         tuning = json.loads(tuning_path.read_text()) if tuning_path.is_file() else {}
         tuner = Tuner(env, agent, tuning, last_training_values(args.train_log))
+        tuner.noise_cut_before = bool(history) and any(
+            c["setting"] == "agent.entropy_coef" and "noise" in c["reason"] for c in history[-1]["changes"])
         if not evaluation.get("passed_benchmark"):
             {"locomotion": tuner.locomotion, "reach": tuner.reach, "lift": tuner.lift}[kind](evaluation)
         best = json.loads(best_path.read_text()) if best_path.is_file() else {"score": None, "since_improvement": 0}
-        if best["score"] is None or round_score > best["score"] + 1e-6:
-            best = {"score": round_score, "round": args.round, "checkpoint": str(args.checkpoint.resolve()),
-                    "since_improvement": 0}
+        if best["score"] is None or (args.passes, round_score) > (best.get("passes", 0), best["score"] + 1e-6):
+            best = {"score": round_score, "passes": args.passes, "round": args.round,
+                    "checkpoint": str(args.checkpoint.resolve()), "since_improvement": 0}
         else:
             best["since_improvement"] += 1
-        done = {"round": args.round, "score": round_score, "best_score": best["score"], "best_round": best["round"],
+        done = {"round": args.round, "score": round_score, "passes": args.passes,
+                "best_score": best["score"], "best_round": best["round"],
                 "since_improvement": best["since_improvement"], "changes": tuner.changes,
                 "at_limit": sorted(set(tuner.at_limit))}
         state.mkdir(parents=True, exist_ok=True)

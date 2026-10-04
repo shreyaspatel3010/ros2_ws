@@ -20,11 +20,10 @@ Mapping (config/joystick.yaml):
   Hold RT              JOINT jog of the selected chain:
                        arm  : left stick Y shoulder flex, X shoulder abduction,
                               right stick X upper-arm rotation, Y elbow, D-pad X wrist
-                       head : left stick X neck turn, Y nod; right stick X waist turn,
-                              Y waist bend, D-pad X waist side-bend
+                       head : left stick X neck turn, Y nod (the torso is rigid)
   RB or RT held + X    open the selected hand (both hands for the head chain)
   RB or RT held + B    close (grasp)
-  Press BACK           select the next chain: right arm -> left arm -> head/waist
+  Press BACK           select the next chain: right arm -> left arm -> head
   Hold LT + Y/A/B/X    planned MoveIt move to a named pose (SRDF group states):
                        Y home, A wave (selected arm), B hands_up, X reach_forward
   Hold LT + D-pad      up = head center, down = head look_down
@@ -52,7 +51,6 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 ARM = {s: ["chest_to_%s_shoulder" % s, "%s_shoulder_to_bisecp" % s, "%s_bisecp_to_elbow_inword" % s,
            "%s_elbow_inword_to_midle" % s, "%s_forarm_to_wrist" % s] for s in ("left", "right")}
 HEAD = ["chest_to_neck", "neck_to_head"]
-WAIST = ["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"]
 CHAINS = ["right_arm", "left_arm", "head"]
 
 
@@ -148,7 +146,7 @@ class HruhJoystick(Node):
         self.status = self.create_publisher(String, "~/status", 10)
         self.kin = None
         self.traj = {n: self.create_publisher(JointTrajectory, "/%s_controller/joint_trajectory" % n, 10)
-                     for n in ("left_arm", "right_arm", "head", "waist", "left_hand", "right_hand")}
+                     for n in ("left_arm", "right_arm", "head", "left_hand", "right_hand")}
         self.move_group = ActionClient(self, MoveGroup, "/move_action")
 
         self.joy = None
@@ -350,9 +348,7 @@ class HruhJoystick(Node):
         elif self.rt_on:
             speed = self.g("joint_speed")
             if chain == "head":
-                joints = {"chest_to_neck": "axis_left_x", "neck_to_head": "axis_left_y",
-                          "waist_yaw_joint": "axis_right_x", "waist_pitch_joint": "axis_right_y",
-                          "waist_roll_joint": "axis_dpad_x"}
+                joints = {"chest_to_neck": "axis_left_x", "neck_to_head": "axis_left_y"}
             else:
                 a = ARM[side]
                 joints = {a[0]: "axis_left_y", a[1]: "axis_left_x", a[2]: "axis_right_x",
@@ -370,7 +366,6 @@ class HruhJoystick(Node):
                 self.jog[j] = self.clamp(j, self.jog[j] + sign[ax] * self.axis(ax) * speed * dt)
             if chain == "head":
                 self.send_traj("head", {j: self.jog[j] for j in HEAD}, self.g("jog_horizon_sec"))
-                self.send_traj("waist", {j: self.jog[j] for j in WAIST}, self.g("jog_horizon_sec"))
             else:
                 self.send_traj("%s_arm" % side, dict(self.jog), self.g("jog_horizon_sec"))
         else:

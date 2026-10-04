@@ -10,8 +10,8 @@
   hardware:=none  no ros2_control (e.g. joint_state_publisher_gui display)
 
   Controllers: hruh_control/config/ros2_controllers.yaml
-    legs_controller        14 leg joints, streamed by hruh_walker
-    waist_controller       3-DOF waist        (JointTrajectoryController)
+    legs_controller        14 leg joints, streamed by hruh_walker / the walking policy
+    (the torso is rigid: no waist joints)
     head_controller        neck yaw + nod     (JointTrajectoryController)
     left/right_arm_controller   5 joints each (MoveIt, servo, joystick)
     left/right_hand_controller 7 joints each: thumb x3 + finger base x4
@@ -23,7 +23,7 @@
   <xacro:property name="hardware" value="$(arg hardware)"/>
 
   <xacro:property name="hruh_leg_joints" value="${[s + '_' + j + '_joint' for s in ['left', 'right'] for j in ['hip_yaw', 'hip_roll', 'hip_pitch', 'knee', 'ankle_pitch', 'ankle_roll', 'toe']]}"/>
-  <xacro:property name="hruh_upper_joints" value="${['waist_yaw_joint', 'waist_roll_joint', 'waist_pitch_joint', 'chest_to_neck', 'neck_to_head']
+  <xacro:property name="hruh_upper_joints" value="${['chest_to_neck', 'neck_to_head']
       + ['chest_to_left_shoulder', 'left_shoulder_to_bisecp', 'left_bisecp_to_elbow_inword', 'left_elbow_inword_to_midle', 'left_forarm_to_wrist',
          'chest_to_right_shoulder', 'right_shoulder_to_bisecp', 'right_bisecp_to_elbow_inword', 'right_elbow_inword_to_midle', 'right_forarm_to_wrist']
       + [s + '_' + n for s in ['left', 'right'] for n in ['palm_to_thomb', 'thomb_to_thomb_middle', 'thomb_middle_to_thomb_upper']

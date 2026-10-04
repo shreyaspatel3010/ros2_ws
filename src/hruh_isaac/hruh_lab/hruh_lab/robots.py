@@ -29,7 +29,9 @@ def _spawn(fix_base: bool) -> sim_utils.UrdfFileCfg:
         fix_base=fix_base,
         merge_fixed_joints=True,                       # massless frames (cameras, palm, pelvis) fold into parents
         convert_mimic_joints_to_normal_joints=False,
-        self_collision=False,
+        # self-collision ON: a real robot's legs, hip actuators and arms can hit each other
+        # (the joint limits already keep each hip mechanism clear of itself)
+        self_collision=True,
         collision_type="Convex Hull",
         usd_dir=os.path.join(os.path.dirname(HRUH_URDF), "usd_fixed" if fix_base else "usd"),
         activate_contact_sensors=True,
@@ -39,7 +41,7 @@ def _spawn(fix_base: bool) -> sim_utils.UrdfFileCfg:
             disable_gravity=False, retain_accelerations=False, linear_damping=0.0, angular_damping=0.0,
             max_linear_velocity=1000.0, max_angular_velocity=1000.0, max_depenetration_velocity=1.0),
         articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-            enabled_self_collisions=False, solver_position_iteration_count=4, solver_velocity_iteration_count=1),
+            enabled_self_collisions=True, solver_position_iteration_count=4, solver_velocity_iteration_count=1),
     )
 
 
@@ -62,10 +64,6 @@ ACTUATORS = {
         stiffness={".*_ankle_.*": 60.0, ".*_toe_joint": 15.0},
         damping={".*_ankle_.*": 3.0, ".*_toe_joint": 0.5},
         armature=0.01,
-    ),
-    "waist": ImplicitActuatorCfg(
-        joint_names_expr=["waist_.*"], effort_limit_sim=150.0, velocity_limit_sim=4.0,
-        stiffness=200.0, damping=6.0, armature=0.01,
     ),
     "arms": ImplicitActuatorCfg(
         joint_names_expr=["chest_to_.*_shoulder", ".*_shoulder_to_bisecp", ".*_bisecp_to_elbow_inword",

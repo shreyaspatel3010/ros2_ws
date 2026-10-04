@@ -25,7 +25,7 @@ TEX = 1024
 
 # Kinematic layout (keep in sync with urdf/legs.xacro + urdf/torso.xacro)
 KIN = dict(
-    hip_y=0.085,       # lateral offset of hip yaw axis from pelvis centre
+    hip_y=0.105,       # lateral offset of hip yaw axis from pelvis centre (thigh clearance)
     hip_yaw_z=-0.03,   # hip yaw joint below pelvis frame
     hip_roll_z=-0.06,  # hip centre (roll/pitch axes) below hip yaw joint
     thigh=0.34,        # hip centre -> knee
@@ -36,8 +36,21 @@ KIN = dict(
     neck_pitch_z=0.07, # head nod pivot above the chest_to_neck joint
     eye_y=0.032,       # half of the stereo baseline (human IPD ~64 mm)
     eye_z=0.155,       # eye height above the chest_to_neck joint
-    waist_z=0.09,      # waist pivot above pelvis frame
-    chest_z=0.04,      # chest_hruh origin above waist pivot
+    waist_z=0.09,      # rigid lumbar block (torso_link) above pelvis frame
+    chest_z=0.04,      # chest_hruh origin above torso_link
+)
+# Hip actuator packaging. The three hip axes still meet at the hip centre (the walker's
+# closed-form leg IK relies on it), but each motor body sits *along its own axis* where it
+# physically fits, as in real humanoid hips:
+#   yaw   motor: inside the pelvis, above the hip (axis z)
+#   roll  motor: behind the hip centre (axis x) - the front stays open for hip flexion
+#   pitch motor: outside the thigh (axis y)
+HIP = dict(
+    yaw_r=0.050, yaw_h=0.060,              # 150 N m class pancake actuator
+    yaw_z0=0.012,                          # its underside, high in the pelvis: the pitch
+                                           # actuator swings up under it in abduction
+    roll_x=-0.130, roll_r=0.050, roll_h=0.055,    # 200 N m class, centre behind the hip
+    pitch_y=0.080, pitch_r=0.056, pitch_h=0.050,  # 250 N m class, centre outside the thigh
 )
 
 # ----------------------------------------------------------------------------
@@ -445,71 +458,85 @@ def part_pelvis():
     W = make_material(P, "white", [
         ("z", 0.040, 0.011, "dark", []),                       # belt
         ("z", 0.040, 0.0016, "glow", [("x", 0.02, 1)]),        # light strip on belt (front)
-        ("z", -0.012, 0.0018, "groove", []),
+        ("z", 0.002, 0.0018, "groove", []),
         ("y", 0.0, 0.0018, "groove", [("z", -1, 0.03)]),
     ])
     D, M, G = make_material(P, "dark"), make_material(P, "metal"), make_material(P, "glow")
     GM = make_material(P, "gunmetal")
+    hy, zy = KIN["hip_y"], KIN["hip_yaw_z"]
+    # shell: high floor (z >= 0.012) and narrow sides, so the thighs clear it in flexion and
+    # the pitch actuators can swing up beside / under it in abduction
+    z0 = HIP["yaw_z0"]
     o = [loft("pelvis_shell", "z", [
-        (-0.048, 0.0, 0, 0.055, 0.060, 0.110, 0.110, 2.4),
-        (-0.022, 0.0, 0, 0.078, 0.088, 0.138, 0.138, 3.0),
-        (0.022, 0.0, 0, 0.090, 0.100, 0.152, 0.152, 3.2),
-        (0.055, 0.0, 0, 0.080, 0.090, 0.132, 0.132, 3.0),
-        (0.072, 0.0, 0, 0.062, 0.070, 0.098, 0.098, 2.6),
+        (z0, 0.0, 0, 0.066, 0.074, 0.145, 0.145, 2.6),
+        (0.030, 0.0, 0, 0.082, 0.092, 0.156, 0.156, 3.0),
+        (0.048, 0.0, 0, 0.088, 0.098, 0.158, 0.158, 3.2),
+        (0.064, 0.0, 0, 0.078, 0.088, 0.138, 0.138, 3.0),
+        (0.078, 0.0, 0, 0.062, 0.070, 0.100, 0.100, 2.6),
     ], W)]
-    o.append(rbox("crotch", (0.0, 0, -0.06), (0.085, 0.07, 0.05), D, 0.016))
+    # narrow crotch spar between the legs
+    o.append(rbox("crotch", (0.0, 0, -0.012), (0.07, 0.044, 0.05), D, 0.012))
     for s in (1, -1):
-        o.append(cyl("yaw_flange", (0, s * KIN["hip_y"], KIN["hip_yaw_z"] + 0.004), (0, 0, 1), 0.049, 0.014, M))
-        o.append(cyl("yaw_ring", (0, s * KIN["hip_y"], KIN["hip_yaw_z"] + 0.012), (0, 0, 1), 0.052, 0.006, D))
-    o.append(cyl("waist_socket", (0, 0, 0.075), (0, 0, 1), 0.07, 0.03, GM))
-    o.append(rbox("battery", (-0.093, 0, 0.005), (0.045, 0.17, 0.075), D, 0.014))
+        # hip yaw actuator high in the pelvis; a hub on the hip-yaw link reaches up to it
+        o.append(cyl("yaw_motor", (0, s * hy, z0 + 0.5 * HIP["yaw_h"]), (0, 0, 1), HIP["yaw_r"], HIP["yaw_h"], GM))
+        o.append(cyl("yaw_ring", (0, s * hy, z0 + 0.003), (0, 0, 1), HIP["yaw_r"] + 0.003, 0.006, D))
+    o.append(cyl("waist_socket", (0, 0, 0.078), (0, 0, 1), 0.07, 0.024, GM))
+    o.append(rbox("battery", (-0.093, 0, 0.025), (0.045, 0.17, 0.07), D, 0.014))
     for i in range(5):
-        o.append(rbox("vent", (-0.1155, 0, -0.018 + i * 0.012), (0.004, 0.13, 0.0045), M, 0.0015))
-    o.append(cyl("status_ring", (0.096, 0, 0.0), (1, 0, 0), 0.024, 0.012, D))
-    o.append(cyl("status_led", (0.1, 0, 0.0), (1, 0, 0), 0.016, 0.012, G))
+        o.append(rbox("vent", (-0.1155, 0, 0.000 + i * 0.012), (0.004, 0.13, 0.0045), M, 0.0015))
+    o.append(cyl("status_ring", (0.098, 0, 0.02), (1, 0, 0), 0.024, 0.012, D))
+    o.append(cyl("status_led", (0.102, 0, 0.02), (1, 0, 0), 0.016, 0.012, G))
     return finish(P, o)
 
 
 def part_waist():
+    """Rigid lumbar block (torso_link frame) joining pelvis and chest: no joints."""
     P = "waist"
+    W = make_material(P, "white", [("z", 0.0, 0.0018, "groove", [])])
     D, M, GM = make_material(P, "dark"), make_material(P, "metal"), make_material(P, "gunmetal")
-    secs = []
-    z = -0.042
-    for i in range(9):
-        r = 0.072 if i % 2 == 0 else 0.062
-        secs.append((z, 0.0, 0, r, r, r * 1.3, r * 1.3, 2.4))
-        z += 0.0115
-    o = [loft("bellows", "z", secs, D, n=48, subsurf=1)]
-    o.append(cyl("bottom_ring", (0, 0, -0.04), (0, 0, 1), 0.075, 0.012, M))
-    o.append(cyl("spine_core", (0, 0, 0.0), (0, 0, 1), 0.04, 0.1, GM))
+    o = [loft("lumbar", "z", [
+        (-0.030, 0.0, 0, 0.072, 0.078, 0.098, 0.098, 2.6),
+        (0.000, 0.0, 0, 0.068, 0.074, 0.094, 0.094, 2.6),
+        (0.040, 0.0, 0, 0.072, 0.076, 0.096, 0.096, 2.6),
+    ], W)]
+    for s in (1, -1):
+        o.append(rbox("side_panel", (0, s * 0.093, 0.004), (0.08, 0.008, 0.05), D, 0.004))
+    o.append(rbox("rear_spine", (-0.074, 0, 0.004), (0.012, 0.05, 0.062), GM, 0.004))
+    o.append(cyl("front_light_bezel", (0.07, 0, 0.004), (1, 0, 0), 0.016, 0.01, M))
     return finish(P, o)
 
 
 def part_hip_yaw():
+    """Yaw output (top) + rear arm carrying the hip roll actuator behind the hip centre."""
     P = "hip_yaw"
-    W = make_material(P, "white", [("z", -0.012, 0.0015, "accent", [])])
+    W = make_material(P, "white", [("x", HIP["roll_x"], 0.0015, "accent", [])])
     D, M, GM = make_material(P, "dark"), make_material(P, "metal"), make_material(P, "gunmetal")
-    zr = KIN["hip_roll_z"]
-    o = [cyl("yaw_motor", (0, 0, -0.016), (0, 0, 1), 0.044, 0.032, GM),
-         cyl("yaw_shroud", (0, 0, -0.012), (0, 0, 1), 0.047, 0.018, W),
-         rbox("yoke_top", (0, 0, -0.036), (0.14, 0.055, 0.012), D, 0.004)]
-    for s in (1, -1):
-        o.append(rbox("yoke_arm", (s * 0.063, 0, (zr - 0.036) / 2 - 0.006), (0.012, 0.055, abs(zr) - 0.012), D, 0.004))
-        o.append(cyl("yoke_boss", (s * 0.063, 0, zr), (1, 0, 0), 0.027, 0.014, D))
-        o.append(cyl("yoke_pin", (s * 0.072, 0, zr), (1, 0, 0), 0.014, 0.006, M))
+    zr, rx = KIN["hip_roll_z"], HIP["roll_x"]
+    hub_top = HIP["yaw_z0"] - KIN["hip_yaw_z"]          # yaw actuator underside, in this frame
+    arm_lo, arm_hi = 0.004, 0.020                       # rear arm clears the thigh in flexion
+    drop_lo = zr + HIP["roll_r"] - 0.010
+    o = [cyl("yaw_hub", (0, 0, 0.5 * hub_top), (0, 0, 1), 0.032, hub_top, M),
+         rbox("rear_arm", (rx * 0.5 - 0.01, 0, 0.5 * (arm_lo + arm_hi)), (abs(rx) + 0.02, 0.05, arm_hi - arm_lo), D, 0.005),
+         rbox("drop_plate", (rx, 0, 0.5 * (arm_hi + drop_lo)), (0.04, 0.05, arm_hi - drop_lo), D, 0.004),
+         cyl("roll_motor", (rx, 0, zr), (1, 0, 0), HIP["roll_r"], HIP["roll_h"], GM),
+         cyl("roll_shroud", (rx - 0.004, 0, zr), (1, 0, 0), HIP["roll_r"] + 0.003, HIP["roll_h"] * 0.6, W)]
     return finish(P, o)
 
 
 def part_hip_roll():
+    """Roll output (behind) + bracket round the back to the pitch actuator outside the thigh."""
     P = "hip_roll"
-    W = make_material(P, "white", [("y", 0.047, 0.0016, "glow", [])])
+    W = make_material(P, "white", [("y", HIP["pitch_y"], 0.0016, "glow", [])])
     D, M, GM = make_material(P, "dark"), make_material(P, "metal"), make_material(P, "gunmetal")
-    o = [cyl("roll_motor", (0, 0, 0), (1, 0, 0), 0.034, 0.112, GM),
-         cyl("roll_sleeve", (0, 0, 0), (1, 0, 0), 0.037, 0.06, D),
-         rbox("bracket", (0, 0.03, 0), (0.07, 0.04, 0.06), D, 0.008),
-         cyl("pitch_motor", (0, 0.063, 0), (0, 1, 0), 0.056, 0.036, W),
-         cyl("pitch_cap", (0, 0.083, 0), (0, 1, 0), 0.040, 0.006, M),
-         cyl("pitch_hub", (0, 0.087, 0), (0, 1, 0), 0.016, 0.006, GM)]
+    rx, py = HIP["roll_x"], HIP["pitch_y"]
+    front = rx + 0.5 * HIP["roll_h"]          # roll actuator output face
+    by = py + 0.5 * HIP["pitch_h"]            # outer face of the pitch actuator
+    o = [cyl("roll_output", (front + 0.005, 0, 0), (1, 0, 0), 0.044, 0.010, M),
+         rbox("rear_bracket", (front + 0.012, 0.5 * by, 0), (0.016, by + 0.02, 0.07), D, 0.006),
+         rbox("side_bracket", (0.5 * (front + 0.012), by + 0.004, 0), (abs(front) + 0.02, 0.012, 0.07), D, 0.006),
+         cyl("pitch_motor", (0, py, 0), (0, 1, 0), HIP["pitch_r"], HIP["pitch_h"], W),
+         cyl("pitch_cap", (0, by + 0.012, 0), (0, 1, 0), 0.040, 0.006, M),
+         cyl("pitch_hub", (0, by + 0.016, 0), (0, 1, 0), 0.016, 0.006, GM)]
     return finish(P, o)
 
 
@@ -524,19 +551,20 @@ def part_thigh():
         ("x", 0.0, 0.0018, "groove", [("y", 0.03, 1), ("z", -0.255, -0.035)]),
     ])
     D, M, GM = make_material(P, "dark"), make_material(P, "metal"), make_material(P, "gunmetal")
+    # slimmer than before at the hip: the pitch actuator sits outside (y > 0.055)
     o = [loft("thigh_shell", "z", [
-        (0.030, 0.000, 0, 0.045, 0.050, 0.046, 0.046, 2.3),
-        (0.000, 0.002, 0, 0.062, 0.064, 0.057, 0.057, 2.4),
-        (-0.060, 0.008, 0, 0.070, 0.066, 0.060, 0.060, 2.4),
-        (-0.140, 0.010, 0, 0.066, 0.060, 0.056, 0.056, 2.4),
-        (-0.220, 0.005, 0, 0.056, 0.052, 0.050, 0.050, 2.4),
+        (0.022, 0.000, 0, 0.036, 0.040, 0.036, 0.036, 2.3),
+        (0.000, 0.002, 0, 0.048, 0.050, 0.044, 0.044, 2.4),
+        (-0.060, 0.008, 0, 0.062, 0.060, 0.052, 0.052, 2.4),
+        (-0.140, 0.010, 0, 0.062, 0.058, 0.052, 0.052, 2.4),
+        (-0.220, 0.005, 0, 0.054, 0.050, 0.048, 0.048, 2.4),
         (-0.280, 0.000, 0, 0.046, 0.044, 0.045, 0.045, 2.4),
         (-0.310, 0.000, 0, 0.036, 0.040, 0.040, 0.040, 2.4),
     ], W)]
     o.append(cyl("knee_motor", (0, 0, -L_), (0, 1, 0), 0.043, 0.088, GM))
     for s in (1, -1):
         o.append(cyl("knee_cap", (0, s * 0.046, -L_), (0, 1, 0), 0.044, 0.008, M))
-    o.append(cyl("hip_rotor", (0, 0.040, 0), (0, 1, 0), 0.05, 0.012, D))
+    o.append(cyl("hip_output_plate", (0, HIP["pitch_y"] - 0.5 * HIP["pitch_h"] - 0.007, 0), (0, 1, 0), 0.036, 0.010, D))
     return finish(P, o)
 
 

@@ -5,7 +5,7 @@ gamepad.
     ros2 launch hruh_bringup demo.launch.py [joystick:=false] [rviz:=false] [walk:=true]
 
 Plan with the MotionPlanning panel (groups: left_arm, right_arm, both_arms,
-left_hand, right_hand, head, waist), or drive everything from a gamepad
+left_hand, right_hand, head), or drive everything from a gamepad
 (hruh_teleop).
 """
 from pathlib import Path
@@ -19,7 +19,7 @@ from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
-CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "waist_controller", "head_controller",
+CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "head_controller",
                "left_arm_controller", "right_arm_controller", "left_hand_controller", "right_hand_controller"]
 
 

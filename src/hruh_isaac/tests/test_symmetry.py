@@ -15,10 +15,11 @@ class SymmetryTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from hruh_lab import symmetry
-        from hruh_lab.joints import ARM_JOINTS, LEG_JOINTS, WAIST_JOINTS, stand_pose_value
+        from hruh_lab.joints import ARM_JOINTS, HEAD_JOINTS, LEG_JOINTS, stand_pose_value
         from hruh_lab.portable import Kinematics
         cls.sym, cls.kin = symmetry, Kinematics(str(URDF))
-        cls.names = LEG_JOINTS + WAIST_JOINTS + ARM_JOINTS["left"] + ARM_JOINTS["right"]
+        cls.names = LEG_JOINTS + ARM_JOINTS["left"] + ARM_JOINTS["right"]
+        cls.head = HEAD_JOINTS
         cls.axes = symmetry.joint_axes(str(URDF))
         cls.stand = {n: stand_pose_value(n) for n in cls.names}
         cls.plan = symmetry.mirror_plan([("joint_pos", len(cls.names))], {"joint_pos": cls.names}, cls.axes, cls.stand)
@@ -38,12 +39,12 @@ class SymmetryTest(unittest.TestCase):
                 got = self.kin.transform(body, pose_m)[:3, 3]
                 np.testing.assert_allclose(got, expected, atol=tol, err_msg=body)
 
-    def test_mirror_twice_is_identity_and_waist_signs(self):
+    def test_mirror_twice_is_identity_and_neck_signs(self):
         x = np.random.default_rng(1).normal(size=(4, 3 * len(self.names)))
         plan = self.sym.mirror_plan([("joint_pos", 3 * len(self.names))], {"joint_pos": self.names}, self.axes)
         np.testing.assert_allclose(self.sym.apply_plan(self.sym.apply_plan(x, plan), plan), x)
-        perm, signs = self.sym.joint_mirror(["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"], self.axes)
-        self.assertEqual((perm, signs), ([0, 1, 2], [-1, -1, 1]))
+        perm, signs = self.sym.joint_mirror(self.head, self.axes)   # neck turn flips, nod does not
+        self.assertEqual((perm, signs), ([0, 1], [-1, 1]))
 
     def test_vectors_and_unknown_terms(self):
         plan = self.sym.mirror_plan([("base_ang_vel", 6), ("velocity_commands", 3)], {}, self.axes)

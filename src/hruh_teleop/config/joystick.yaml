@@ -6,9 +6,9 @@
 #   Hold LB            walk: left stick move/sidestep, right stick X turn  (blocks arms)
 #   Hold RB            Cartesian jog of the selected hand (position, damped least squares):
 #                      left stick fwd/side, D-pad up/down, right stick X wrist, Y upper-arm rotation
-#   Hold RT            joint jog of the selected chain (arm, or head + waist)
+#   Hold RT            joint jog of the selected chain (arm, or head)
 #   RB/RT + X / B      open / close the selected hand
-#   Press BACK         next chain: right arm -> left arm -> head/waist
+#   Press BACK         next chain: right arm -> left arm -> head
 #   Hold LT + Y/A/B/X  MoveIt preset: home / wave / hands_up / reach_forward
 #   Hold LT + D-pad    head center (up) / look down (down)
 hruh_joystick:

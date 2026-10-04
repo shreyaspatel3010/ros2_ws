@@ -13,8 +13,8 @@ training round (iteration, reward, task error, ETA), every evaluation scenario,
 the Gazebo test and the final summary. No API calls, downloads or cloud logging.
 
 Defaults: whole-body movement, reaching, lifting; rounds of 1000 PPO iterations,
-repeated until the skill passes its benchmark; 2048 robots trained in parallel
-in one GPU scene (lift: 1024, contact-heavy).
+repeated until the skill passes its benchmark; 4096 robots trained in parallel
+in one GPU scene (lift: 2048, contact-heavy).
   * Between rounds the training is tuned automatically (scripts/auto_tune.py): the
     evaluation and training log are diagnosed and reward weights / strengths, the
     movement / arm / push curriculum and the exploration noise are adjusted by fixed
@@ -52,7 +52,7 @@ Environment overrides:
                              after N rounds without improvement (avoids endless runs)
   AUTO_TUNE=1                0 = keep the training settings fixed between rounds
   ITERATIONS=1000 EVAL_ENVS=32 RETRIES=2
-  NUM_ENVS=<n>               same count for every skill (default per skill: 2048 / lift 1024;
+  NUM_ENVS=<n>               same count for every skill (default per skill: 4096 / lift 2048;
                              halved automatically if the 8 GB GPU budget is exceeded)
   GAZEBO=1 GAZEBO_SECONDS=30     walking skills walk every movement with sudden stops in Gazebo
   PROMOTE=1                  0 = never touch the runtime policies
@@ -61,7 +61,7 @@ Environment overrides:
   BUILD=1                    0 = skip the automatic colcon build
   WARM_START=1               a new experiment starts from the previous run's best policy
                              of each skill (0 = train from scratch)
-  HRUH_GPU_MEM_GB=8 HRUH_CPU_CORES=12 HRUH_MEM_GB=18   resource caps (defaults scale with the PC)
+  HRUH_GPU_MEM_GB=10 HRUH_CPU_CORES=12 HRUH_MEM_GB=18   resource caps (defaults scale with the PC)
   ISAAC_PYTHON=/opt/isaac/venv-6.1/bin/python
   RUN_ID=<name>              fixed experiment name (default: auto_<code fingerprint>);
                              a fixed name refuses to resume under changed code
@@ -114,7 +114,8 @@ done
 # Hard RAM / CPU caps per simulator process; GPU budget enforced by hruh_lab/gpu_guard.py.
 LIMIT="$ROOT/src/hruh_isaac/scripts/limit.sh"
 PROGRESS="$ROOT/src/hruh_isaac/scripts/progress.py"
-export HRUH_GPU_MEM_GB="${HRUH_GPU_MEM_GB:-8}"
+# 12 GB GPU: 10 GB for training, ~2 GB left for the desktop and the live viewer
+export HRUH_GPU_MEM_GB="${HRUH_GPU_MEM_GB:-10}"
 
 OFFLINE="$ROOT/artifacts/hruh/offline"
 mkdir -p "$OFFLINE" "$ROOT/logs"
@@ -165,7 +166,8 @@ run_stage() {
 stage_output() { tail -c +"$((STAGE_OFFSET + 1))" "$1"; }   # this attempt's part of the log
 # exit 137 = killed by the RAM cap (OOM); gpu_guard / CUDA messages = GPU memory
 resource_failure() {
-  [[ "$2" == 137 ]] || stage_output "$1" | grep -qiE '\[gpu_guard\]|out of memory|CUDA error: out|cudaErrorMemoryAllocation'
+  # (gpu_guard also prints its budget at start-up: only its "stopping" message counts)
+  [[ "$2" == 137 ]] || stage_output "$1" | grep -qiE '\[gpu_guard\].*stopping|out of memory|CUDA error: out|cudaErrorMemoryAllocation'
 }
 show_failure() {
   say "  last lines of $1:"
@@ -257,20 +259,24 @@ skill_envs() {
   if [[ -n "$NUM_ENVS" ]]; then echo "$NUM_ENVS"; return; fi
   # measured: 512 robots 2.9 GB, 1024 robots 3.4 GB and 2x the speed (CPU-bound, GPU 43% busy);
   # 2048 ~4.4 GB fits the 8 GB budget with room for the desktop
+  # measured on the 12 GB GPU (11.5 usable): 2048 robots with estimator + symmetry 5.1 GB; the live
+  # viewer (run.sh watch) 4.3 GB. 4096 robots (~6.7+ GB) ran out of GPU memory next to the viewer,
+  # so 2048 is the default; NUM_ENVS=4096 when nothing else uses the GPU.
   case "$1" in lift) echo 1024;; *) echo 2048;; esac
 }
 round_of() { ((ROUNDS)) && echo "/$ROUNDS"; }
 warm_start_checkpoint() {   # newest other run's best.json for $skill whose checkpoint still exists
-  /usr/bin/python3 - "$OFFLINE" "$RUN_ID" "$skill" <<'PY'
+  # (argument "tuning": print that run's tuning.json instead)
+  /usr/bin/python3 - "$OFFLINE" "$RUN_ID" "$skill" "${1:-checkpoint}" <<'PY'
 import json, sys
 from pathlib import Path
-offline, run, skill = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+offline, run, skill, what = Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
 for best in sorted(offline.glob(f"*/{skill}/best.json"), key=lambda p: p.stat().st_mtime, reverse=True):
     if best.parent.parent.name == run:
         continue
     checkpoint = json.loads(best.read_text()).get("checkpoint", "")
     if Path(checkpoint).is_file():
-        print(checkpoint)
+        print(best.parent / "tuning.json" if what == "tuning" else checkpoint)
         break
 PY
 }
@@ -295,19 +301,44 @@ train_round() {
     # resume the best round so far (auto-tune); otherwise the newest checkpoint
     checkpoint="$(best_checkpoint)"
     [[ -f "$checkpoint" ]] || checkpoint="$(latest_checkpoint "$ROOT/logs/rsl_rl/$experiment")"
+    # an interrupted round continues from its *own* newest save with the iterations it still needs
+    local iterations="$ITERATIONS" partial start done_its
+    partial="$(latest_checkpoint "$ROOT/logs/rsl_rl/$experiment")"
+    start="$(cat "$dir/round_${round}_start" 2>/dev/null || true)"
+    if [[ -n "$start" && -f "$partial" && "$(basename "$(dirname "$partial")")" == *_round_"$round" ]]; then
+      done_its=$(( $(basename "$partial" .pt | tr -dc 0-9) - start + 1 ))
+      if (( done_its > 0 )); then
+        checkpoint="$partial" iterations=$(( ITERATIONS - done_its ))
+        (( iterations >= 1 )) || iterations=1
+        say "Continuing interrupted round $round: $done_its of $ITERATIONS iterations done"
+      fi
+    elif [[ -z "$start" ]]; then
+      # first launch of this round: remember its first global iteration (checkpoints are model_<iteration>)
+      if [[ -f "$checkpoint" ]]; then start=$(( $(basename "$checkpoint" .pt | tr -dc 0-9) + 1 )); else start=0; fi
+      echo "$start" > "$dir/round_${round}_start"
+    fi
     # new experiment (code changed): start from the best policy of the previous run of this
     # skill. Only on the first attempt - if the network no longer fits, retry from scratch.
     if [[ ! -f "$checkpoint" && "$WARM_START" == 1 && "$attempt" == 1 ]]; then
       checkpoint="$(warm_start_checkpoint)"
-      [[ -z "$checkpoint" ]] || say "Warm start: continuing from the previous run's best $skill policy"
+      if [[ -n "$checkpoint" ]]; then
+        say "Warm start: continuing from the previous run's best $skill policy"
+        # ...with the settings the auto-tuner had reached there (unless this run has its own)
+        local previous_tuning
+        previous_tuning="$(warm_start_checkpoint tuning)"
+        if [[ -f "$previous_tuning" && ! -f "$dir/tuning.json" ]]; then
+          cp "$previous_tuning" "$dir/tuning.json"
+          say "Warm start: inherited the auto-tuned settings of $(basename "$(dirname "$(dirname "$previous_tuning")")")"
+        fi
+      fi
     fi
     local resume=()
     [[ -z "$checkpoint" ]] || resume=(--checkpoint "$checkpoint")
-    say "Training $skill round $round$(round_of): $ITERATIONS iterations, $envs envs$([[ -n "$checkpoint" ]] && echo ", resuming $(basename "$(dirname "$checkpoint")")/$(basename "$checkpoint")")$([[ -s "$dir/tuning.json" && "$(cat "$dir/tuning.json")" != "{}" ]] && echo ", auto-tuned settings")"
-    run_stage train "[$skill $round$(round_of)]" "$log" "$ITERATIONS" \
+    say "Training $skill round $round$(round_of): $iterations iterations, $envs envs$([[ -n "$checkpoint" ]] && echo ", resuming $(basename "$(dirname "$checkpoint")")/$(basename "$checkpoint")")$([[ -s "$dir/tuning.json" && "$(cat "$dir/tuning.json")" != "{}" ]] && echo ", auto-tuned settings")"
+    run_stage train "[$skill $round$(round_of)]" "$log" "$iterations" \
       env HRUH_TUNING="$( ((AUTO_TUNE)) && echo "$dir/tuning.json")" \
       "$LIMIT" "$PY" src/hruh_isaac/scripts/rl.py train --task "$task" --visualizer none \
-      --num_envs "$envs" --max_iterations "$ITERATIONS" --logger tensorboard \
+      --num_envs "$envs" --max_iterations "$iterations" --logger tensorboard \
       --experiment_name "$experiment" --run_name "round_$round" "${resume[@]}"
     status=$?
     stop_if_interrupted
@@ -362,7 +393,7 @@ evaluate_round() {
 # with CONFIRM_FAILED=<report>; if an evaluation keeps crashing, CONFIRM_ERROR=1.
 confirm_round() {
   local k file attempt status evaluator log="$STATE/$skill/confirm_$round.log"
-  CONFIRM_FAILED="" CONFIRM_ERROR=""
+  CONFIRM_FAILED="" CONFIRM_ERROR="" CONFIRM_PASSES=0
   evaluator_for_skill
   for ((k = 2; k <= REQUIRED_PASSES; k++)); do
     file="$STATE/$skill/confirm_${round}_$k.json"
@@ -387,7 +418,7 @@ confirm_round() {
       say "  confirmation $k/$REQUIRED_PASSES: PASS"
     else
       say "  confirmation $k/$REQUIRED_PASSES: FAIL - $((k - 1))/$REQUIRED_PASSES passed, not reliable yet"
-      CONFIRM_FAILED="$file"
+      CONFIRM_FAILED="$file" CONFIRM_PASSES=$((k - 1))
       return 1
     fi
   done
@@ -466,7 +497,7 @@ for index in "${!skills[@]}"; do
       fi
     fi
     printf '%s\n' "$checkpoint" > "$STATE/$skill/latest_checkpoint.txt"
-    diagnosis="$report"
+    diagnosis="$report" passes=0
     if benchmark_passed "$report"; then
       say "Isaac benchmark: PASS (round $round)$( ((REQUIRED_PASSES > 1)) && echo " - confirming on $((REQUIRED_PASSES - 1)) more evaluations with new seeds")"
       if confirm_round; then
@@ -480,14 +511,15 @@ for index in "${!skills[@]}"; do
         skill_ok=0
         break
       fi
-      diagnosis="$CONFIRM_FAILED"   # tune against the evaluation it failed
+      diagnosis="$CONFIRM_FAILED" passes="$CONFIRM_PASSES"   # tune against the evaluation it failed
     else
       say "Isaac benchmark: FAIL (round $round)"
     fi
     if ((AUTO_TUNE)); then
       # diagnose this round and adjust the next one (idempotent when resuming)
       while IFS= read -r line; do say "$line"; done < <(/usr/bin/python3 src/hruh_isaac/scripts/auto_tune.py \
-        --skill "$skill" --round "$round" --evaluation "$diagnosis" --train-log "$STATE/$skill/train_$round.log" \
+        --skill "$skill" --round "$round" --evaluation "$diagnosis" --score-evaluation "$report" --passes "$passes" \
+        --train-log "$STATE/$skill/train_$round.log" \
         --checkpoint "$checkpoint" --state-dir "$STATE/$skill" 2>&1)
       # rounds without improvement *as of this round* (correct when replaying a resumed run)
       since="$(/usr/bin/python3 -c 'import json,sys

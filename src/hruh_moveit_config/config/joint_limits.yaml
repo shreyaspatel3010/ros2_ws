@@ -133,18 +133,3 @@ joint_limits:
     max_velocity: 1.00
     has_acceleration_limits: true
     max_acceleration: 2.0
-  waist_yaw_joint:
-    has_velocity_limits: true
-    max_velocity: 4.00
-    has_acceleration_limits: true
-    max_acceleration: 2.0
-  waist_roll_joint:
-    has_velocity_limits: true
-    max_velocity: 4.00
-    has_acceleration_limits: true
-    max_acceleration: 2.0
-  waist_pitch_joint:
-    has_velocity_limits: true
-    max_velocity: 4.00
-    has_acceleration_limits: true
-    max_acceleration: 2.0

@@ -20,8 +20,15 @@ def install_tuning():
     from hruh_lab import tuning
     from hruh_lab.tasks.locomotion import agents as loco_agents, env_cfg as loco_env
     from hruh_lab.tasks.reach import agents as reach_agents, env_cfg as reach_env
+    def apply_agent(agent):
+        tuning.apply_agent(agent)
+        # exploration-noise cap: RSL-RL's GaussianDistribution clamps its std to std_range
+        max_std = tuning.load().get("actor", {}).get("max_std")
+        if max_std is not None and getattr(agent.actor, "distribution_cfg", None) is not None:
+            agent.actor.distribution_cfg.std_range = (0.01, float(max_std))
+
     for module, apply in ((loco_env, tuning.apply_env), (reach_env, tuning.apply_env),
-                          (loco_agents, tuning.apply_agent), (reach_agents, tuning.apply_agent)):
+                          (loco_agents, apply_agent), (reach_agents, apply_agent)):
         for name, cls in inspect.getmembers(module, inspect.isclass):
             if name.startswith("Hruh") and cls.__module__ == module.__name__ and hasattr(cls, "__post_init__"):
                 def wrapped(self, _original=cls.__post_init__, _apply=apply):

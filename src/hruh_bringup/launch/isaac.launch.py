@@ -10,14 +10,14 @@ Everything above ros2_control is the same as the Gazebo / mock bringups: the
 controllers in hruh_control, MoveIt (planning groups, presets), hruh_walker and
 the gamepad.
 
-controller:=     who balances / walks with the legs and waist
+controller:=     who balances / walks with the legs (the torso is rigid)
     auto         the learned policy if train_robot_offline.sh promoted one
                  (src/hruh_isaac/policies/locomotion), otherwise the walker standing
     policy       learned walking policy (scripts/policy_runner.py); Isaac uses the
                  training actuator gains (gains:=rl); hold LB + sticks to walk
     walker       ZMP walker (stiff gains:=ros). Stands well in Isaac; its walking gait
                  was tuned for Gazebo and falls in Isaac
-    none         legs / waist only hold their position
+    none         the legs only hold their position
 reach:=auto      learned right-arm reaching on /hruh/hand_target (PoseStamped, base_link)
                  when a reach policy is promoted
 fix_base:=true   pelvis fixed in the air: arms / hands / head with MoveIt, no walking
@@ -41,7 +41,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "waist_controller", "head_controller",
+CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "head_controller",
                "left_arm_controller", "right_arm_controller", "left_hand_controller", "right_hand_controller"]
 
 
@@ -114,8 +114,7 @@ def setup(context):
     # The controller manager runs on the simulator's /clock: controllers can only be
     # activated once Isaac is stepping, so spawn them when it reports ready (first
     # start takes minutes: shader cache, URDF -> USD conversion).
-    controllers_list = [("waist_position_controller" if c == "waist_controller" and controller == "policy" else c)
-                        for c in CONTROLLERS]
+    controllers_list = list(CONTROLLERS)
     spawner = Node(package="controller_manager", executable="spawner", output="screen",
                    arguments=controllers_list + ["--controller-manager-timeout", "600",
                                                # Isaac warms up for ~10 s after READY (sim clock crawls)

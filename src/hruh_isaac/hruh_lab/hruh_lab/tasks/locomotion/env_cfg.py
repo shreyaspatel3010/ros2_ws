@@ -1,6 +1,6 @@
 """HRUH velocity-tracking locomotion (adapted from Isaac Lab's H1 recipe).
 
-Policy: legs + waist (17 joints, position targets around the standing pose).
+Policy: the 14 leg joints (position targets around the standing pose); the torso is rigid.
 Observations use only what the real robot / ROS runner has: pelvis IMU
 (angular velocity, gravity direction), /cmd_vel, joint encoders, last action -
 no ground-truth base velocity, no height scan on flat ground.
@@ -21,10 +21,10 @@ from isaaclab_tasks.core.velocity.velocity_env_cfg import (
 
 from ... import mdp as hruh_mdp
 from ...commands_cfg import ArmMotionCommandCfg, ControllableVelocityCommandCfg, MotionVelocityCommandCfg
-from ...joints import ARM_JOINTS, HEAD_JOINTS, HAND_JOINT_REGEX, LEG_JOINTS, WAIST_JOINTS
+from ...joints import ARM_JOINTS, HEAD_JOINTS, HAND_JOINT_REGEX, LEG_JOINTS
 from ...robots import HRUH_CFG, JOINT_LIMITS
 
-POLICY_JOINTS = LEG_JOINTS + WAIST_JOINTS
+POLICY_JOINTS = LEG_JOINTS
 HELD_JOINTS = ARM_JOINTS["left"] + ARM_JOINTS["right"] + HEAD_JOINTS + HAND_JOINT_REGEX
 FEET = ".*_foot_link"
 
@@ -54,8 +54,6 @@ class HruhRewards(RewardsCfg):
                              params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_.*", ".*_toe_joint"])})
     joint_deviation_hip = RewTerm(func=mdp.joint_deviation_l1, weight=-0.2,
                                   params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint"])})
-    joint_deviation_waist = RewTerm(func=mdp.joint_deviation_l1, weight=-0.2,
-                                    params={"asset_cfg": SceneEntityCfg("robot", joint_names=WAIST_JOINTS)})
     # evaluation of balance_v1 showed ~0.66 rad/s pelvis yaw wobble with near-zero mean
     yaw_rate_error = RewTerm(func=hruh_mdp.yaw_rate_error_l2, weight=-0.3,
                              params={"command_name": "base_velocity"})
@@ -89,7 +87,7 @@ class HruhRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         if self.scene.height_scanner:
             self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/base_link"
 
-        # actions: legs + waist only
+        # actions: the legs (the torso is rigid: the legs alone balance)
         self.actions.joint_pos.joint_names = POLICY_JOINTS
         self.actions.joint_pos.scale = 0.5
         self.actions.joint_pos.preserve_order = True
@@ -165,7 +163,10 @@ class HruhRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
         # terminations: torso / pelvis / head touching the ground, or pelvis too low
-        self.terminations.base_contact.params["sensor_cfg"].body_names = ["base_link", "torso_link", "head_base"]
+        # base_link is pelvis + lumbar block + chest (rigid torso, merged by the URDF importer).
+        # With self-collision on, an arm touching the chest is a contact on base_link, so the
+        # contact termination watches the head only; a falling torso is caught by tilt / height.
+        self.terminations.base_contact.params["sensor_cfg"].body_names = ["head_base"]
         self.terminations.tilt = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.0})
         # World height is unsuitable on elevated terrain. Contact and tilt remain active.
         self.terminations.base_height = None
@@ -230,7 +231,7 @@ class HruhMotionEnvCfg(HruhFlatEnvCfg):
     """Whole-body movement: walk forward / backward, side-step, turn, stop and start,
     while the arms hold, swing with the gait or move to random poses.
 
-    The policy still drives legs + waist (17 actions); it additionally observes the
+    The policy still drives the 14 leg joints; it additionally observes the
     10 arm joints (positions + velocities) so it can balance whatever the arms do -
     MoveIt, the gamepad or the counter-swing that policy_runner.py adds while walking."""
 

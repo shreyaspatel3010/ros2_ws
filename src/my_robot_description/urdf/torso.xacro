@@ -1,52 +1,30 @@
 <?xml version="1.0"?>
 <!--
-  HRUH waist: 3-DOF lumbar joint between pelvis and chest, like a human spine.
-    waist_yaw   (z): trunk rotation  +-45 deg
-    waist_roll  (x): side bend       +-20 deg
-    waist_pitch (y): flexion 60 deg (positive, leaning forward) / extension 25 deg
+  HRUH torso: rigid. The chest is bolted to the pelvis through a lumbar block
+  (no waist joints). A 3-DOF waist with all axes in one point could not be built
+  (no room for three 150-200 N m actuators), and the walking policy is meant to
+  balance with the legs while the upper body stays still.
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:property name="waist_z" value="0.09"/>   <!-- waist pivot above the pelvis frame -->
-  <xacro:property name="chest_z" value="0.04"/>   <!-- chest_hruh origin above the waist pivot -->
+  <xacro:property name="waist_z" value="0.09"/>   <!-- lumbar block (torso_link) above the pelvis frame -->
+  <xacro:property name="chest_z" value="0.04"/>   <!-- chest_hruh origin above torso_link -->
 
-  <joint name="waist_yaw_joint" type="revolute">
+  <joint name="torso_fixed_joint" type="fixed">
     <parent link="pelvis_link"/>
-    <child link="waist_yaw_link"/>
+    <child link="torso_link"/>
     <origin xyz="0 0 ${waist_z}" rpy="0 0 0"/>
-    <axis xyz="0 0 1"/>
-    <limit lower="-0.79" upper="0.79" effort="150" velocity="4.0"/>
-    <dynamics damping="1.0" friction="0.2"/>
   </joint>
-  <link name="waist_yaw_link">
+  <link name="torso_link">
     <visual>
       <geometry><mesh filename="package://my_robot_description/meshes/legs/waist.obj"/></geometry>
     </visual>
-    <xacro:solid_cyl_inertial m="2.0" r="0.07" h="0.09"/>
-  </link>
-
-  <joint name="waist_roll_joint" type="revolute">
-    <parent link="waist_yaw_link"/>
-    <child link="waist_roll_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
-    <limit lower="-0.35" upper="0.35" effort="150" velocity="4.0"/>
-    <dynamics damping="1.0" friction="0.2"/>
-  </joint>
-  <link name="waist_roll_link">
-    <xacro:solid_box_inertial m="0.5" x="0.05" y="0.05" z="0.05"/>
-  </link>
-
-  <joint name="waist_pitch_joint" type="revolute">
-    <parent link="waist_roll_link"/>
-    <child link="torso_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit lower="-0.44" upper="1.05" effort="200" velocity="4.0"/>
-    <dynamics damping="1.0" friction="0.2"/>
-  </joint>
-  <link name="torso_link">
-    <xacro:solid_box_inertial m="0.5" x="0.05" y="0.05" z="0.05"/>
+    <collision>
+      <origin xyz="0 0 0.005" rpy="0 0 0"/>
+      <geometry><box size="0.14 0.19 0.07"/></geometry>
+    </collision>
+    <!-- lumbar housing (electronics) -->
+    <xacro:solid_box_inertial m="3.0" x="0.14" y="0.19" z="0.07"/>
   </link>
 
 </robot>

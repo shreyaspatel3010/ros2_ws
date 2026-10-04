@@ -33,7 +33,7 @@ sandbox CUDA may appear unavailable even though it works on the host.
 bash src/hruh_isaac/scripts/run.sh train --max_iterations 1500 --run_name balance
 ```
 
-The actor drives 14 leg joints and three waist joints at 50 Hz. Its input is
+The actor drives the 14 leg joints at 50 Hz (the torso is rigid). Its input is
 five frames of angular velocity, projected gravity, commanded velocity, joint
 positions/velocities, and previous actions (300 values). The critic additionally
 sees simulated base velocity. Joint/action order is explicit. Targets and motor
@@ -127,12 +127,12 @@ Actor and critic are [512, 256, 128] ELU networks. The exported `policy.pt` / `p
 contain the estimator, so deployment (`policy_runner.py`, Gazebo) is unchanged. Reach and
 lift use plain PPO: one arm, so no left–right symmetry or pelvis velocity applies.
 Measured GPU use on this laptop: 512 robots 2.9 GB, 1024 robots 3.4 GB at twice the
-speed; 2048 robots (default) is about 4.5 GB, inside the 8 GB budget.
+speed; 2048 robots with the estimator and symmetry 5.1 GB; 4096 robots (default) about 8.5 GB inside the 10 GB training budget (12 GB GPU, ~2 GB left for the desktop and the live viewer).
 
 ### Whole-body movement (`Hruh-Velocity-Motion-v0`, skill `motion`)
 
 This is the default walking skill of `train_robot_offline.sh`. It trains the same
-legs + waist policy on a broader set of movements.
+14-leg-joint policy on a broader set of movements.
 
 **Movements.** Each episode switches every 2–5 s between:
 
@@ -303,8 +303,8 @@ or `--check` for installed prerequisites. No API tokens, downloads or cloud logg
 For each skill (whole-body movement `motion`, right-arm reaching, right-hand cube
 lifting; `flat` and `rough` are optional) it:
 
-1. **Trains** PPO in Isaac in rounds of 1,000 iterations, with 2048 robots simulated
-   in parallel in one GPU scene (lift 1024). Rounds repeat **until the benchmark passes**.
+1. **Trains** PPO in Isaac in rounds of 1,000 iterations, with 4096 robots simulated
+   in parallel in one GPU scene (lift 2048). Rounds repeat **until the benchmark passes**.
 2. **Evaluates** each round on held-out seeds and **exports** it (`policy.pt`/`.onnx`,
    `bundle.json`).
    - **If the round failed, the next round is tuned automatically** (`scripts/auto_tune.py`).
@@ -366,7 +366,7 @@ Every Isaac / Gazebo process started by `run.sh`, `train_robot_offline.sh` and
 |---|---|---|
 | CPU | `CPUQuota`, low `CPUWeight`, `nice 10` | 12 of 20 threads (`HRUH_CPU_CORES`) |
 | RAM | `MemoryMax`, no swap | 18 GB (`HRUH_MEM_GB`) |
-| GPU memory | `hruh_lab/gpu_guard.py` stops the process cleanly | 8 GB (`HRUH_GPU_MEM_GB`) |
+| GPU memory | `hruh_lab/gpu_guard.py` stops the process cleanly | 10 GB of 12 for training, 5 GB for the live viewer (`HRUH_GPU_MEM_GB`) |
 
 If a run exceeds these limits, **only that run is stopped**; the desktop, VS Code and the
 browser keep running. `HRUH_LIMITS=0` disables the caps.
@@ -378,7 +378,7 @@ manifest; earlier ones are backed up to `artifacts/hruh/policy_history/`. The ru
 loads them automatically:
 
 ```bash
-# Isaac + ros2_control + MoveIt + RViz + gamepad, legs and waist driven by the learned policy
+# Isaac + ros2_control + MoveIt + RViz + gamepad, legs driven by the learned policy
 ros2 launch hruh_bringup isaac.launch.py            # controller:=auto -> policy if promoted
 ros2 launch hruh_bringup isaac.launch.py controller:=walker   # the ZMP walker instead
 # learned reaching (also loaded automatically when promoted): give the right hand a goal
@@ -398,8 +398,8 @@ How the Isaac policy mode works (`scripts/policy_runner.py`):
 - **Start-up.** The pelvis is held at the training reset height. The runner moves the
   robot into the trained stand pose; the sim releases the pelvis once that pose is
   commanded, and the policy takes over.
-- **Walking.** The policy streams leg and waist targets at 50 Hz through
-  `legs_controller` and `waist_position_controller`, from `/joint_states`, `/imu` and
+- **Walking.** The policy streams leg targets at 50 Hz through `legs_controller`,
+  from `/joint_states`, `/imu` and
   `/cmd_vel`. Hold **LB** and use the sticks to walk.
 - **Arms.** MoveIt and the gamepad keep the arms, hands and head.
 - **Falls.** A fall (tilt > 1 rad or pelvis < 0.45 m, the training terminations) stops
@@ -408,8 +408,7 @@ How the Isaac policy mode works (`scripts/policy_runner.py`):
   z 0.16–0.32 m, pelvis frame). The policy runs for 4 s, then reports the wrist error.
 
 Known gaps: ros2_control adds about one frame (~17 ms) of sensor/command latency that
-training did not model. Arm motion while walking was not trained. The waist belongs to the
-policy, so MoveIt's `waist` group and the gamepad's waist jog do nothing in this mode.
+training did not model.
 Policies are simulation-only; hardware needs measured actuators, latency and a separate
 safety review. Screwdriver use, writing, bulb changing, vision and whole-body manipulation
 still need dedicated tasks.

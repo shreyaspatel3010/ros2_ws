@@ -2,7 +2,7 @@
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:include filename="common_properties.xacro" />
-    <!-- lower body: pelvis (base_link) + two 7-DOF legs, then the 3-DOF waist -->
+    <!-- lower body: pelvis (base_link) + two 7-DOF legs, then the rigid torso -->
     <xacro:include filename="legs.xacro" />
     <xacro:include filename="legs_gazebo.xacro" />
     <xacro:include filename="torso.xacro" />

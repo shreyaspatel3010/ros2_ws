@@ -3,7 +3,7 @@
 <package format="3">
   <name>hruh_control</name>
   <version>0.1.0</version>
-  <description>ros2_control controller configuration for the HRUH humanoid (legs, waist, head, arms, hands).</description>
+  <description>ros2_control controller configuration for the HRUH humanoid (legs, head, arms, hands; rigid torso).</description>
   <maintainer email="shreyaspatel0456@gmail.com">shreyas</maintainer>
   <license>TODO: License declaration</license>
 

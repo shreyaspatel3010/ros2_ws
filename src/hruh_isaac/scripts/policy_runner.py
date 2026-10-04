@@ -6,7 +6,7 @@ walking) and/or `reach:=true` (learned right-arm reaching).  It drives the same
 controllers as the rest of the stack, so MoveIt, RViz and the gamepad keep working:
 
   locomotion  /joint_states + /imu + /cmd_vel  ->  policy (50 Hz)
-              -> /legs_controller/commands, /waist_position_controller/commands
+              -> /legs_controller/commands (the torso is rigid)
               The robot first moves to the trained stand pose (--settle s), then the
               policy balances and walks.  Hold LB on the gamepad to walk.
               Motion policies (trained with moving arms) also swing the arms with the
@@ -107,15 +107,14 @@ def main():
             self.walk = self.reach = None
             if args.locomotion:
                 contract, model, io = load_bundle(args.locomotion, "locomotion")
-                legs, waist = joints_of["legs_controller"], joints_of["waist_position_controller"]
-                if sorted(contract["policy_joints"]) != sorted(legs + waist):
-                    raise ValueError("walking policy joints differ from legs_controller + waist_position_controller")
+                legs = joints_of["legs_controller"]
+                if sorted(contract["policy_joints"]) != sorted(legs):
+                    raise ValueError("walking policy joints differ from legs_controller (retrain for this robot)")
                 swing = contract.get("arm_motion") if not args.no_arm_swing else None
-                self.walk = dict(contract=contract, model=model, io=io, legs=legs, waist=waist, phase="wait",
+                self.walk = dict(contract=contract, model=model, io=io, legs=legs, phase="wait",
                                  guard=VelocityGuard(), last=None, start=None, targets=None,
                                  swing=swing, swinging=False, recovering=False, calm_since=None)
                 self.legs_pub = self.create_publisher(Float64MultiArray, "/legs_controller/commands", 1)
-                self.waist_pub = self.create_publisher(Float64MultiArray, "/waist_position_controller/commands", 1)
                 self.create_subscription(Twist, "/cmd_vel", self.on_cmd_vel, 1)
                 self.pose_pubs = {name: self.create_publisher(JointTrajectory, f"/{name}/joint_trajectory", 1)
                                   for name in ("left_arm_controller", "right_arm_controller", "head_controller",
@@ -186,7 +185,6 @@ def main():
         def publish_walk(self, targets):
             w = self.walk
             self.legs_pub.publish(Float64MultiArray(data=[float(targets[n]) for n in w["legs"]]))
-            self.waist_pub.publish(Float64MultiArray(data=[float(targets[n]) for n in w["waist"]]))
 
         def step_walk(self, now):
             w, c = self.walk, self.walk["contract"]

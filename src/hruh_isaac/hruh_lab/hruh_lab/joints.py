@@ -6,14 +6,13 @@ tools can use the same definitions.
 SIDES = ("left", "right")
 LEG_JOINTS = [f"{s}_{j}_joint" for s in SIDES
               for j in ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll", "toe")]
-WAIST_JOINTS = ["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"]
 HEAD_JOINTS = ["chest_to_neck", "neck_to_head"]
 ARM_JOINTS = {s: [f"chest_to_{s}_shoulder", f"{s}_shoulder_to_bisecp", f"{s}_bisecp_to_elbow_inword",
                   f"{s}_elbow_inword_to_midle", f"{s}_forarm_to_wrist"] for s in SIDES}
 HAND_JOINT_REGEX = [".*_thomb.*", ".*finger.*"]
 
 # joints a whole-body policy drives (hands are left to grasp controllers)
-BODY_JOINTS = LEG_JOINTS + WAIST_JOINTS + ARM_JOINTS["left"] + ARM_JOINTS["right"] + HEAD_JOINTS
+BODY_JOINTS = LEG_JOINTS + ARM_JOINTS["left"] + ARM_JOINTS["right"] + HEAD_JOINTS   # (rigid torso: no waist)
 
 # standing pose (same as hruh_walker: soft knees, arms slightly away from the body)
 STAND_POSE = {

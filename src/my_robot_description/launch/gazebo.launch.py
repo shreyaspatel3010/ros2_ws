@@ -19,7 +19,7 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackagePrefix, FindPackageShare
 
-CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "waist_controller", "head_controller",
+CONTROLLERS = ["joint_state_broadcaster", "legs_controller", "head_controller",
                "left_arm_controller", "right_arm_controller", "left_hand_controller", "right_hand_controller"]
 
 

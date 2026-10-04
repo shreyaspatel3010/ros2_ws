@@ -8,8 +8,9 @@ Gait
   * Footsteps planned online from /cmd_vel (vx, vy, wz).
   * Swing foot: heel-strike (toes up) at landing, toe-off (heel up, rolling
     over the toe joint) at push-off, minimum-jerk swing with ground clearance.
-  * Slight vertical centre-of-mass bob (lowest in double support), pelvis
-    rotation with counter-rotating waist, and arms swinging opposite the legs.
+  * Slight vertical centre-of-mass bob (lowest in double support) and arms
+    swinging opposite the legs. The torso is rigid (no waist), so pelvis
+    rotation (parameter pelvis_yaw) is off by default: it would turn the chest.
   * Closed-form 6-DOF leg inverse kinematics (hip yaw-roll-pitch, knee,
     ankle pitch-roll), toe joint keeps the toes flat during push-off.
 
@@ -17,7 +18,7 @@ Modes (parameter `mode`)
   kinematic    : publishes /joint_states and odom->base_link TF itself
                  (RViz only, no ros2_control, no physics)
   ros2_control : streams the legs to /legs_controller/commands and, while
-                 walking, the waist / arm swing to their JointTrajectoryControllers
+                 walking, the arm swing to the arm JointTrajectoryControllers
                  (so MoveIt and the joystick own the arms when standing).  With
                  Gazebo the IMU stabilizer closes the balance loop; with mock
                  hardware set publish_odom_tf:=true.  ("gazebo" is an alias.)
@@ -264,7 +265,7 @@ class GaitParams:
         self.stride_ref = 0.25        # stride at which toe_off / heel_strike reach full value
         self.zmp_heel, self.zmp_toe = 0.0, 0.06   # ZMP travel under the stance foot (ankle frame x)
         self.zmp_inset = 0.015        # ZMP inside the foot centre-line (less lateral sway)
-        self.pelvis_yaw = 0.07        # rad, pelvis rotation at full stride
+        self.pelvis_yaw = 0.0         # rad, pelvis rotation at full stride (rigid torso: off)
         self.arm_swing = 0.32         # rad, shoulder flexion amplitude at full stride
         self.elbow = 0.30             # rad, relaxed elbow bend
         self.arm_abduction = 0.10     # rad, keep hands clear of the hips
@@ -504,9 +505,6 @@ class WalkingPatternGenerator:
         pb = np.array([com_xy[0] - off[0], com_xy[1] - off[1], self.pelvis_h + bob])
 
         q = {}
-        q["waist_yaw_joint"] = p.pelvis_yaw * phase      # chest keeps facing forward
-        q["waist_roll_joint"] = 0.0
-        q["waist_pitch_joint"] = 0.03 * abs(self.cmd[0]) / max(p.max_vx, 1e-6)
         q.update(self._arm_pose(-phase))                 # left arm forward with the right leg
         # whole-body CoM correction: shift the pelvis until the real CoM (swinging
         # legs and arms included) sits on the planned CoM
@@ -573,7 +571,6 @@ def main():
 
     LEGS = [s + "_" + j + "_joint" for s in ("left", "right")
             for j in ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll", "toe")]
-    WAIST = ["waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"]
     ARMS = {side: ["chest_to_%s_shoulder" % side, "%s_shoulder_to_bisecp" % side, "%s_elbow_inword_to_midle" % side]
             for side in ("left", "right")}
 
@@ -591,7 +588,7 @@ def main():
             self.declare_parameter("toe_off", 0.30)
             self.declare_parameter("heel_strike", 0.20)
             self.declare_parameter("arm_swing", 0.32)
-            self.declare_parameter("pelvis_yaw", 0.07)
+            self.declare_parameter("pelvis_yaw", 0.0)            # rigid torso: the chest turns with it
             self.declare_parameter("cmd_timeout", 0.5)
             self.declare_parameter("max_vx", 0.35)               # forward speed limit for /cmd_vel
             self.declare_parameter("balance", True)              # IMU stabilizer (gazebo mode)
@@ -621,7 +618,6 @@ def main():
             self.fix_yaw = 0.0
             if self.mode == "ros2_control":
                 self.legs_pub = self.create_publisher(Float64MultiArray, "/legs_controller/commands", 10)
-                self.waist_pub = self.create_publisher(JointTrajectory, "/waist_controller/joint_trajectory", 10)
                 self.arm_pubs = {side: self.create_publisher(JointTrajectory, "/%s_arm_controller/joint_trajectory" % side, 10)
                                  for side in ("left", "right")}
                 if self.get_parameter("publish_odom_tf").value:
@@ -687,7 +683,6 @@ def main():
                 walking = self.gen.walking
                 if self.tick_n % 4 == 0 and (walking or self.was_walking):
                     # 25 Hz short trajectories; one last one when the robot stops
-                    self.waist_pub.publish(self.traj(WAIST, q))
                     if self.get_parameter("swing_arms").value:
                         for side, pub in self.arm_pubs.items():
                             pub.publish(self.traj(ARMS[side], q))
